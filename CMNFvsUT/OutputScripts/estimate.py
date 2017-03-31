@@ -4,7 +4,8 @@ import numpy as np
 matplotlib.rc('text', usetex = True)
 import pylab
 
-filename = u"../output/estimateAverage.txt"
+filename = u"../output/test1_estimateAvg.txt"
+#filename = u"../output/test2_estimate.txt"
 t, x, xhat, err, sigma = np.loadtxt(filename, delimiter = ' ', usecols=(0,1,2,3,4), unpack=True, dtype=float)
 
 from pylab import *
