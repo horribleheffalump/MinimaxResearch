@@ -33,29 +33,30 @@ namespace CMNF
 
         public void EstimateParameters(DiscreteScalarModel[] models, double xhat0, int T)
         {
-            Vector<double> xHat = Vector<double>.Build.Dense(T, xhat0);
             int n = models.Count();
+            Vector<double> xHat = Vector<double>.Build.Dense(n, xhat0);
             for (int t = 0; t < T; t++)
             {
                 for (int i = 0; i < n; i++)
                 {
                     models[i].Step();
                 }
-                Vector<double> x = Vector<double>.Build.Dense(T, (i) => models[i].State);
-                Vector<double> y = Vector<double>.Build.Dense(T, (i) => models[i].Obs);
+                Vector<double> x = Vector<double>.Build.Dense(n, (i) => models[i].State);
+                Vector<double> y = Vector<double>.Build.Dense(n, (i) => models[i].Obs);
 
-                Vector<double> xiHat = Vector<double>.Build.Dense(T, (i) => Xi(xHat[i]));
+                Vector<double> xiHat = Vector<double>.Build.Dense(n, (i) => Xi(xHat[i]));
 
                 double F = cov(x, xiHat) / cov(xiHat, xiHat);
                 double f = x.Average() - F * xiHat.Average();
 
-                Vector<double> xTilde = F * xiHat + f; 
+                Vector<double> xTilde = F * xiHat + f;
 
-                Vector<double> zetaTilde = Vector<double>.Build.Dense(T, (i) => Zeta(xTilde[i], y[i]));
+                Vector<double> zetaTilde = Vector<double>.Build.Dense(n, (i) => Zeta(xTilde[i], y[i]));
 
                 double H = cov(x - xTilde, zetaTilde) / cov(zetaTilde, zetaTilde);
                 double h = -H * zetaTilde.Average();
 
+                xHat = Vector<double>.Build.Dense(n, (i) => F*xiHat[i] + f + H*zetaTilde[i] + h);
 
                 FHat.Add(t, F);
                 fHat.Add(t, f);
@@ -79,6 +80,9 @@ namespace CMNF
 
             double r1 = ((x - x.Average()).PointwiseMultiply(y - y.Average())).Average();
             double r2 = (1.0 / x.Count) * x.DotProduct(y) - x.Average() * y.Average();
+
+            double n = x.Count;
+            double r3 = (x.DotProduct(y) * n - x.Sum() * y.Sum()) / n / n;
 
             return r2;
         }

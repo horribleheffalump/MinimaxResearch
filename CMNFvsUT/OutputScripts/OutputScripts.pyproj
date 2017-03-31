@@ -22,6 +22,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="estimate.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="State.py" />
   </ItemGroup>
   <PropertyGroup>
