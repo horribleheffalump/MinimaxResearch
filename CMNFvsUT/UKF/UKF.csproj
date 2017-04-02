@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7303FFD7-11C6-4F25-A388-25F251DC36C6}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{A6D93E6B-F39B-43B3-8B15-A376AE0E069F}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CMNFTest</RootNamespace>
-    <AssemblyName>CMNFTest</AssemblyName>
+    <RootNamespace>UKF</RootNamespace>
+    <AssemblyName>UKF</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -45,35 +43,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
+    <Compile Include="UKFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
+    <Compile Include="UKFTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CMNF\CMNF.csproj">
-      <Project>{31100BA7-7A93-4AFD-8DF1-EB039938184B}</Project>
-      <Name>CMNF</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NonlinearSystem\NonlinearSystem.csproj">
-      <Project>{56B18624-92EE-44E0-A654-F86B72551462}</Project>
-      <Name>NonlinearSystem</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\UKF\UKF.csproj">
-      <Project>{A6D93E6B-F39B-43B3-8B15-A376AE0E069F}</Project>
-      <Name>UKF</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

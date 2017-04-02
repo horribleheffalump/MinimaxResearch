@@ -6,7 +6,7 @@ import pylab
 
 filename = u"../output/test1_estimateAvg.txt"
 #filename = u"../output/test2_estimate.txt"
-t, x, xhat, err, sigma = np.loadtxt(filename, delimiter = ' ', usecols=(0,1,2,3,4), unpack=True, dtype=float)
+t, x, xhat, err, sigma, xhatU, errU, sigmaU, xhatU_, errU_, sigmaU_ = np.loadtxt(filename, delimiter = ' ', usecols=(0,1,2,3,4,5,6,7,8,9,10), unpack=True, dtype=float)
 
 from pylab import *
 
@@ -17,6 +17,11 @@ ax1 = plt.subplot(111)
 ax1.plot(t, x, '-', color = 'black', linewidth = 1.0)
 ax1.plot(t, err, '-', color = 'blue', linewidth = 1.0)
 ax1.plot(t, 3*sigma, '-', color = 'red', linewidth = 1.0)
+ax1.plot(t, errU, '--', color = 'blue', linewidth = 1.0)
+ax1.plot(t, 3*sigmaU, '--', color = 'red', linewidth = 1.0)
+ax1.plot(t, errU_, ':', color = 'blue', linewidth = 1.0)
+ax1.plot(t, 3*sigmaU_, ':', color = 'red', linewidth = 1.0)
 
+#ax1.set_ylim(0,1000)
 
 plt.show();

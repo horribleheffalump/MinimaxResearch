@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CMNFvsUT", "CMNFvsUT\CMNFvsUT.csproj", "{789DCAB8-507D-4663-9524-0ED94FC1A1DF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CMNFvsUKF", "CMNFvsUT\CMNFvsUKF.csproj", "{789DCAB8-507D-4663-9524-0ED94FC1A1DF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NonlinearSystem", "NonlinearSystem\NonlinearSystem.csproj", "{56B18624-92EE-44E0-A654-F86B72551462}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "OutputScripts", "OutputScripts\OutputScripts.pyproj", "{ADC1803E-E8B1-4A29-92D1-D159BFC60216}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CMNF", "CMNF\CMNF.csproj", "{31100BA7-7A93-4AFD-8DF1-EB039938184B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UKF", "UKF\UKF.csproj", "{A6D93E6B-F39B-43B3-8B15-A376AE0E069F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +39,10 @@ Global
 		{31100BA7-7A93-4AFD-8DF1-EB039938184B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31100BA7-7A93-4AFD-8DF1-EB039938184B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31100BA7-7A93-4AFD-8DF1-EB039938184B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6D93E6B-F39B-43B3-8B15-A376AE0E069F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6D93E6B-F39B-43B3-8B15-A376AE0E069F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6D93E6B-F39B-43B3-8B15-A376AE0E069F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6D93E6B-F39B-43B3-8B15-A376AE0E069F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
