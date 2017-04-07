@@ -23,7 +23,7 @@ namespace NonlinearSystem
 
       
 
-        public Dictionary<int,double> Trajectory;
+        public Dictionary<int,double[]> Trajectory;
 
         public DiscreteScalarModel(Func<double, double> phi1, Func<double, double> phi2, Func<double, double> psi, Func<int, double> w, Func<int, double> nu, double X0, bool saveHistory = false)
         {
@@ -36,19 +36,22 @@ namespace NonlinearSystem
 
             doSave = saveHistory;
 
-            Trajectory = new Dictionary<int, double>();
+            Trajectory = new Dictionary<int, double[]>();
 
             State = X0;
-            if (doSave) Trajectory.Add(t, State);
-            Obs = Psi(State) + Nu(t);
+            //if (doSave) Trajectory.Add(t, State);
+            //Obs = Psi(State) + Nu(t);
         }
 
         public double Step()
         {
-            t++;
-            State = Phi1(State) + Phi2(State) * W(t);
-            if (doSave) Trajectory.Add(t, State);
+            if (t>0)
+            {
+                State = Phi1(State) + Phi2(State) * W(t);
+            }
             Obs = Psi(State) + Nu(t);
+            if (doSave) Trajectory.Add(t, new double[] { State, Obs });
+            t++;
             return Obs;
         }
 

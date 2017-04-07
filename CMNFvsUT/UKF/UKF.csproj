@@ -43,12 +43,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncCalculator.cs" />
     <Compile Include="UKFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UKFTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NonlinearSystem\NonlinearSystem.csproj">
+      <Project>{56B18624-92EE-44E0-A654-F86B72551462}</Project>
+      <Name>NonlinearSystem</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
