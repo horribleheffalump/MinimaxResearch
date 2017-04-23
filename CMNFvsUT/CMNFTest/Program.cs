@@ -32,7 +32,7 @@ namespace CMNFTest
             //test1.GenerateBundle(N, Path.Combine(Settings.Default.OutputFolder, "test1_estimateAvg.txt"));
 
             int T = 25;
-            int N = 1000000;
+            int N = 1000;
             double mW = 0; double DW = 1;
             double mNu = 0; double DNu = 1;
             double mEta = 100; double DEta = 100;
@@ -43,7 +43,7 @@ namespace CMNFTest
             TestEnvironment test2 = new TestEnvironment(false, T, N, phi1, phi2, psi, mW, mNu, mEta, DW, DNu, DEta, x => phi1(x) + phi2(x) * mW, (x, y) => y - psi(x) - mNu);
 
             //test2.GenerateOne(Path.Combine(Settings.Default.OutputFolder, "test2_estimate.txt"));
-            test2.GenerateBundle(1000000, Path.Combine(Settings.Default.OutputFolder, "test2_estimateAvg.txt"), false);
+            test2.GenerateBundle(1000, Path.Combine(Settings.Default.OutputFolder, "test2_estimateAvg.txt"), false);
 
 
         }
@@ -72,7 +72,7 @@ namespace CMNFTest
 
 
 
-        public CMNFilter CMNF;
+        public CMNScalarFilter CMNF;
         public UKFilter UKF;
         public UKFTest UKFtest;
 
@@ -116,7 +116,7 @@ namespace CMNFTest
                 models[i] = new DiscreteScalarModel(phi1, phi2, psi, W, Nu, X0(), true);
             }
 
-            CMNF = new CMNFilter(xi, zeta);
+            CMNF = new CMNScalarFilter(xi, zeta);
             CMNF.EstimateParameters(models, X0Hat, T);
 
             UKF = new UKFilter(1,

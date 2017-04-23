@@ -8,7 +8,7 @@ using NonlinearSystem;
 
 namespace CMNF
 {
-    public class CMNFilter
+    public class CMNScalarFilter
     {
         Func<double, double> Xi;
         Func<double, double, double> Zeta;
@@ -19,7 +19,7 @@ namespace CMNF
         Dictionary<int, double> hHat;
         public Dictionary<int, double> KHat;
 
-        public CMNFilter(Func<double, double> xi, Func<double, double, double> zeta)
+        public CMNScalarFilter(Func<double, double> xi, Func<double, double, double> zeta)
         {
             Xi = xi;
             Zeta = zeta;
