@@ -36,7 +36,7 @@ namespace CMNF
             int n = models.Count();
 
             Vector<double>[] xHat = Enumerable.Repeat(xhat0, n).ToArray();
- 
+
             for (int t = 0; t < T; t++)
             {
                 Vector<double>[] x = new Vector<double>[n];
@@ -51,31 +51,37 @@ namespace CMNF
                 }
                 //!!!!! поправить !!!!
                 Matrix<double> F = cov(x, xiHat) * cov(xiHat, xiHat).PseudoInverse();
-                double f = x.Average() - F * xiHat.Average();
+                Vector<double> f = x.Average() - F * xiHat.Average();
 
-                Vector<double> xTilde = F * xiHat + f;
+                Vector<double>[] xTilde = new Vector<double>[n];
+                Vector<double>[] zetaTilde = new Vector<double>[n];
+                for (int i = 0; i < n; i++)
+                {
+                    xTilde[i] = F * xiHat[i] + f;
+                    zetaTilde[i] = Zeta(t, xTilde[i], y[i]);
+                }
 
-                Vector<double> zetaTilde = Vector<double>.Build.Dense(n, (i) => Zeta(xTilde[i], y[i]));
+                Matrix<double> H = cov(x.Subtract(xTilde), zetaTilde) * cov(zetaTilde, zetaTilde).PseudoInverse();
+                Vector<double> h = -H * zetaTilde.Average();
 
-                double H = cov(x - xTilde, zetaTilde) / cov(zetaTilde, zetaTilde);
-                double h = -H * zetaTilde.Average();
-
-                xHat = Vector<double>.Build.Dense(n, (i) => F * xiHat[i] + f + H * zetaTilde[i] + h);
-
+                for (int i = 0; i < n; i++)
+                {
+                    xHat[i] = F * xiHat[i] + f + H * zetaTilde[i] + h;
+                }
                 FHat.Add(t, F);
                 fHat.Add(t, f);
                 HHat.Add(t, H);
                 hHat.Add(t, h);
 
-                KHat.Add(t, cov(x, x) - cov(x, xiHat) * F - cov(x - xTilde, zetaTilde) * H);
+                KHat.Add(t, cov(x, x) - cov(x, xiHat) * F - cov(x.Subtract(xTilde), zetaTilde) * H);
             }
 
         }
 
-        public double Step(int t, double y, double xHat_)
+        public Vector<double> Step(int t, Vector<double> y, Vector<double> xHat_)
         {
-            double xTilde = FHat[t] * Xi(xHat_) + fHat[t];
-            double xHat = xTilde + HHat[t] * Zeta(xTilde, y) + hHat[t];
+            Vector<double> xTilde = FHat[t] * Xi(t, xHat_) + fHat[t];
+            Vector<double> xHat = xTilde + HHat[t] * Zeta(t, xTilde, y) + hHat[t];
             return xHat;
         }
 
@@ -108,7 +114,7 @@ namespace CMNF
             {
                 result = result + (x[i] - mx).ToColumnMatrix() * (y[i] - my).ToRowMatrix();
             }
-            return result / x.Length;
+            return result / (x.Length - 1.0);
         }
     }
 
@@ -134,6 +140,16 @@ namespace CMNF
             }
             mx = mx / x.Length;
             return mx;
+        }
+
+        public static Vector<double>[] Subtract(this Vector<double>[] v1, Vector<double>[] v2)
+        {
+            Vector<double>[] result = new Vector<double>[v1.Length];
+            for (int i = 1; i < v1.Length; i++)
+            {
+                result[i] = v1[i] - v2[i];
+            }
+            return result;
         }
 
     }
