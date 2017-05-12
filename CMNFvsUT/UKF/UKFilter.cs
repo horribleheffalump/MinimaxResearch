@@ -20,8 +20,8 @@ namespace UKF
         private Vector<double> Wm;
         private Vector<double> Wc;
 
-        public Func<Vector<double>, Vector<double>> Phi;
-        public Func<Vector<double>, Vector<double>> Psi;
+        public Func<int, Vector<double>, Vector<double>> Phi;
+        public Func<int, Vector<double>, Vector<double>> Psi;
         public Matrix<double> Rw;
         public Matrix<double> Rnu;
 
@@ -33,7 +33,9 @@ namespace UKF
         Normal NormalBeta;
         Normal NormalKappa;
 
-        public UKFilter(int l, Func<Vector<double>, Vector<double>> phi, Func<Vector<double>, Vector<double>> psi, Matrix<double> Rw, Matrix<double> Rnu, double alpha = 1e-3, double beta = 2.0, double kappa = double.NaN)
+        private int t = 0;
+
+        public UKFilter(int l, Func<int, Vector<double>, Vector<double>> phi, Func<int, Vector<double>, Vector<double>> psi, Matrix<double> Rw, Matrix<double> Rnu, double alpha = 1e-3, double beta = 2.0, double kappa = double.NaN)
         {
             L = l;
             Phi = phi;
@@ -71,13 +73,13 @@ namespace UKF
             Wc[0] = Lambda / (Lambda + L) + 1.0 - Math.Pow(Alpha, 2.0) + Beta;
         }
 
-        public void EstimateParametersRandom(DiscreteScalarModel[] models, int T, double xhat0, double DX0Hat, string fileName)
+        public void EstimateParametersRandom(DiscreteVectorModel[] models, int T, Vector<double> xhat0, Matrix<double> DX0Hat, string fileName)
         {
             UnifAlpha = new ContinuousUniform(-3, 3);
             UnifBeta = new ContinuousUniform(-5, 5);
             UnifKappa = new ContinuousUniform(-5, 5);
 
-            AsyncCalculatorPlanner acp = new AsyncCalculatorPlanner(10, 10, () => CalculateCriterionValueAtRandomUniform(models, T, xhat0, DX0Hat));
+            AsyncCalculatorPlanner acp = new AsyncCalculatorPlanner(100, 10, () => CalculateCriterionValueAtRandomUniform(models, T, xhat0, DX0Hat));
             List<double[]> results1 = acp.DoCalculate();
 
             double min1 = results1.Min(e => e[0]);
@@ -87,7 +89,7 @@ namespace UKF
             NormalBeta = new Normal(best1[2], Math.Sqrt(0.5));
             NormalKappa = new Normal(best1[3], Math.Sqrt(0.5));
 
-            acp = new AsyncCalculatorPlanner(10, 10, () => CalculateCriterionValueAtRandomNormal(models, T, xhat0, DX0Hat));
+            acp = new AsyncCalculatorPlanner(100, 10, () => CalculateCriterionValueAtRandomNormal(models, T, xhat0, DX0Hat));
             List<double[]> results2 = acp.DoCalculate();
 
             double min2 = results2.Min(e => e[0]);
@@ -122,7 +124,7 @@ namespace UKF
             }
         }
 
-        public void EstimateParameters(DiscreteScalarModel[] models, int T, double xhat0, double DX0Hat, string fileName)
+        public void EstimateParameters(DiscreteVectorModel[] models, int T, Vector<double> xhat0, Matrix<double> DX0Hat, string fileName)
         {
             //double[] alpha = new double[] { 1e-4, 0.5e-3, 1e-3, 0.5e-2, 1e-2, 0.5-1, 1e-1, 0.5, 1 };
             double[] alpha = new double[] { 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5 };
@@ -170,7 +172,7 @@ namespace UKF
 
         }
 
-        public double[] CalculateCriterionValueAtRandomUniform(DiscreteScalarModel[] models, int T, double xhat0, double DX0Hat)
+        public double[] CalculateCriterionValueAtRandomUniform(DiscreteVectorModel[] models, int T, Vector<double> xhat0, Matrix<double> DX0Hat)
         {
             double _alpha = UnifAlpha.Sample();
             double _beta = UnifBeta.Sample();
@@ -178,12 +180,62 @@ namespace UKF
             return new double[] { CalculateCriterionValue(models, T, xhat0, DX0Hat, _alpha, _beta, _kappa), _alpha, _beta, _kappa };
         }
 
-        public double[] CalculateCriterionValueAtRandomNormal(DiscreteScalarModel[] models, int T, double xhat0, double DX0Hat)
+        public double[] CalculateCriterionValueAtRandomNormal(DiscreteVectorModel[] models, int T, Vector<double> xhat0, Matrix<double> DX0Hat)
         {
             double _alpha = NormalAlpha.Sample();
             double _beta = NormalBeta.Sample();
             double _kappa = NormalKappa.Sample();
             return new double[] { CalculateCriterionValue(models, T, xhat0, DX0Hat, _alpha, _beta, _kappa), _alpha, _beta, _kappa };
+        }
+
+
+        public double CalculateCriterionValue(DiscreteVectorModel[] models, int T, Vector<double> xhat0, Matrix<double> DX0Hat, double _alpha, double _beta, double _kappa)
+        {
+            double result = 0;
+            try
+            {
+                double _Lambda = Math.Pow(_alpha, 2.0) * (L + _kappa) - L;
+                Vector<double> _Wm;
+                Vector<double> _Wc;
+                _Wm = Vector<double>.Build.Dense(2 * L + 1, 0.5 / (_Lambda + L));
+                _Wm[0] = _Lambda / (_Lambda + L);
+
+                _Wc = Vector<double>.Build.Dense(2 * L + 1, 0.5 / (_Lambda + L));
+                _Wc[0] = _Lambda / (_Lambda + L) + 1.0 - Math.Pow(_alpha, 2.0) + _beta;
+
+                int N = models.Count();
+
+                Vector<double>[] xHatU = models.Select(x => xhat0).ToArray();
+                Matrix<double>[] PHatU = models.Select(x => DX0Hat).ToArray();
+                //Vector<double> PHatU = Vector<double>.Build.Dense(N, DX0Hat);
+
+
+
+                for (int t = 0; t < T; t++)
+                {
+                    for (int i = 0; i < N; i++)
+                    {
+                        Vector<double> xHatU_i;
+                        Matrix<double> PHatU_i;
+                        Step(models[i].Trajectory[t][1],
+                            xHatU[i],
+                            PHatU[i],
+                            _Lambda, _Wm, _Wc,
+                            out xHatU_i, out PHatU_i);
+                        xHatU[i] = xHatU_i;
+                        PHatU[i] = PHatU_i;
+                    }
+
+                    Vector<double>[] states = models.Select(x => (x.Trajectory[t][0])).ToArray();
+                        //models.Select(x => (x.Trajectory[t][0] - xHatU)).ToArray();
+                    Matrix<double> errorUPow2 = Extentions.Cov(states.Subtract(xHatU), states.Subtract(xHatU));
+                        
+                    result = errorUPow2.Trace();
+                    //result += errorUPow2.Average();
+                }
+            }
+            catch { result = double.MaxValue; }
+            return result; // / T;
         }
 
         public double CalculateCriterionValue(DiscreteScalarModel[] models, int T, double xhat0, double DX0Hat, double _alpha, double _beta, double _kappa)
@@ -295,7 +347,7 @@ namespace UKF
             Vector<double> Xtilde;
             Matrix<double> Ptilde;
 
-            UT(Phi, Xi_, Rw, wm, wc, out XiStar, out Xtilde, out Ptilde);
+            UT(x => Phi(t,x), Xi_, Rw, wm, wc, out XiStar, out Xtilde, out Ptilde);
 
             //Matrix<double> Xiplus = GenerateSigmaPoints(XiStar.Column(0), Rw);
             Matrix<double> Xi = GenerateSigmaPoints(Xtilde, Ptilde, lambda);
@@ -304,7 +356,7 @@ namespace UKF
             Vector<double> Ytilde;
             Matrix<double> PYtilde;
 
-            UT(Psi, Xi, Rnu, wm, wc, out Upsilon, out Ytilde, out PYtilde);
+            UT(x => Psi(t,x), Xi, Rnu, wm, wc, out Upsilon, out Ytilde, out PYtilde);
 
             Matrix<double> PXY = wc[0] * (Xi.Column(0) - Xtilde).ToColumnMatrix() * (Upsilon.Column(0) - Ytilde).ToRowMatrix();
             for (int i = 1; i < 2 * L + 1; i++)
@@ -316,6 +368,8 @@ namespace UKF
 
             xHat = Xtilde + K * (y - Ytilde);
             PHat = Ptilde - K * PYtilde * K.Transpose();
+
+            t++;
         }
 
         public void Step(Vector<double> y, Vector<double> xHat_, Matrix<double> P_, out Vector<double> xHat, out Matrix<double> PHat)

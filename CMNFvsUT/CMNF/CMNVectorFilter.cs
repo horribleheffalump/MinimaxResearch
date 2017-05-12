@@ -13,10 +13,10 @@ namespace CMNF
         Func<int, Vector<double>, Vector<double>> Xi;
         Func<int, Vector<double>, Vector<double>, Vector<double>> Zeta;
 
-        Dictionary<int, Matrix<double>> FHat;
-        Dictionary<int, Vector<double>> fHat;
-        Dictionary<int, Matrix<double>> HHat;
-        Dictionary<int, Vector<double>> hHat;
+        public Dictionary<int, Matrix<double>> FHat;
+        public Dictionary<int, Vector<double>> fHat;
+        public Dictionary<int, Matrix<double>> HHat;
+        public Dictionary<int, Vector<double>> hHat;
         public Dictionary<int, Matrix<double>> KHat;
 
         public CMNFilter(Func<int, Vector<double>, Vector<double>> xi, Func<int, Vector<double>, Vector<double>, Vector<double>> zeta)
@@ -44,13 +44,15 @@ namespace CMNF
                 Vector<double>[] xiHat = new Vector<double>[n];
                 for (int i = 0; i < n; i++)
                 {
-                    models[i].Step();
-                    x[i] = models[i].State;
-                    y[i] = models[i].Obs;
+                    //models[i].Step();
+                    //x[i] = models[i].State;
+                    //y[i] = models[i].Obs;
+                    x[i] = models[i].Trajectory[t][0];
+                    y[i] = models[i].Trajectory[t][1];
                     xiHat[i] = Xi(t, xHat[i]);
                 }
-                //!!!!! поправить !!!!
-                Matrix<double> F = cov(x, xiHat) * cov(xiHat, xiHat).PseudoInverse();
+
+                Matrix<double> F = Extentions.Cov(x, xiHat) * (Extentions.Cov(xiHat, xiHat).PseudoInverse());
                 Vector<double> f = x.Average() - F * xiHat.Average();
 
                 Vector<double>[] xTilde = new Vector<double>[n];
@@ -61,7 +63,7 @@ namespace CMNF
                     zetaTilde[i] = Zeta(t, xTilde[i], y[i]);
                 }
 
-                Matrix<double> H = cov(x.Subtract(xTilde), zetaTilde) * cov(zetaTilde, zetaTilde).PseudoInverse();
+                Matrix<double> H = Extentions.Cov(x.Subtract(xTilde), zetaTilde) * (Extentions.Cov(zetaTilde, zetaTilde).PseudoInverse());
                 Vector<double> h = -H * zetaTilde.Average();
 
                 for (int i = 0; i < n; i++)
@@ -73,7 +75,9 @@ namespace CMNF
                 HHat.Add(t, H);
                 hHat.Add(t, h);
 
-                KHat.Add(t, cov(x, x) - cov(x, xiHat) * F - cov(x.Subtract(xTilde), zetaTilde) * H);
+                KHat.Add(t, Extentions.Cov(x, x) - Extentions.Cov(x, xiHat) * F - Extentions.Cov(x.Subtract(xTilde), zetaTilde) * H);
+               // KHat.Add(t, cov(x, x) - cov(x, xiHat) * F - cov(x - xTilde, zetaTilde) * H);
+
             }
 
         }
@@ -97,60 +101,7 @@ namespace CMNF
         //    return r2;
         //}
 
-        private Matrix<double> cov(Vector<double>[] x, Vector<double>[] y)
-        {
-            Vector<double> mx = x.Average();
-            Vector<double> my = y.Average();
-            for (int i = 1; i < x.Length; i++)
-            {
-                mx = mx + x[i];
-                my = my + y[i];
-            }
-            mx = mx / x.Length;
-            my = my / y.Length;
-
-            Matrix<double> result = (x[0] - mx).ToColumnMatrix() * (y[0] - my).ToRowMatrix();
-            for (int i = 1; i < x.Length; i++)
-            {
-                result = result + (x[i] - mx).ToColumnMatrix() * (y[i] - my).ToRowMatrix();
-            }
-            return result / (x.Length - 1.0);
-        }
     }
 
-    public static class Extensoins
-    {
-        public static Vector<double> Average(this Vector<double>[] x)
-        {
-            Vector<double> mx = x[0];
-            for (int i = 1; i < x.Length; i++)
-            {
-                mx = mx + x[i];
-            }
-            mx = mx / x.Length;
-            return mx;
-        }
 
-        public static Matrix<double> Average(this Matrix<double>[] x)
-        {
-            Matrix<double> mx = x[0];
-            for (int i = 1; i < x.Length; i++)
-            {
-                mx = mx + x[i];
-            }
-            mx = mx / x.Length;
-            return mx;
-        }
-
-        public static Vector<double>[] Subtract(this Vector<double>[] v1, Vector<double>[] v2)
-        {
-            Vector<double>[] result = new Vector<double>[v1.Length];
-            for (int i = 1; i < v1.Length; i++)
-            {
-                result[i] = v1[i] - v2[i];
-            }
-            return result;
-        }
-
-    }
 }
