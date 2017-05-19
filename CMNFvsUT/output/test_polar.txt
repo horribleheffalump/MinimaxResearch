@@ -1,0 +1,27 @@
+mErr = DenseVector 1-Double
+0,0228868
+
+KErr = DenseMatrix 1x1-Double
+369,769
+
+KErrTh = DenseMatrix 1x1-Double
+358,015
+
+mErr_lin = DenseVector 1-Double
+0,0167114
+
+KErr_lin = DenseMatrix 1x1-Double
+363,565
+
+KErrTh_lin = DenseMatrix 1x1-Double
+358,021
+
+mErr_UT = DenseVector 1-Double
+-0,0336842
+
+KErr_UT = DenseMatrix 1x1-Double
+855,271
+
+KErrTh_UT = DenseMatrix 1x1-Double
+21,1294
+

@@ -143,12 +143,12 @@ namespace CMNFTest
                 }
 
                 Vector<double> mx = x.Average();
-                Matrix<double> Dx = Extentions.Cov(x, x);
+                Matrix<double> Dx = Extensions.Cov(x, x);
 
                 Vector<double> mxHat = xHat.Average();
 
                 Vector<double> mError = (x.Subtract(xHat)).Average();
-                Matrix<double> DError = Extentions.Cov(x.Subtract(xHat), x.Subtract(xHat));
+                Matrix<double> DError = Extensions.Cov(x.Subtract(xHat), x.Subtract(xHat));
 
 
                 Vector<double> mErrorU = Vector<double>.Build.Dense(dimX, 0);
@@ -169,7 +169,7 @@ namespace CMNFTest
                     }
 
                     mErrorU = (x.Subtract(xHatU)).Average();
-                    DErrorU = Extentions.Cov(x.Subtract(xHatU), x.Subtract(xHatU));
+                    DErrorU = Extensions.Cov(x.Subtract(xHatU), x.Subtract(xHatU));
 
                     mxHatU = xHatU.Average();
                     mPHatU = PHatU.Average();

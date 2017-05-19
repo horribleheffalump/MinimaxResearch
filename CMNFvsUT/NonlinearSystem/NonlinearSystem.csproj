@@ -45,8 +45,9 @@
   <ItemGroup>
     <Compile Include="DiscreteVectorModel.cs" />
     <Compile Include="DiscreteScalarModel.cs" />
-    <Compile Include="Extentions.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StaticVectorModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

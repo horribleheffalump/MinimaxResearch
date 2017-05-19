@@ -75,9 +75,9 @@ namespace UKF
 
         public void EstimateParametersRandom(DiscreteVectorModel[] models, int T, Vector<double> xhat0, Matrix<double> DX0Hat, string fileName)
         {
-            UnifAlpha = new ContinuousUniform(-3, 3);
-            UnifBeta = new ContinuousUniform(-5, 5);
-            UnifKappa = new ContinuousUniform(-5, 5);
+            UnifAlpha = new ContinuousUniform(-10, 10);
+            UnifBeta = new ContinuousUniform(-10, 10);
+            UnifKappa = new ContinuousUniform(-10, 10);
 
             AsyncCalculatorPlanner acp = new AsyncCalculatorPlanner(100, 10, () => CalculateCriterionValueAtRandomUniform(models, T, xhat0, DX0Hat));
             List<double[]> results1 = acp.DoCalculate();
@@ -112,7 +112,7 @@ namespace UKF
                 {
                     outputfile.WriteLine(string.Format(provider, "{0} {1} {2} {3}", e[0], e[1], e[2], e[3]));
                 }
-                outputfile.WriteLine("=======================");
+                //outputfile.WriteLine("=======================");
                 foreach (var e in results1.OrderBy(e => e[0]))
                 {
                     outputfile.WriteLine(string.Format(provider, "{0} {1} {2} {3}", e[0], e[1], e[2], e[3]));
@@ -227,15 +227,15 @@ namespace UKF
                     }
 
                     Vector<double>[] states = models.Select(x => (x.Trajectory[t][0])).ToArray();
-                        //models.Select(x => (x.Trajectory[t][0] - xHatU)).ToArray();
-                    Matrix<double> errorUPow2 = Extentions.Cov(states.Subtract(xHatU), states.Subtract(xHatU));
-                        
-                    result = errorUPow2.Trace();
+                    Matrix<double> errorUPow2 = Extensions.Cov(states.Subtract(xHatU), states.Subtract(xHatU));
+
+                    //result = errorUPow2.Trace();
+                    result = errorUPow2[1,1];
                     //result += errorUPow2.Average();
                 }
             }
             catch { result = double.MaxValue; }
-            return result; // / T;
+            return result;
         }
 
         public double CalculateCriterionValue(DiscreteScalarModel[] models, int T, double xhat0, double DX0Hat, double _alpha, double _beta, double _kappa)
@@ -291,25 +291,10 @@ namespace UKF
 
         public Matrix<double> GenerateSigmaPoints(Vector<double> x, Matrix<double> P)
         {
-            return GenerateSigmaPoints(x, P, Lambda);
+            return UnscentedTransform.GenerateSigmaPoints(x, P, Lambda);
         }
 
-        public Matrix<double> GenerateSigmaPoints(Vector<double> x, Matrix<double> P, double lambda)
-        {
-            Matrix<double> Sqrt = (Math.Sqrt(lambda + L)) * P.Cholesky().Factor.Transpose();
 
-            Matrix<double> Xi = x.ToColumnMatrix();
-            for (int i = 0; i < L; i++)
-            {
-                Xi = Xi.Append((x + Sqrt.Column(i)).ToColumnMatrix());
-            }
-            for (int i = 0; i < L; i++)
-            {
-                Xi = Xi.Append((x - Sqrt.Column(i)).ToColumnMatrix());
-            }
-
-            return Xi;
-        }
 
         public void UT(Func<Vector<double>, Vector<double>> f, Matrix<double> Xi, Matrix<double> R, Vector<double> wm, Vector<double> wc, out Matrix<double> Upsilon, out Vector<double> y, out Matrix<double> Py)
         {
@@ -341,7 +326,7 @@ namespace UKF
 
         public void Step(Vector<double> y, Vector<double> xHat_, Matrix<double> P_, double lambda, Vector<double> wm, Vector<double> wc, out Vector<double> xHat, out Matrix<double> PHat)
         {
-            Matrix<double> Xi_ = GenerateSigmaPoints(xHat_, P_);
+            Matrix<double> Xi_ = UnscentedTransform.GenerateSigmaPoints(xHat_, P_, lambda);
 
             Matrix<double> XiStar;
             Vector<double> Xtilde;
@@ -350,7 +335,7 @@ namespace UKF
             UT(x => Phi(t,x), Xi_, Rw, wm, wc, out XiStar, out Xtilde, out Ptilde);
 
             //Matrix<double> Xiplus = GenerateSigmaPoints(XiStar.Column(0), Rw);
-            Matrix<double> Xi = GenerateSigmaPoints(Xtilde, Ptilde, lambda);
+            Matrix<double> Xi = UnscentedTransform.GenerateSigmaPoints(Xtilde, Ptilde, lambda);
 
             Matrix<double> Upsilon;
             Vector<double> Ytilde;
@@ -405,5 +390,27 @@ namespace UKF
         }
 
 
+    }
+
+    public static class UnscentedTransform
+    {
+        public static Matrix<double> GenerateSigmaPoints(Vector<double> x, Matrix<double> P, double lambda)
+        {
+            int L = x.Count;
+
+            Matrix<double> Sqrt = (Math.Sqrt(lambda + L)) * P.Cholesky().Factor.Transpose();
+
+            Matrix<double> Xi = x.ToColumnMatrix();
+            for (int i = 0; i < L; i++)
+            {
+                Xi = Xi.Append((x + Sqrt.Column(i)).ToColumnMatrix());
+            }
+            for (int i = 0; i < L; i++)
+            {
+                Xi = Xi.Append((x - Sqrt.Column(i)).ToColumnMatrix());
+            }
+
+            return Xi;
+        }
     }
 }

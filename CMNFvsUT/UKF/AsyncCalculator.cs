@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace UKF
 {
-    class AsyncCalculator
+    public class AsyncCalculator
     {
         private ManualResetEvent doneEvent;
         private double[] result;
@@ -35,7 +35,7 @@ namespace UKF
         // Recursive method that calculates the Nth Fibonacci number.
     }
 
-    class AsyncCalculatorPlanner
+    public class AsyncCalculatorPlanner
     {
         private int samplesCount;
         private int packCount;
