@@ -40,12 +40,16 @@ namespace UKF
 
 
 
+            //Matrix<double> KUT = K_UT(x => Phi(x), mX, KX, _Lambda, _Wm, _Wc, out M_UT);
+            //Matrix<double> P_UT = KUT.SubMatrix(0, L, L, L) * ((KUT.SubMatrix(L, L, L, L) + KNu).PseudoInverse());
+            //Matrix<double> KErrTh_UT = KX - P_UT * (KUT.SubMatrix(L, L, L, L) + KNu) * P_UT.Transpose();
 
             Vector<double> M_UT;
-            Matrix<double> KUT = K_UT(x => Phi(x), mX, KX, _Lambda, _Wm, _Wc, out M_UT);
-            Matrix<double> P_UT = KUT.SubMatrix(0, L, L, L) * ((KUT.SubMatrix(L, L, L, L) + KNu).PseudoInverse());
-
-            KErrTh_UT = KX - P_UT * (KUT.SubMatrix(L, L, L, L) + KNu) * P_UT.Transpose();
+            Matrix<double> Kxy_UT;
+            Matrix<double> Kyy_UT;
+            Matrix<double> KUT = K_UT(x => Phi(x), mX, KX, KNu, _Lambda, _Wm, _Wc, out M_UT, out Kxy_UT, out Kyy_UT);
+            Matrix<double> P_UT = Kxy_UT * ((Kyy_UT).PseudoInverse());
+            KErrTh_UT = KX - P_UT * Kyy_UT * P_UT.Transpose();
 
             Vector<double>[] Xhat_UT = Y.Select(y => mX + P_UT * (y - M_UT)).ToArray();
             Vector<double>[] Err_UT = Xhat_UT.Subtract(X);
@@ -70,12 +74,16 @@ namespace UKF
 
 
 
+            //Matrix<double> KUT = K_UT(x => Phi(x), mX, KX, _Lambda, _Wm, _Wc, out M_UT);
+            //Matrix<double> P_UT = KUT.SubMatrix(0, L, L, L) * ((KUT.SubMatrix(L, L, L, L) + KNu).PseudoInverse());
+            //Matrix<double> KErrTh_UT = KX - P_UT * (KUT.SubMatrix(L, L, L, L) + KNu) * P_UT.Transpose();
 
             Vector<double> M_UT;
-            Matrix<double> KUT = K_UT(x => Phi(x), mX, KX, _Lambda, _Wm, _Wc, out M_UT);
-            Matrix<double> P_UT = KUT.SubMatrix(0, L, L, L) * ((KUT.SubMatrix(L, L, L, L) + KNu).PseudoInverse());
-
-            KErrTh_UT = KX - P_UT * (KUT.SubMatrix(L, L, L, L) + KNu) * P_UT.Transpose();
+            Matrix<double> Kxy_UT;
+            Matrix<double> Kyy_UT;
+            Matrix<double> KUT = K_UT(x => Phi(x), mX, KX, KNu, _Lambda, _Wm, _Wc, out M_UT, out Kxy_UT, out Kyy_UT);
+            Matrix<double> P_UT = Kxy_UT * ((Kyy_UT).PseudoInverse());
+            KErrTh_UT = KX - P_UT * Kyy_UT * P_UT.Transpose();
 
             Vector<double>[] Xhat_UT = Y.Select(y => mX + P_UT * (y - M_UT)).ToArray();
             Vector<double>[] Err_UT = Xhat_UT.Subtract(X);
@@ -96,7 +104,7 @@ namespace UKF
             _kappa = p[2];
         }
 
-        static Matrix<double> K_UT(Func<Vector<double>, Vector<double>> Phi, Vector<double> mX, Matrix<double> dX, double lambda, Vector<double> wm, Vector<double> wc, out Vector<double> y)
+        static Matrix<double> K_UT(Func<Vector<double>, Vector<double>> Phi, Vector<double> mX, Matrix<double> dX, Matrix<double> dY, double lambda, Vector<double> wm, Vector<double> wc, out Vector<double> y, out Matrix<double> Kxy, out Matrix<double> Kyy)
         {
             int L = mX.Count;
 
@@ -114,15 +122,20 @@ namespace UKF
                 y = y + wm[i] * Upsilon.Column(i);
             }
 
+
+            Kxy = wc[0] * (Xi.Column(0) - mX).ToColumnMatrix() * (Upsilon.Column(0) - y).ToRowMatrix();
+            Kyy = wc[0] * (Upsilon.Column(0) - y).ToColumnMatrix() * (Upsilon.Column(0) - y).ToRowMatrix();
+
             Matrix<double> Z = Xi.Stack(Upsilon);
             Vector<double> MZ = mX.Stack(y);
-
-
             Matrix<double> PFull = wc[0] * (Z.Column(0) - MZ).ToColumnMatrix() * (Z.Column(0) - MZ).ToRowMatrix();
             for (int i = 1; i < 2 * L + 1; i++)
             {
                 PFull = PFull + wc[i] * (Z.Column(i) - MZ).ToColumnMatrix() * (Z.Column(i) - MZ).ToRowMatrix();
+                Kxy = Kxy + wc[i] * (Xi.Column(i) - mX).ToColumnMatrix() * (Upsilon.Column(i) - y).ToRowMatrix();
+                Kyy = Kyy + wc[i] * (Upsilon.Column(i) - y).ToColumnMatrix() * (Upsilon.Column(i) - y).ToRowMatrix();
             }
+            Kyy = Kyy + dY;
             //Py = Py + R;
             return PFull;
         }
@@ -135,7 +148,7 @@ namespace UKF
 
             List<double[]> results1 = acp.DoCalculate();
 
-            double min1 = results1.Min(e => e[0]);
+            double min1 = results1.Where(i => !double.IsNaN(i[0])).Min(e => e[0]);
             double[] best1 = results1.First(e => e[0] == min1);
 
             Normal NormalAlpha = new Normal(best1[1], Math.Sqrt(0.005));
@@ -143,7 +156,7 @@ namespace UKF
             acp = new AsyncCalculatorPlanner(100, 10, () => CalculateCriterionValue(Phi, Crit, NormalAlpha, X, Y, mX, KX, KNu));
             List<double[]> results2 = acp.DoCalculate();
 
-            double min2 = results2.Min(e => e[0]);
+            double min2 = results2.Where(i => !double.IsNaN(i[0])).Min(e => e[0]);
             double[] best2 = results2.First(e => e[0] == min2);
 
             double Alpha_0 = best2[1];
@@ -160,7 +173,7 @@ namespace UKF
 
             List<double[]> results1 = acp.DoCalculate();
 
-            double min1 = results1.Min(e => e[0]);
+            double min1 = results1.Where(i => !double.IsNaN(i[0])).Min(e => e[0]);
             double[] best1 = results1.First(e => e[0] == min1);
 
             Normal NormalAlpha = new Normal(best1[1], Math.Sqrt(0.005));
@@ -170,7 +183,7 @@ namespace UKF
             acp = new AsyncCalculatorPlanner(100, 10, () => CalculateCriterionValue3(Phi, Crit, new IContinuousDistribution[] { NormalAlpha, NormalBeta, NormalKappa }, X, Y, mX, KX, KNu));
             List<double[]> results2 = acp.DoCalculate();
 
-            double min2 = results2.Min(e => e[0]);
+            double min2 = results2.Where(i => !double.IsNaN(i[0])).Min(e => e[0]);
             double[] best2 = results2.First(e => e[0] == min2);
             return new double[] { best2[1] , best2[2] , best2[3] };
         }
@@ -194,10 +207,16 @@ namespace UKF
             double crit = double.MaxValue;
             try
             {
+                //Matrix<double> KUT = K_UT(x => Phi(x), mX, KX, _Lambda, _Wm, _Wc, out M_UT);
+                //Matrix<double> P_UT = KUT.SubMatrix(0, L, L, L) * ((KUT.SubMatrix(L, L, L, L) + KNu).PseudoInverse());
+                //Matrix<double> KErrTh_UT = KX - P_UT * (KUT.SubMatrix(L, L, L, L) + KNu) * P_UT.Transpose();
+
                 Vector<double> M_UT;
-                Matrix<double> KUT = K_UT(x => Phi(x), mX, KX, _Lambda, _Wm, _Wc, out M_UT);
-                Matrix<double> P_UT = KUT.SubMatrix(0, 2, 2, 2) * ((KUT.SubMatrix(2, 2, 2, 2) + KNu).PseudoInverse());
-                Matrix<double> KErrTh_UT = KX - P_UT * (KUT.SubMatrix(2, 2, 2, 2) + KNu) * P_UT.Transpose();
+                Matrix<double> Kxy_UT;
+                Matrix<double> Kyy_UT;
+                Matrix<double> KUT = K_UT(x => Phi(x), mX, KX, KNu, _Lambda, _Wm, _Wc, out M_UT, out Kxy_UT, out Kyy_UT);
+                Matrix<double> P_UT = Kxy_UT * ((Kyy_UT).PseudoInverse());
+                Matrix<double> KErrTh_UT = KX - P_UT * Kyy_UT * P_UT.Transpose();
 
                 Vector<double>[] Xhat_UT = Y.Select(y => mX + P_UT * (y - M_UT)).ToArray();
                 Vector<double>[] Err_UT = Xhat_UT.Subtract(X);
@@ -225,10 +244,16 @@ namespace UKF
             double crit = double.MaxValue;
             try
             {
+                //Matrix<double> KUT = K_UT(x => Phi(x), mX, KX, _Lambda, _Wm, _Wc, out M_UT);
+                //Matrix<double> P_UT = KUT.SubMatrix(0, L, L, L) * ((KUT.SubMatrix(L, L, L, L) + KNu).PseudoInverse());
+                //Matrix<double> KErrTh_UT = KX - P_UT * (KUT.SubMatrix(L, L, L, L) + KNu) * P_UT.Transpose();
+
                 Vector<double> M_UT;
-                Matrix<double> KUT = K_UT(x => Phi(x), mX, KX, _Lambda, _Wm, _Wc, out M_UT);
-                Matrix<double> P_UT = KUT.SubMatrix(0, 2, 2, 2) * ((KUT.SubMatrix(2, 2, 2, 2) + KNu).PseudoInverse());
-                Matrix<double> KErrTh_UT = KX - P_UT * (KUT.SubMatrix(2, 2, 2, 2) + KNu) * P_UT.Transpose();
+                Matrix<double> Kxy_UT;
+                Matrix<double> Kyy_UT;
+                Matrix<double> KUT = K_UT(x => Phi(x), mX, KX, KNu, _Lambda, _Wm, _Wc, out M_UT, out Kxy_UT, out Kyy_UT);
+                Matrix<double> P_UT = Kxy_UT * ((Kyy_UT).PseudoInverse());
+                Matrix<double> KErrTh_UT = KX - P_UT * Kyy_UT * P_UT.Transpose();
 
                 Vector<double>[] Xhat_UT = Y.Select(y => mX + P_UT * (y - M_UT)).ToArray();
                 Vector<double>[] Err_UT = Xhat_UT.Subtract(X);

@@ -1,0 +1,36 @@
+mErr = DenseVector 2-Double
+-0,0611927
+ -0,142806
+
+KErr = DenseMatrix 2x2-Double
+ 736,253  -218,165
+-218,165   612,546
+
+KErrTh = DenseMatrix 2x2-Double
+ 733,662  -218,653
+-218,653   612,379
+
+mErr_lin = DenseVector 2-Double
+-0,0609795
+ -0,143099
+
+KErr_lin = DenseMatrix 2x2-Double
+ 736,252  -218,184
+-218,184    612,55
+
+KErrTh_lin = DenseMatrix 2x2-Double
+ 733,665  -218,658
+-218,658   612,391
+
+mErr_UT = DenseVector 2-Double
+-0,0582442
+ -0,138705
+
+KErr_UT = DenseMatrix 2x2-Double
+ 736,218  -218,197
+-218,197   612,551
+
+KErrTh_UT = DenseMatrix 2x2-Double
+737,973  -215,98
+-215,98  611,985
+

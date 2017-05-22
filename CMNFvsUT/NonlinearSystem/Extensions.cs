@@ -96,5 +96,22 @@ namespace NonlinearSystem
             return Vector<double>.Build.DenseOfArray(new double[] { p[1] * Math.Cos(p[0]), p[1] * Math.Sin(p[0]) });
         }
 
+        public static Vector<double> cart2sphere(Vector<double> x)
+        {
+            if (x.Count != 3) throw new ArgumentException();
+            double r = Math.Sqrt(x[0] * x[0] + x[1] * x[1] + x[2] * x[2]);
+            double theta = Math.Acos(x[2] / r);
+            double phi = Math.Atan2(x[1], x[0]);
+            return Vector<double>.Build.DenseOfArray(new double[] {r , theta, phi });
+        }
+        public static Vector<double> sphere2cart(Vector<double> p)
+        {
+            if (p.Count != 3) throw new ArgumentException();
+            double r = p[0];
+            double theta = p[1];
+            double phi = p[2];
+            return Vector<double>.Build.DenseOfArray(new double[] { r * Math.Sin(theta) * Math.Cos(phi), r * Math.Sin(theta) * Math.Sin(phi), r * Math.Cos(theta)});
+        }
+
     }
 }

@@ -36,6 +36,7 @@ namespace NonlinearSystem
             Y = Phi(X) + Nu();
             Xinv = InvPhi(Y);
             YXinv = Y.Stack(Xinv);
+            //YXinv = Y.Stack(Y);
         }
     }
 }

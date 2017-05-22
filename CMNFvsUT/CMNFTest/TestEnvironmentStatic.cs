@@ -50,14 +50,14 @@ namespace CMNFTest
             StaticVectorModel[] models = new StaticVectorModel[n];
             Vector<double>[] X = new Vector<double>[n];
             Vector<double>[] Y = new Vector<double>[n];
-            Vector<double>[] Xinv = new Vector<double>[n];
+            //Vector<double>[] Xinv = new Vector<double>[n];
             Vector<double>[] YXinv = new Vector<double>[n];
             for (int i = 0; i < n; i++)
             {
                 models[i] = new StaticVectorModel(Phi, InvPhi, W, Nu);
                 X[i] = models[i].X;
                 Y[i] = models[i].Y;
-                Xinv[i] = models[i].Xinv;
+                //Xinv[i] = models[i].Xinv;
                 YXinv[i] = models[i].YXinv;
             }
 
@@ -72,7 +72,7 @@ namespace CMNFTest
             P_lin = Kxy_lin * (Kyy_lin.PseudoInverse());
 
             utStaticEstimate = new UTStaticEstimate();
-            utStaticEstimate.EstimateParameters3(Phi, x => x[0,0], X, Y, MX, KX, KNu);
+            utStaticEstimate.EstimateParameters(Phi, x => x.Trace(), X, Y, MX, KX, KNu);
         }
 
         public void GenerateBundle(int n, 
@@ -84,18 +84,14 @@ namespace CMNFTest
             StaticVectorModel[] models = new StaticVectorModel[n];
             Vector<double>[] X = new Vector<double>[n];
             Vector<double>[] Y = new Vector<double>[n];
-            Vector<double>[] Xinv = new Vector<double>[n];
+            //Vector<double>[] Xinv = new Vector<double>[n];
             Vector<double>[] YXinv = new Vector<double>[n];
-            X = new Vector<double>[n];
-            Y = new Vector<double>[n];
-            Xinv = new Vector<double>[n];
-            YXinv = new Vector<double>[n];
             for (int i = 0; i < n; i++)
             {
                 models[i] = new StaticVectorModel(Phi, InvPhi, W, Nu);
                 X[i] = models[i].X;
                 Y[i] = models[i].Y;
-                Xinv[i] = models[i].Xinv;
+                //Xinv[i] = models[i].Xinv;
                 YXinv[i] = models[i].YXinv;
             }
 
@@ -111,7 +107,7 @@ namespace CMNFTest
             KErr_lin = Extensions.Cov(Err_lin, Err_lin);
             KErrTh_lin = KX - P_lin * Kyy_lin * P_lin.Transpose();
 
-            utStaticEstimate.Estimate3(Phi, X, Y, MX, KX, KNu, out mErr_UT, out KErr_UT, out KErrTh_UT);
+            utStaticEstimate.Estimate(Phi, X, Y, MX, KX, KNu, out mErr_UT, out KErr_UT, out KErrTh_UT);
 
         }
 
