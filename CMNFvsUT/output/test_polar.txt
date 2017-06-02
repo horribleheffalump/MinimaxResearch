@@ -1,45 +1,36 @@
-mErr = DenseVector 3-Double
--0,0136628
- 0,0925769
- -0,107176
+mErr = DenseVector 2-Double
+-0,0289371
+ 0,0441297
 
-KErr = DenseMatrix 3x3-Double
-139,366  51,4128  73,3376
-51,4128  162,423   94,179
-73,3376   94,179  173,367
+KErr = DenseMatrix 2x2-Double
+248,937  82,9251
+82,9251  271,998
 
-KErrTh = DenseMatrix 3x3-Double
-146,028  57,0884  66,8721
-57,0884  155,775  93,7128
-66,8721  93,7128  177,667
+KErrTh = DenseMatrix 2x2-Double
+247,729  87,2933
+87,2933  278,454
 
-mErr_lin = DenseVector 3-Double
-0,00685752
- 0,0419507
--0,0543569
+mErr_lin = DenseVector 2-Double
+ 0,0191132
+0,00161203
 
-KErr_lin = DenseMatrix 3x3-Double
-551,381  55,0221  103,965
-55,0221  428,294   105,32
-103,965   105,32   219,15
+KErr_lin = DenseMatrix 2x2-Double
+584,074  76,1973
+76,1973  452,334
 
-KErrTh_lin = DenseMatrix 3x3-Double
-555,292  60,3974   98,915
-60,3974  419,414  105,454
- 98,915  105,454  222,732
+KErrTh_lin = DenseMatrix 2x2-Double
+578,377  80,8215
+80,8215  462,168
 
-mErr_UT = DenseVector 3-Double
--0,589941
- -7,75283
-  5,26059
+mErr_UT = DenseVector 2-Double
+-5,65223
+ 7,28225
 
-KErr_UT = DenseMatrix 3x3-Double
-604,807  61,4377  88,7936
-61,4377  497,327  102,368
-88,7936  102,368  223,634
+KErr_UT = DenseMatrix 2x2-Double
+605,858  73,8134
+73,8134  453,408
 
-KErrTh_UT = DenseMatrix 3x3-Double
-462,334  241,009  72,7206
-241,009  505,055  13,5422
-72,7206  13,5422  180,321
+KErrTh_UT = DenseMatrix 2x2-Double
+327,349    317,8
+  317,8  31,2749
 

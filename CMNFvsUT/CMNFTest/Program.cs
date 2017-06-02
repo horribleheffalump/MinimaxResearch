@@ -151,7 +151,7 @@ namespace CMNFTest
 
             //test1.Initialize(true, T, N);
             //test1.GenerateBundle(1000, Path.Combine(Settings.Default.OutputFolder, "test1_estimateAvg_{0}.txt"), true);
-            //simension 2
+            //dimension 2
 
 
             //polar???
@@ -190,22 +190,23 @@ namespace CMNFTest
 
             //polar!
 
-            //int N = 100000;
-            //Vector<double> mX = Vector(30, 40); Matrix<double> KX = Diag(30 * 30, 30 * 30);
-            //Vector<double> mNu = Vector(0, 0); Matrix<double> KNu = Diag(Math.Pow(5 * Math.PI / 180.0, 2.0), 30 * 30);
-            //Normal[] NormalX = new Normal[2] { new Normal(mX[0], Math.Sqrt(KX[0, 0])), new Normal(mX[1], Math.Sqrt(KX[1, 1])) };
-            //Normal[] NormalNu = new Normal[2] { new Normal(mNu[0], Math.Sqrt(KNu[0, 0])), new Normal(mNu[1], Math.Sqrt(KNu[1, 1])) }; ;
+            int N = 100000;
+            Vector<double> mX = Vector(30, 40); Matrix<double> KX = Diag(30 * 30, 30 * 30);
+            Vector<double> mNu = Vector(0, 0); Matrix<double> KNu = Diag(Math.Pow(5 * Math.PI / 180.0, 2.0), 30 * 30);
+            Normal[] NormalX = new Normal[2] { new Normal(mX[0], Math.Sqrt(KX[0, 0])), new Normal(mX[1], Math.Sqrt(KX[1, 1])) };
+            Normal[] NormalNu = new Normal[2] { new Normal(mNu[0], Math.Sqrt(KNu[0, 0])), new Normal(mNu[1], Math.Sqrt(KNu[1, 1])) }; ;
 
-            //TestEnvironmentStatic testPolar = new TestEnvironmentStatic
-            //{
-            //    Phi = x => Extensions.cart2pol(x),
-            //    InvPhi = y => Extensions.pol2cart(y),
-            //    W = () => Vector(NormalX[0].Sample(), NormalX[1].Sample()),
-            //    Nu = () => Vector(NormalNu[0].Sample(), NormalNu[1].Sample()),
-            //    MX = mX,
-            //    KX = KX,
-            //    KNu = KNu
-            //};
+            TestEnvironmentStatic testPolar = new TestEnvironmentStatic
+            {
+                Phi = x => Extensions.cart2pol(x),
+                InvPhi = y => Extensions.pol2cart(y),
+                W = () => Vector(NormalX[0].Sample(), NormalX[1].Sample()),
+                Nu = () => Vector(NormalNu[0].Sample(), NormalNu[1].Sample()),
+                MX = mX,
+                KX = KX,
+                KNu = KNu,
+                utOptimizationType = UTOptimizationType.Explicit
+            };
 
 
             //int N = 100000;
@@ -242,23 +243,23 @@ namespace CMNFTest
             //    KNu = KNu
             //};
 
-            //sphere
-            int N = 100000;
-            Vector<double> mX = Vector(30, 40, 50); Matrix<double> KX = Diag(30 * 30, 30 * 30, 30 * 30);
-            Vector<double> mNu = Vector(0, 0, 0); Matrix<double> KNu = Diag(30 * 30, Math.Pow(5 * Math.PI / 180.0/ 60, 2.0), Math.Pow(5 * Math.PI / 180.0/ 60, 2.0));
-            Normal[] NormalX = new Normal[3] { new Normal(mX[0], Math.Sqrt(KX[0, 0])), new Normal(mX[1], Math.Sqrt(KX[1, 1])), new Normal(mX[2], Math.Sqrt(KX[2, 2])) };
-            Normal[] NormalNu = new Normal[3] { new Normal(mNu[0], Math.Sqrt(KNu[0, 0])), new Normal(mNu[1], Math.Sqrt(KNu[1, 1])), new Normal(mNu[2], Math.Sqrt(KNu[2, 2])) }; ;
+            ////sphere
+            //int N = 100000;
+            //Vector<double> mX = Vector(30, 40, 50); Matrix<double> KX = Diag(30 * 30, 30 * 30, 30 * 30);
+            //Vector<double> mNu = Vector(0, 0, 0); Matrix<double> KNu = Diag(30 * 30, Math.Pow(5 * Math.PI / 180.0/ 60, 2.0), Math.Pow(5 * Math.PI / 180.0/ 60, 2.0));
+            //Normal[] NormalX = new Normal[3] { new Normal(mX[0], Math.Sqrt(KX[0, 0])), new Normal(mX[1], Math.Sqrt(KX[1, 1])), new Normal(mX[2], Math.Sqrt(KX[2, 2])) };
+            //Normal[] NormalNu = new Normal[3] { new Normal(mNu[0], Math.Sqrt(KNu[0, 0])), new Normal(mNu[1], Math.Sqrt(KNu[1, 1])), new Normal(mNu[2], Math.Sqrt(KNu[2, 2])) }; ;
 
-            TestEnvironmentStatic testPolar = new TestEnvironmentStatic
-            {
-                Phi = x => Extensions.cart2sphere(x),
-                InvPhi = y => Extensions.sphere2cart(y),
-                W = () => Vector(NormalX[0].Sample(), NormalX[1].Sample(), NormalX[2].Sample()),
-                Nu = () => Vector(NormalNu[0].Sample(), NormalNu[1].Sample(), NormalNu[2].Sample()),
-                MX = mX,
-                KX = KX,
-                KNu = KNu
-            };
+            //TestEnvironmentStatic testPolar = new TestEnvironmentStatic
+            //{
+            //    Phi = x => Extensions.cart2sphere(x),
+            //    InvPhi = y => Extensions.sphere2cart(y),
+            //    W = () => Vector(NormalX[0].Sample(), NormalX[1].Sample(), NormalX[2].Sample()),
+            //    Nu = () => Vector(NormalNu[0].Sample(), NormalNu[1].Sample(), NormalNu[2].Sample()),
+            //    MX = mX,
+            //    KX = KX,
+            //    KNu = KNu
+            //};
 
             testPolar.Initialize(N);
             Vector<double> mErr;
@@ -270,7 +271,7 @@ namespace CMNFTest
             Vector<double> mErr_UT;
             Matrix<double> KErr_UT;
             Matrix<double> KErrTh_UT;
-            testPolar.GenerateBundle(N, out mErr, out KErr, out KErrTh, out mErr_lin, out KErr_lin, out KErrTh_lin,  out mErr_UT, out KErr_UT, out KErrTh_UT);
+            testPolar.GenerateBundle(N, out mErr, out KErr, out KErrTh, out mErr_lin, out KErr_lin, out KErrTh_lin, out mErr_UT, out KErr_UT, out KErrTh_UT);
 
 
 
