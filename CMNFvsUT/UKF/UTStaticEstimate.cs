@@ -19,7 +19,7 @@ namespace UKF
             OptimizationType = type;
         }
 
-        public void Estimate(Func<Vector<double>, Vector<double>> Phi, Vector<double>[] X, Vector<double>[] Y, Vector<double> mX, Matrix<double> KX, Matrix<double> KNu,
+        public Vector<double>[] Estimate(Func<Vector<double>, Vector<double>> Phi, Vector<double>[] X, Vector<double>[] Y, Vector<double> mX, Matrix<double> KX, Matrix<double> KNu,
             out Vector<double> mErr_UT, out Matrix<double> KErr_UT, out Matrix<double> KErrTh_UT)
         {
             Vector<double> M_UT;
@@ -34,14 +34,15 @@ namespace UKF
             mErr_UT = Err_UT.Average();
             KErr_UT = Extensions.Cov(Err_UT, Err_UT);
 
+            return Xhat_UT;
         }
 
         public void EstimateParameters(int N1, int N2, Func<Vector<double>, Vector<double>> Phi, Func<Matrix<double>, double> Crit, Vector<double>[] X, Vector<double>[] Y, Vector<double> mX, Matrix<double> KX, Matrix<double> KNu)
         {
-            //optimalParams = UTParmsOptimize(OptimizationType, Phi, Crit, X, Y, mX, KX, KNu);
-            optimalParams = UTParmsOptimize(N1, N2, UTOptimizationType.ImplicitAlpha, Phi, Crit, X, Y, mX, KX, KNu);
-            optimalParams = UTParmsOptimize(N1, N2, UTOptimizationType.ImplicitAlphaBetaKappa, Phi, Crit, X, Y, mX, KX, KNu);
-            optimalParams = UTParmsOptimize(N1, N2, UTOptimizationType.Explicit, Phi, Crit, X, Y, mX, KX, KNu);
+            optimalParams = UTParmsOptimize(N1, N2, OptimizationType, Phi, Crit, X, Y, mX, KX, KNu);
+            //optimalParams = UTParmsOptimize(N1, N2, UTOptimizationType.ImplicitAlpha, Phi, Crit, X, Y, mX, KX, KNu);
+            //optimalParams = UTParmsOptimize(N1, N2, UTOptimizationType.ImplicitAlphaBetaKappa, Phi, Crit, X, Y, mX, KX, KNu);
+            //optimalParams = UTParmsOptimize(N1, N2, UTOptimizationType.Explicit, Phi, Crit, X, Y, mX, KX, KNu);
 
         }
 

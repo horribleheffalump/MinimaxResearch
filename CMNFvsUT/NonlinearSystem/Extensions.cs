@@ -3,11 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MathNet.Numerics.LinearAlgebra;
+using System.Globalization;
 
 namespace NonlinearSystem
 {
     public static class Extensions
     {
+        public static string ToLine(this Vector<double> x)
+        {
+            NumberFormatInfo provider = new NumberFormatInfo()
+            {
+                NumberDecimalSeparator = ","
+            };
+            return string.Join("; ", x.ToArray().Select(elem => String.Format(provider, "{0}", elem)));
+        }
+
         public static Vector<double> Average(this Vector<double>[] x)
         {
             Vector<double> mx = x[0];

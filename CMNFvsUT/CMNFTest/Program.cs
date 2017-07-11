@@ -18,8 +18,10 @@ namespace CMNFTest
         static void Main(string[] args)
         {
             NumberFormatInfo provider;
-            provider = new NumberFormatInfo();
-            provider.NumberDecimalSeparator = ".";
+            provider = new NumberFormatInfo()
+            {
+                NumberDecimalSeparator = "."
+            };
 
             //Vector<double>[] coords = new Vector<double>[27];
             //coords[0] = Vector(0, 0, 0);
@@ -190,23 +192,25 @@ namespace CMNFTest
 
             //polar!
 
-            int N = 100000;
-            Vector<double> mX = Vector(30, 40); Matrix<double> KX = Diag(30 * 30, 30 * 30);
-            Vector<double> mNu = Vector(0, 0); Matrix<double> KNu = Diag(Math.Pow(5 * Math.PI / 180.0, 2.0), 30 * 30);
-            Normal[] NormalX = new Normal[2] { new Normal(mX[0], Math.Sqrt(KX[0, 0])), new Normal(mX[1], Math.Sqrt(KX[1, 1])) };
-            Normal[] NormalNu = new Normal[2] { new Normal(mNu[0], Math.Sqrt(KNu[0, 0])), new Normal(mNu[1], Math.Sqrt(KNu[1, 1])) }; ;
+            //int N = 10000;
+            //Vector<double> mX = Vector(30, 40); Matrix<double> KX = Diag(30 * 30, 30 * 30);
+            //Vector<double> mNu = Vector(0, 0); Matrix<double> KNu = Diag(Math.Pow(5 * Math.PI / 180.0, 2.0), 30 * 30);
+            //Normal[] NormalX = new Normal[2] { new Normal(mX[0], Math.Sqrt(KX[0, 0])), new Normal(mX[1], Math.Sqrt(KX[1, 1])) };
+            //Normal[] NormalNu = new Normal[2] { new Normal(mNu[0], Math.Sqrt(KNu[0, 0])), new Normal(mNu[1], Math.Sqrt(KNu[1, 1])) }; ;
 
-            TestEnvironmentStatic testPolar = new TestEnvironmentStatic
-            {
-                Phi = x => Extensions.cart2pol(x),
-                InvPhi = y => Extensions.pol2cart(y),
-                W = () => Vector(NormalX[0].Sample(), NormalX[1].Sample()),
-                Nu = () => Vector(NormalNu[0].Sample(), NormalNu[1].Sample()),
-                MX = mX,
-                KX = KX,
-                KNu = KNu,
-                utOptimizationType = UTOptimizationType.Explicit
-            };
+            ////Console.WriteLine(mX.ToLine());
+
+            //TestEnvironmentStatic testPolar = new TestEnvironmentStatic
+            //{
+            //    Phi = x => Extensions.cart2pol(x),
+            //    InvPhi = y => Extensions.pol2cart(y),
+            //    W = () => Vector(NormalX[0].Sample(), NormalX[1].Sample()),
+            //    Nu = () => Vector(NormalNu[0].Sample(), NormalNu[1].Sample()),
+            //    MX = mX,
+            //    KX = KX,
+            //    KNu = KNu,
+            //    utOptimizationType = UTOptimizationType.ImplicitAlphaBetaKappa
+            //};
 
 
             //int N = 100000;
@@ -243,36 +247,41 @@ namespace CMNFTest
             //    KNu = KNu
             //};
 
-            ////sphere
-            //int N = 100000;
-            //Vector<double> mX = Vector(30, 40, 50); Matrix<double> KX = Diag(30 * 30, 30 * 30, 30 * 30);
-            //Vector<double> mNu = Vector(0, 0, 0); Matrix<double> KNu = Diag(30 * 30, Math.Pow(5 * Math.PI / 180.0/ 60, 2.0), Math.Pow(5 * Math.PI / 180.0/ 60, 2.0));
-            //Normal[] NormalX = new Normal[3] { new Normal(mX[0], Math.Sqrt(KX[0, 0])), new Normal(mX[1], Math.Sqrt(KX[1, 1])), new Normal(mX[2], Math.Sqrt(KX[2, 2])) };
-            //Normal[] NormalNu = new Normal[3] { new Normal(mNu[0], Math.Sqrt(KNu[0, 0])), new Normal(mNu[1], Math.Sqrt(KNu[1, 1])), new Normal(mNu[2], Math.Sqrt(KNu[2, 2])) }; ;
+            //sphere
+            int N = 1000;
+            Vector<double> mX = Vector(30, 40, 100); Matrix<double> KX = Diag(30 * 30, 30 * 30, 30 * 30);
+            Vector<double> mNu = Vector(0, 0, 0); Matrix<double> KNu = Diag(30 * 30, Math.Pow(5 * Math.PI / 180.0 / 60.0, 2.0), Math.Pow(5 * Math.PI / 180.0 / 60.0, 2.0));
+            Normal[] NormalX = new Normal[3] { new Normal(mX[0], Math.Sqrt(KX[0, 0])), new Normal(mX[1], Math.Sqrt(KX[1, 1])), new Normal(mX[2], Math.Sqrt(KX[2, 2])) };
+            Normal[] NormalNu = new Normal[3] { new Normal(mNu[0], Math.Sqrt(KNu[0, 0])), new Normal(mNu[1], Math.Sqrt(KNu[1, 1])), new Normal(mNu[2], Math.Sqrt(KNu[2, 2])) }; ;
 
-            //TestEnvironmentStatic testPolar = new TestEnvironmentStatic
-            //{
-            //    Phi = x => Extensions.cart2sphere(x),
-            //    InvPhi = y => Extensions.sphere2cart(y),
-            //    W = () => Vector(NormalX[0].Sample(), NormalX[1].Sample(), NormalX[2].Sample()),
-            //    Nu = () => Vector(NormalNu[0].Sample(), NormalNu[1].Sample(), NormalNu[2].Sample()),
-            //    MX = mX,
-            //    KX = KX,
-            //    KNu = KNu
-            //};
+            TestEnvironmentStatic testPolar = new TestEnvironmentStatic
+            {
+                Phi = x => Extensions.cart2sphere(x),
+                InvPhi = y => Extensions.sphere2cart(y),
+                W = () => Vector(NormalX[0].Sample(), NormalX[1].Sample(), NormalX[2].Sample()),
+                Nu = () => Vector(NormalNu[0].Sample(), NormalNu[1].Sample(), NormalNu[2].Sample()),
+                MX = mX,
+                KX = KX,
+                KNu = KNu,
+                utOptimizationType = UTOptimizationType.ImplicitAlphaBetaKappa
+            };
 
-            testPolar.Initialize(N);
+            testPolar.Initialize(N, 100, 100);
             Vector<double> mErr;
             Matrix<double> KErr;
             Matrix<double> KErrTh;
+            Vector<double> mErr_inv;
+            Matrix<double> KErr_inv;
+            Matrix<double> KErrTh_inv;
             Vector<double> mErr_lin;
             Matrix<double> KErr_lin;
             Matrix<double> KErrTh_lin;
             Vector<double> mErr_UT;
             Matrix<double> KErr_UT;
             Matrix<double> KErrTh_UT;
-            testPolar.GenerateBundle(N, out mErr, out KErr, out KErrTh, out mErr_lin, out KErr_lin, out KErrTh_lin, out mErr_UT, out KErr_UT, out KErrTh_UT);
 
+            string fileName_alldata = Path.Combine(Settings.Default.OutputFolder, "test_polar_alldata.txt");
+            testPolar.GenerateBundle(N, out mErr, out KErr, out KErrTh, out mErr_inv, out KErr_inv, out KErrTh_inv, out mErr_lin, out KErr_lin, out KErrTh_lin, out mErr_UT, out KErr_UT, out KErrTh_UT, fileName_alldata);
 
 
             string fileName = Path.Combine(Settings.Default.OutputFolder, "test_polar.txt");
@@ -282,6 +291,11 @@ namespace CMNFTest
                 outputfile.WriteLine($"mErr = {mErr}");
                 outputfile.WriteLine($"KErr = {KErr}");
                 outputfile.WriteLine($"KErrTh = {KErrTh}");
+
+                //outputfile.WriteLine($"P_inv = {P_inv}");
+                outputfile.WriteLine($"mErr_inv = {mErr_inv}");
+                outputfile.WriteLine($"KErr_inv = {KErr_inv}");
+                outputfile.WriteLine($"KErrTh_inv = {KErrTh_inv}");
 
                 //outputfile.WriteLine($"P_lin = {P_lin}");
                 outputfile.WriteLine($"mErr_lin = {mErr_lin}");
