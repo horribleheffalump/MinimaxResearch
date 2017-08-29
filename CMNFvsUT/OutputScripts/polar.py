@@ -3,9 +3,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 matplotlib.rc('text', usetex = True)
 import pylab
+import sys
 
-#filename = u"../output/test_polar.txt"
-filename = u"D:/Наука/_Статьи/__в работе/AiT - unscented/опыты/UTvsCMFresults/"
+filename = u"../output/test_polar.txt"
+#filename = u"D:/Наука/_Статьи/__в работе/AiT - unscented/опыты/UTvsCMFresults/"
+#filename = sys.argv[1]
 x, y, xi, yi = np.loadtxt(filename, delimiter = ' ', usecols=(0,1,2,3), unpack=True, dtype=float)
 
 from pylab import *

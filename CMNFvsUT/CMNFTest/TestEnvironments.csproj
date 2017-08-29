@@ -65,6 +65,10 @@
       <Project>{56B18624-92EE-44E0-A654-F86B72551462}</Project>
       <Name>NonlinearSystem</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PythonInteract\PythonInteract.csproj">
+      <Project>{AD1A8CDF-9631-4053-A676-5C5F8C164EF8}</Project>
+      <Name>PythonInteract</Name>
+    </ProjectReference>
     <ProjectReference Include="..\UKF\UKF.csproj">
       <Project>{A6D93E6B-F39B-43B3-8B15-A376AE0E069F}</Project>
       <Name>UKF</Name>

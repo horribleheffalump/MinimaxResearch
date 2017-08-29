@@ -3,8 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 matplotlib.rc('text', usetex = True)
 import pylab
+import sys
 
-filename = u"../output/state.txt"
+filename = sys.argv[1]
+#u"../output/state.txt"
 t, x = np.loadtxt(filename, delimiter = ' ', usecols=(0,1), unpack=True, dtype=float)
 
 from pylab import *

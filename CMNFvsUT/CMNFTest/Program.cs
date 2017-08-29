@@ -10,6 +10,8 @@ using MathNet.Numerics.Distributions;
 using MathNet.Numerics.LinearAlgebra;
 using NonlinearSystem;
 using UKF;
+using PythonInteract;
+using System.Linq.Expressions;
 
 namespace CMNFTest
 {
@@ -22,7 +24,7 @@ namespace CMNFTest
             {
                 NumberDecimalSeparator = "."
             };
-           
+
             //dimension 1
             //int T = 25;
             //int N = 1000;
@@ -82,37 +84,45 @@ namespace CMNFTest
             //dimension 1 scalar
 
             //dimension 2
-            //int T = 25;
-            //int N = 1000;
-            //Vector<double> mW = Vector(0, 0); Matrix<double> dW = Diag(1, 1);
-            //Vector<double> mNu = Vector(0, 0); Matrix<double> dNu = Diag(1, 1);
-            //Vector<double> mEta = Vector(100, 100); Matrix<double> dEta = Diag(100, 100);
-            //Func<int, Vector<double>, Vector<double>> phi1 = (s, x) => Vector(x[0] / (1 + x[0] * x[0]), x[1] / (1 + x[1] * x[1]));
-            //Func<int, Vector<double>, Matrix<double>> phi2 = (s, x) => Diag(1.0, 1.0);
-            //Func<int, Vector<double>, Vector<double>> psi = (s, x) => Vector(Math.Pow(x[0], 3) + Math.Pow(x[0], 1), Math.Pow(x[1], 3) + Math.Pow(x[1], 1));
+            int T = 5;
+            int N = 10;
+            Vector<double> mW = Vector(0, 0); Matrix<double> dW = Diag(1, 1);
+            Vector<double> mNu = Vector(0, 0); Matrix<double> dNu = Diag(1, 1);
+            Vector<double> mEta = Vector(100, 100); Matrix<double> dEta = Diag(100, 100);
+            Func<int, Vector<double>, Vector<double>> phi1 = (s, x) => Vector(x[0] / (1 + x[0] * x[0]), x[1] / (1 + x[1] * x[1]));
+            Func<int, Vector<double>, Matrix<double>> phi2 = (s, x) => Diag(1.0, 1.0);
+            Func<int, Vector<double>, Vector<double>> psi = (s, x) => Vector(Math.Pow(x[0], 3) + Math.Pow(x[0], 1), Math.Pow(x[1], 3) + Math.Pow(x[1], 1));
 
-            //Normal[] NormalW = new Normal[2] { new Normal(mW[0], Math.Sqrt(dW[0, 0])), new Normal(mW[1], Math.Sqrt(dW[1, 1])) };
-            //Normal[] NormalNu = new Normal[2] { new Normal(mNu[0], Math.Sqrt(dNu[0, 0])), new Normal(mNu[1], Math.Sqrt(dNu[1, 1])) }; ;
-            //Normal[] NormalEta = new Normal[2] { new Normal(mEta[0], Math.Sqrt(dEta[0, 0])), new Normal(mEta[1], Math.Sqrt(dEta[1, 1])) }; ;
+            Normal[] NormalW = new Normal[2] { new Normal(mW[0], Math.Sqrt(dW[0, 0])), new Normal(mW[1], Math.Sqrt(dW[1, 1])) };
+            Normal[] NormalNu = new Normal[2] { new Normal(mNu[0], Math.Sqrt(dNu[0, 0])), new Normal(mNu[1], Math.Sqrt(dNu[1, 1])) }; ;
+            Normal[] NormalEta = new Normal[2] { new Normal(mEta[0], Math.Sqrt(dEta[0, 0])), new Normal(mEta[1], Math.Sqrt(dEta[1, 1])) }; ;
 
-            //TestEnvironmentVector test1 = new TestEnvironmentVector()
-            //{
-            //    Phi1 = phi1,
-            //    Phi2 = phi2,
-            //    Psi = psi,
-            //    Xi = (s, x) => phi1(s, x) + phi2(s, x) * mW,
-            //    Zeta = (s, x, y) => y - psi(s, x) - mNu,
-            //    W = (s) => Vector(NormalW[0].Sample(), NormalW[1].Sample()),
-            //    Nu = (s) => Vector(NormalNu[0].Sample(), NormalNu[1].Sample()),
-            //    DW = dW,
-            //    DNu = dNu,
-            //    X0 = () => Vector(NormalEta[0].Sample(), NormalEta[1].Sample()),
-            //    X0Hat = mEta,
-            //    DX0Hat = dEta
-            //};
+            //Expression<Func<int, Vector<double>, Vector<double>>> expr = (s, x) => Vector(x[0] / (1 + x[0] * x[0]), x[1] / (1 + x[1] * x[1])); ;
 
-            //test1.Initialize(true, T, N);
-            //test1.GenerateBundle(1000, Path.Combine(Settings.Default.OutputFolder, "test1_estimateAvg_{0}.txt"), true);
+            TestEnvironmentVector test1 = new TestEnvironmentVector()
+            {
+                Phi1 = phi1,
+                Phi2 = phi2,
+                Psi = psi,
+                Xi = (s, x) => phi1(s, x) + phi2(s, x) * mW,
+                Zeta = (s, x, y) => y - psi(s, x) - mNu,
+                W = (s) => Vector(NormalW[0].Sample(), NormalW[1].Sample()),
+                Nu = (s) => Vector(NormalNu[0].Sample(), NormalNu[1].Sample()),
+                DW = dW,
+                DNu = dNu,
+                X0 = () => Vector(NormalEta[0].Sample(), NormalEta[1].Sample()),
+                X0Hat = mEta,
+                DX0Hat = dEta
+
+            };
+
+            //Console.WriteLine(expr.ToString());
+            Console.ReadLine();
+            test1.Initialize(true, T, N);
+            test1.GenerateBundle(10, Path.Combine(Settings.Default.OutputFolder, "test1_estimateAvg_{0}.txt"), true);
+            Python.RunScript(Path.Combine(Settings.Default.ScriptsFolder, "estimate.py"), new string[] { Settings.Default.OutputFolder, "test1_estimateAvg_0.txt", "test1_estimateAvg_0.pdf" });
+            Python.RunScript(Path.Combine(Settings.Default.ScriptsFolder, "estimate.py"), new string[] { Settings.Default.OutputFolder, "test1_estimateAvg_1.txt", "test1_estimateAvg_1.pdf" });
+            //Console.ReadLine();
             //dimension 2
 
 
@@ -208,67 +218,67 @@ namespace CMNFTest
             //};
 
             //sphere
-            int N = 100000;
-            Vector<double> mX = Vector(30, 40, 100); Matrix<double> KX = Diag(30 * 30, 30 * 30, 30 * 30);
-            Vector<double> mNu = Vector(0, 0, 0); Matrix<double> KNu = Diag(30 * 30, Math.Pow(5 * Math.PI / 180.0 / 60.0, 2.0), Math.Pow(5 * Math.PI / 180.0 / 60.0, 2.0));
-            Normal[] NormalX = new Normal[3] { new Normal(mX[0], Math.Sqrt(KX[0, 0])), new Normal(mX[1], Math.Sqrt(KX[1, 1])), new Normal(mX[2], Math.Sqrt(KX[2, 2])) };
-            Normal[] NormalNu = new Normal[3] { new Normal(mNu[0], Math.Sqrt(KNu[0, 0])), new Normal(mNu[1], Math.Sqrt(KNu[1, 1])), new Normal(mNu[2], Math.Sqrt(KNu[2, 2])) }; ;
+            //int N = 100000;
+            //Vector<double> mX = Vector(30, 40, 100); Matrix<double> KX = Diag(30 * 30, 30 * 30, 30 * 30);
+            //Vector<double> mNu = Vector(0, 0, 0); Matrix<double> KNu = Diag(30 * 30, Math.Pow(5 * Math.PI / 180.0 / 60.0, 2.0), Math.Pow(5 * Math.PI / 180.0 / 60.0, 2.0));
+            //Normal[] NormalX = new Normal[3] { new Normal(mX[0], Math.Sqrt(KX[0, 0])), new Normal(mX[1], Math.Sqrt(KX[1, 1])), new Normal(mX[2], Math.Sqrt(KX[2, 2])) };
+            //Normal[] NormalNu = new Normal[3] { new Normal(mNu[0], Math.Sqrt(KNu[0, 0])), new Normal(mNu[1], Math.Sqrt(KNu[1, 1])), new Normal(mNu[2], Math.Sqrt(KNu[2, 2])) }; ;
 
-            TestEnvironmentStatic testPolar = new TestEnvironmentStatic
-            {
-                Phi = x => Extensions.cart2sphere(x),
-                InvPhi = y => Extensions.sphere2cart(y),
-                W = () => Vector(NormalX[0].Sample(), NormalX[1].Sample(), NormalX[2].Sample()),
-                Nu = () => Vector(NormalNu[0].Sample(), NormalNu[1].Sample(), NormalNu[2].Sample()),
-                MX = mX,
-                KX = KX,
-                KNu = KNu,
-                utOptimizationType = UTOptimizationType.ImplicitAlphaBetaKappa
-            };
+            //TestEnvironmentStatic testPolar = new TestEnvironmentStatic
+            //{
+            //    Phi = x => Extensions.cart2sphere(x),
+            //    InvPhi = y => Extensions.sphere2cart(y),
+            //    W = () => Vector(NormalX[0].Sample(), NormalX[1].Sample(), NormalX[2].Sample()),
+            //    Nu = () => Vector(NormalNu[0].Sample(), NormalNu[1].Sample(), NormalNu[2].Sample()),
+            //    MX = mX,
+            //    KX = KX,
+            //    KNu = KNu,
+            //    utOptimizationType = UTOptimizationType.ImplicitAlphaBetaKappa
+            //};
 
-            testPolar.Initialize(N, 100, 100);
-            Vector<double> mErr;
-            Matrix<double> KErr;
-            Matrix<double> KErrTh;
-            Vector<double> mErr_inv;
-            Matrix<double> KErr_inv;
-            Matrix<double> KErrTh_inv;
-            Vector<double> mErr_lin;
-            Matrix<double> KErr_lin;
-            Matrix<double> KErrTh_lin;
-            Vector<double> mErr_UT;
-            Matrix<double> KErr_UT;
-            Matrix<double> KErrTh_UT;
+            //testPolar.Initialize(N, 100, 100);
+            //Vector<double> mErr;
+            //Matrix<double> KErr;
+            //Matrix<double> KErrTh;
+            //Vector<double> mErr_inv;
+            //Matrix<double> KErr_inv;
+            //Matrix<double> KErrTh_inv;
+            //Vector<double> mErr_lin;
+            //Matrix<double> KErr_lin;
+            //Matrix<double> KErrTh_lin;
+            //Vector<double> mErr_UT;
+            //Matrix<double> KErr_UT;
+            //Matrix<double> KErrTh_UT;
 
-            string fileName_alldata = Path.Combine(Settings.Default.OutputFolder, "test_polar_alldata.txt");
-            testPolar.GenerateBundle(N, out mErr, out KErr, out KErrTh, out mErr_inv, out KErr_inv, out KErrTh_inv, out mErr_lin, out KErr_lin, out KErrTh_lin, out mErr_UT, out KErr_UT, out KErrTh_UT, fileName_alldata);
+            //string fileName_alldata = Path.Combine(Settings.Default.OutputFolder, "test_polar_alldata.txt");
+            //testPolar.GenerateBundle(N, out mErr, out KErr, out KErrTh, out mErr_inv, out KErr_inv, out KErrTh_inv, out mErr_lin, out KErr_lin, out KErrTh_lin, out mErr_UT, out KErr_UT, out KErrTh_UT, fileName_alldata);
 
 
-            string fileName = Path.Combine(Settings.Default.OutputFolder, "test_polar.txt");
-            using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName))
-            {
-                //outputfile.WriteLine($"P = {P}");
-                outputfile.WriteLine($"mErr = {mErr}");
-                outputfile.WriteLine($"KErr = {KErr}");
-                outputfile.WriteLine($"KErrTh = {KErrTh}");
+            //string fileName = Path.Combine(Settings.Default.OutputFolder, "test_polar.txt");
+            //using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName))
+            //{
+            //    //outputfile.WriteLine($"P = {P}");
+            //    outputfile.WriteLine($"mErr = {mErr}");
+            //    outputfile.WriteLine($"KErr = {KErr}");
+            //    outputfile.WriteLine($"KErrTh = {KErrTh}");
 
-                //outputfile.WriteLine($"P_inv = {P_inv}");
-                outputfile.WriteLine($"mErr_inv = {mErr_inv}");
-                outputfile.WriteLine($"KErr_inv = {KErr_inv}");
-                outputfile.WriteLine($"KErrTh_inv = {KErrTh_inv}");
+            //    //outputfile.WriteLine($"P_inv = {P_inv}");
+            //    outputfile.WriteLine($"mErr_inv = {mErr_inv}");
+            //    outputfile.WriteLine($"KErr_inv = {KErr_inv}");
+            //    outputfile.WriteLine($"KErrTh_inv = {KErrTh_inv}");
 
-                //outputfile.WriteLine($"P_lin = {P_lin}");
-                outputfile.WriteLine($"mErr_lin = {mErr_lin}");
-                outputfile.WriteLine($"KErr_lin = {KErr_lin}");
-                outputfile.WriteLine($"KErrTh_lin = {KErrTh_lin}");
+            //    //outputfile.WriteLine($"P_lin = {P_lin}");
+            //    outputfile.WriteLine($"mErr_lin = {mErr_lin}");
+            //    outputfile.WriteLine($"KErr_lin = {KErr_lin}");
+            //    outputfile.WriteLine($"KErrTh_lin = {KErrTh_lin}");
 
-                //outputfile.WriteLine($"P_UT = {P_UT}");
-                outputfile.WriteLine($"mErr_UT = {mErr_UT}");
-                outputfile.WriteLine($"KErr_UT = {KErr_UT}");
-                outputfile.WriteLine($"KErrTh_UT = {KErrTh_UT}");
+            //    //outputfile.WriteLine($"P_UT = {P_UT}");
+            //    outputfile.WriteLine($"mErr_UT = {mErr_UT}");
+            //    outputfile.WriteLine($"KErr_UT = {KErr_UT}");
+            //    outputfile.WriteLine($"KErrTh_UT = {KErrTh_UT}");
 
-                outputfile.Close();
-            }
+            //    outputfile.Close();
+            //}
 
 
             //string fileName = Path.Combine(Settings.Default.OutputFolder, "test_polar.txt");

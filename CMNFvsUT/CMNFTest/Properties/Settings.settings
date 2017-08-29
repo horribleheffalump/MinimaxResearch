@@ -5,5 +5,8 @@
     <Setting Name="OutputFolder" Type="System.String" Scope="User">
       <Value Profile="(Default)">..\..\..\output</Value>
     </Setting>
+    <Setting Name="ScriptsFolder" Type="System.String" Scope="User">
+      <Value Profile="(Default)">..\..\..\OutputScripts</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
