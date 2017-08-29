@@ -22,47 +22,7 @@ namespace CMNFTest
             {
                 NumberDecimalSeparator = "."
             };
-
-            //Vector<double>[] coords = new Vector<double>[27];
-            //coords[0] = Vector(0, 0, 0);
-            //coords[1] = Vector(0, 0, 1);
-            //coords[2] = Vector(0, 0, -1);
-            //coords[3] = Vector(0, 1, 0);
-            //coords[4] = Vector(0, 1, 1);
-            //coords[5] = Vector(0, 1, -1);
-            //coords[6] = Vector(0, -1, 0);
-            //coords[7] = Vector(0, -1, 1);
-            //coords[8] = Vector(0, -1, -1);
-
-            //coords[9] = Vector(1, 0, 0);
-            //coords[10] = Vector(1, 0, 1);
-            //coords[11] = Vector(1, 0, -1);
-            //coords[12] = Vector(1, 1, 0);
-            //coords[13] = Vector(1, 1, 1);
-            //coords[14] = Vector(1, 1, -1);
-            //coords[15] = Vector(1, -1, 0);
-            //coords[16] = Vector(1, -1, 1);
-            //coords[17] = Vector(1, -1, -1);
-
-            //coords[18] = Vector(-1, 0, 0);
-            //coords[19] = Vector(-1, 0, 1);
-            //coords[20] = Vector(-1, 0, -1);
-            //coords[21] = Vector(-1, 1, 0);
-            //coords[22] = Vector(-1, 1, 1);
-            //coords[23] = Vector(-1, 1, -1);
-            //coords[24] = Vector(-1, -1, 0);
-            //coords[25] = Vector(-1, -1, 1);
-            //coords[26] = Vector(-1, -1, -1);
-
-            //for (int i = 1; i < 27; i++)
-            //{
-            //    Vector<double> sp = Extensions.cart2sphere(coords[i]);
-            //    Vector<double> inv = Extensions.sphere2cart(sp);
-            //    Console.WriteLine($"({coords[i][0]}, {coords[i][1]}, {coords[i][2]}) => ({sp[0]}, {sp[1]}, {sp[2]}) => ({inv[0]}, {inv[1]}, {inv[2]})");
-
-            //}
-            //Console.WriteLine();
-
+           
             //dimension 1
             //int T = 25;
             //int N = 1000;
@@ -248,7 +208,7 @@ namespace CMNFTest
             //};
 
             //sphere
-            int N = 1000;
+            int N = 100000;
             Vector<double> mX = Vector(30, 40, 100); Matrix<double> KX = Diag(30 * 30, 30 * 30, 30 * 30);
             Vector<double> mNu = Vector(0, 0, 0); Matrix<double> KNu = Diag(30 * 30, Math.Pow(5 * Math.PI / 180.0 / 60.0, 2.0), Math.Pow(5 * Math.PI / 180.0 / 60.0, 2.0));
             Normal[] NormalX = new Normal[3] { new Normal(mX[0], Math.Sqrt(KX[0, 0])), new Normal(mX[1], Math.Sqrt(KX[1, 1])), new Normal(mX[2], Math.Sqrt(KX[2, 2])) };

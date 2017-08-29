@@ -54,6 +54,7 @@
     <Compile Include="TestEnvironmentScalar.cs" />
     <Compile Include="TestEnvironmentStatic.cs" />
     <Compile Include="TestEnvironmentVector.cs" />
+    <Compile Include="TestPolar.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CMNF\CMNF.csproj">

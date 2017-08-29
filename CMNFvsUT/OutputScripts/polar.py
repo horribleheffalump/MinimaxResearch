@@ -4,7 +4,8 @@ import numpy as np
 matplotlib.rc('text', usetex = True)
 import pylab
 
-filename = u"../output/test_polar.txt"
+#filename = u"../output/test_polar.txt"
+filename = u"D:/Наука/_Статьи/__в работе/AiT - unscented/опыты/UTvsCMFresults/"
 x, y, xi, yi = np.loadtxt(filename, delimiter = ' ', usecols=(0,1,2,3), unpack=True, dtype=float)
 
 from pylab import *

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.14
+VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NonlinearSystem", "NonlinearSystem\NonlinearSystem.csproj", "{56B18624-92EE-44E0-A654-F86B72551462}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CMNF", "CMNF\CMNF.csproj", "{31100BA7-7A93-4AFD-8DF1-EB039938184B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UKF", "UKF\UKF.csproj", "{A6D93E6B-F39B-43B3-8B15-A376AE0E069F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PythonInteract", "PythonInteract\PythonInteract.csproj", "{AD1A8CDF-9631-4053-A676-5C5F8C164EF8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,6 +39,10 @@ Global
 		{A6D93E6B-F39B-43B3-8B15-A376AE0E069F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A6D93E6B-F39B-43B3-8B15-A376AE0E069F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A6D93E6B-F39B-43B3-8B15-A376AE0E069F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD1A8CDF-9631-4053-A676-5C5F8C164EF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD1A8CDF-9631-4053-A676-5C5F8C164EF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD1A8CDF-9631-4053-A676-5C5F8C164EF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD1A8CDF-9631-4053-A676-5C5F8C164EF8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
