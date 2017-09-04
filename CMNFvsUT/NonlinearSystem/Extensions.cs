@@ -123,5 +123,19 @@ namespace NonlinearSystem
             return Vector<double>.Build.DenseOfArray(new double[] { r * Math.Sin(theta) * Math.Cos(phi), r * Math.Sin(theta) * Math.Sin(phi), r * Math.Cos(theta)});
         }
 
+        public static Vector<double> Vector(params double[] val)
+        {
+            return Vector<double>.Build.Dense(val);
+        }
+        public static Matrix<double> Matrix(double val)
+        {
+            return Matrix<double>.Build.Dense(1, 1, val);
+        }
+        public  static Matrix<double> Diag(params double[] val)
+        {
+            return Matrix<double>.Build.DenseDiagonal(val.Length, val.Length, (i) => val[i]);
+        }
+
+
     }
 }

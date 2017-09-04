@@ -51,6 +51,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="TestCubicSensor.cs" />
     <Compile Include="TestEnvironmentScalar.cs" />
     <Compile Include="TestEnvironmentStatic.cs" />
     <Compile Include="TestEnvironmentVector.cs" />

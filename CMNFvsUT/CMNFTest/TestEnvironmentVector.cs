@@ -11,16 +11,26 @@ using MathNet.Numerics.Distributions;
 using MathNet.Numerics.LinearAlgebra;
 using NonlinearSystem;
 using UKF;
+using PythonInteract;
 
 namespace CMNFTest
 {
+    /// <summary>
+    /// Test environment for CMN and UT filters comparison on discrete stochastic dynamic systems
+    /// </summary>
     public class TestEnvironmentVector
     {
+        public string TestName;
         private int T;
 
         public Func<int, Vector<double>, Vector<double>> Phi1;
         public Func<int, Vector<double>, Matrix<double>> Phi2;
         public Func<int, Vector<double>, Vector<double>> Psi;
+
+        public string Phi1_latex;
+        public string Phi2_latex;
+        public string Psi_latex;
+
         public Func<int, Vector<double>> W;
         public Func<int, Vector<double>> Nu;
         public Matrix<double> DW;
@@ -37,7 +47,12 @@ namespace CMNFTest
         public CMNFilter CMNF;
         public UKFilter UKF;
 
-
+        /// <summary>
+        /// Initializes the test environment by calculating the statistics for CMN and UT filters
+        /// </summary>
+        /// <param name="doCalculateUKF"></param>
+        /// <param name="t">time interval right margin (number of steps)</param>
+        /// <param name="n">number of trajectories</param>
         public void Initialize(bool doCalculateUKF, int t, int n)
         {
             provider = new NumberFormatInfo();
@@ -101,7 +116,7 @@ namespace CMNFTest
         //}
 
 
-        public void GenerateBundle(int n, string fileName, bool doCalculateUKF)
+        private void GenerateBundle(int n, string fileName, bool doCalculateUKF)
         {
 
             //DiscreteScalarModel[] modelsEst = new DiscreteScalarModel[N];
@@ -194,5 +209,56 @@ namespace CMNFTest
                 }
             }
         }
+
+        /// <summary>
+        /// Runs the test: generates a bundle of trajectories, applies the CMN and UT filters, calculates statistics for estimate errors and saves it to files
+        /// </summary> 
+        /// <param name="n">Number of trajectories</param>
+        /// <param name="outputPath">Output files name template ({0} - number of state vector component)</param>
+        public void Run(int n, string outputPath)
+        {
+            GenerateBundle(n, outputPath, true);
+            //test1.GenerateBundle(n, Path.Combine(Settings.Default.OutputFolder, "test1_estimateAvg_{0}.txt"), true);
+        }
+
+        /// <summary>
+        /// Runs a python script to process the calculated test data
+        /// </summary>
+        /// <param name="scriptName">Python script file path</param>
+        /// <param name="scriptParamsTemplates">Script parameters templates array ({0} - number of state vector component)</param>
+        public void ProcessResults(string scriptName, string[] scriptParamsTemplates)
+        {
+            for (int i = 0; i < X0Hat.Count; i++)
+            {
+                Python.RunScript(scriptName, scriptParamsTemplates.Select(s => s.Replace("{0}", i.ToString())).ToArray());
+            }
+            //Python.RunScript(Path.Combine(Settings.Default.ScriptsFolder, "estimate.py"), new string[] { Settings.Default.OutputFolder, "test1_estimateAvg_0.txt", "test1_estimateAvg_0.pdf" });
+            //Python.RunScript(Path.Combine(Settings.Default.ScriptsFolder, "estimate.py"), new string[] { Settings.Default.OutputFolder, "test1_estimateAvg_1.txt", "test1_estimateAvg_1.pdf" });
+
+        }
+
+        public void GenerateReport(string templateFileName, string outputFileName)
+        {
+            Dictionary<string, string> replacements = new Dictionary<string, string>();
+            replacements.Add("%Title%", TestName);
+            replacements.Add("%phi1%", Phi1_latex);
+            replacements.Add("%phi2%", Phi2_latex);
+            replacements.Add("%psi%", Psi_latex);
+            replacements.Add("%m_w%", "0");
+            replacements.Add("%D_w%", "1");
+            replacements.Add("%m_nu%", "0");
+            replacements.Add("%D_nu%", "1");
+            replacements.Add("%m_eta%", "0");
+            replacements.Add("%D_eta%", "1");
+
+            string template = File.ReadAllText(templateFileName, Encoding.Default);
+            foreach (var pair in replacements)
+            {
+                template = template.Replace(pair.Key, pair.Value);
+            }
+            File.WriteAllText(outputFileName, template, Encoding.Default);
+        }
+
+
     }
 }
