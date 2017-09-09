@@ -46,5 +46,29 @@ namespace CMNFTest.Properties {
                 this["ScriptsFolder"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("..\\..\\..\\OutputLatex")]
+        public string LatexFolder {
+            get {
+                return ((string)(this["LatexFolder"]));
+            }
+            set {
+                this["LatexFolder"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\centerline{\\includegraphics[width=0.9\\textwidth]{%file%}}\r\n\\caption{%caption%}")]
+        public string LatexPictureTemplte {
+            get {
+                return ((string)(this["LatexPictureTemplte"]));
+            }
+            set {
+                this["LatexPictureTemplte"] = value;
+            }
+        }
     }
 }

@@ -1,0 +1,41 @@
+\subsection{%Title%}
+Система наблюдения:
+\begin{equation}\nonumber
+\left\lbrace\begin{array}{l}
+x_t = %phi1% + %phi2% w_t, \quad t= 0,\ldots,T, \quad x_0 = \eta, \\
+y_t = %psi% + \nu_t.
+\end{array}\right.
+\end{equation}
+
+$w_t \sim %P_w%$, 
+$\nu_t \sim %P_nu%$, 
+$\eta_t \sim %P_eta%$
+
+\newpage
+
+Статистика процесса: 
+\begin{itemize}
+\item сплошная --- МО процесса;
+\item штрих --- дисперсия процесса.
+\end{itemize}
+
+\begin{figure}[h]
+\begin{center}
+%figs_process%
+\end{center}
+\end{figure}
+
+\newpage
+
+Результаты фильтрации УМНФ (черные линии) и UT (серые линии): 
+\begin{itemize}
+\item сплошная --- МО ошибки оценки;
+\item штрих --- дисперсия ошибки оценки;
+\item пунктир --- теоретическая дисперсия ошибки оценки.
+\end{itemize}
+
+\begin{figure}[h]
+\begin{center}
+%figs_filter%
+\end{center}
+\end{figure}

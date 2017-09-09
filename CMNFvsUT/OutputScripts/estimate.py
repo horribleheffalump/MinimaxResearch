@@ -12,7 +12,7 @@ import os
 
 inputfilename = os.path.join(sys.argv[1], sys.argv[2])
 outputfilename = os.path.join(sys.argv[1], sys.argv[3])
-t, x, Dx, xhat, mErr, DErr, DErrTheor, xhatU, mErrU, DErrU, DErrUTheor = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,1,2,3,4,5,6,7,8,9,10), unpack=True, dtype=float)
+t, mx, Dx, xhat, mErr, DErr, DErrTheor, xhatU, mErrU, DErrU, DErrUTheor = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,1,2,3,4,5,6,7,8,9,10), unpack=True, dtype=float)
 
 from pylab import *
 

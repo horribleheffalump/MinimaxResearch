@@ -227,7 +227,7 @@ namespace UKF
                     }
 
                     Vector<double>[] states = models.Select(x => (x.Trajectory[t][0])).ToArray();
-                    Matrix<double> errorUPow2 = Extensions.Cov(states.Subtract(xHatU), states.Subtract(xHatU));
+                    Matrix<double> errorUPow2 = Utils.Cov(states.Subtract(xHatU), states.Subtract(xHatU));
 
                     //result = errorUPow2.Trace();
                     result = errorUPow2[1,1];

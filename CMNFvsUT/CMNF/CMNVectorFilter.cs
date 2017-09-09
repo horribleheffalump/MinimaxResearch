@@ -52,7 +52,7 @@ namespace CMNF
                     xiHat[i] = Xi(t, xHat[i]);
                 }
 
-                Matrix<double> F = Extensions.Cov(x, xiHat) * (Extensions.Cov(xiHat, xiHat).PseudoInverse());
+                Matrix<double> F = Utils.Cov(x, xiHat) * (Utils.Cov(xiHat, xiHat).PseudoInverse());
                 Vector<double> f = x.Average() - F * xiHat.Average();
 
                 Vector<double>[] xTilde = new Vector<double>[n];
@@ -63,7 +63,7 @@ namespace CMNF
                     zetaTilde[i] = Zeta(t, xTilde[i], y[i]);
                 }
 
-                Matrix<double> H = Extensions.Cov(x.Subtract(xTilde), zetaTilde) * (Extensions.Cov(zetaTilde, zetaTilde).PseudoInverse());
+                Matrix<double> H = Utils.Cov(x.Subtract(xTilde), zetaTilde) * (Utils.Cov(zetaTilde, zetaTilde).PseudoInverse());
                 Vector<double> h = -H * zetaTilde.Average();
 
                 for (int i = 0; i < n; i++)
@@ -75,7 +75,7 @@ namespace CMNF
                 HHat.Add(t, H);
                 hHat.Add(t, h);
 
-                KHat.Add(t, Extensions.Cov(x, x) - Extensions.Cov(x, xiHat) * F - Extensions.Cov(x.Subtract(xTilde), zetaTilde) * H);
+                KHat.Add(t, Utils.Cov(x, x) - Utils.Cov(x, xiHat) * F - Utils.Cov(x.Subtract(xTilde), zetaTilde) * H);
                // KHat.Add(t, cov(x, x) - cov(x, xiHat) * F - cov(x - xTilde, zetaTilde) * H);
 
             }

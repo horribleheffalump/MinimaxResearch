@@ -258,10 +258,26 @@ namespace CMNFTest
             //polar!
 
             TestCubicSensor test1 = new TestCubicSensor();
-            test1.Initialize(true, 10, 10);
-            test1.Run(10, Path.Combine(Settings.Default.OutputFolder, "test_CubicSensor_estimateAvg_{0}.txt"));
-            test1.ProcessResults(Path.Combine(Settings.Default.ScriptsFolder, "estimate.py"), new string[] { Settings.Default.OutputFolder, "test_CubicSensor_estimateAvg_{0}.txt", "test_CubicSensor_estimateAvg_{0}.pdf" });
-            test1.GenerateReport(@"C:\Наука\_Статьи\__в работе\AiT - unscented\опыты\modelling_dynamictemplate.tex", @"C:\Наука\_Статьи\__в работе\AiT - unscented\опыты\CubicSensor.tex");
+            //test1.Initialize(true, 100, 1000);
+            //test1.Run(1000, Path.Combine(Settings.Default.OutputFolder, "test_CubicSensor_estimateAvg_{0}.txt"));
+            test1.ProcessResults(
+                                Path.Combine(Settings.Default.ScriptsFolder, "process_statistics.py"),
+                                new string[] {
+                                                Path.Combine(Settings.Default.OutputFolder, "test_CubicSensor_estimateAvg_{0}.txt"),
+                                                Path.Combine(Settings.Default.LatexFolder, "test_CubicSensor_processAvg_{0}.pdf")
+                                            });
+            test1.ProcessResults(
+                                Path.Combine(Settings.Default.ScriptsFolder, "estimate_statistics.py"), 
+                                new string[] {
+                                                Path.Combine(Settings.Default.OutputFolder, "test_CubicSensor_estimateAvg_{0}.txt"),
+                                                Path.Combine(Settings.Default.LatexFolder, "test_CubicSensor_estimateAvg_{0}.pdf")
+                                            });
+            test1.GenerateReport(
+                                Path.Combine(Settings.Default.LatexFolder, "modelling_dynamictemplate.tex"), 
+                                Path.Combine(Settings.Default.LatexFolder, "CubicSensor.tex"),
+                                "test_CubicSensor_processAvg_{0}.pdf", 
+                                "test_CubicSensor_estimateAvg_{0}.pdf");
+           // Console.ReadLine();
         }
     }
 }

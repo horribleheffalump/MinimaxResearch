@@ -1,0 +1,84 @@
+\documentclass[a4paper,12pt]{article} % стандартный класс
+\usepackage[cp1251]{inputenc} % в кодировке Windows
+\usepackage[T2A,OT1]{fontenc} % шрифты
+\usepackage[russian]{babel} % русификация
+\usepackage{graphicx} 
+\usepackage{amsmath}
+
+%% Поля 
+\oddsidemargin -0.4 mm
+\evensidemargin -0.4 mm
+\textwidth 160 mm
+\topmargin -2.5 mm
+\headheight 0 mm
+\headsep 0 mm
+\textheight 240 mm
+
+\def\NN{{\mathcal N}} 
+
+\title{Unscented transform VS УМНФ. Моделирование}
+
+
+
+\begin{document}
+
+\maketitle
+
+\section{Статическая модель}
+\subsection{Полярные кординаты}
+Система наблюдения:
+\begin{itemize}
+\item $X \sim \NN(M_X, D_X)$ --- декартовы координаты объекта;
+\item $Y = \mathop{cart2pol}(X)+\nu$ --- измерения в полярных координатах с помехами $\nu \sim \NN(M_{\nu}, D_{\nu})$;
+\item $X_{inv} = \mathop{pol2cart}(Y)$ --- обратное преобразование измерений.
+\end{itemize}
+
+Оценки:
+\begin{itemize}
+\item $\hat{X} = \hat{X}(Y, X_{inv})$ --- УМНФ по наблюдениям и их обратному преобразованию;
+\item $\hat{X}_{inv} = \hat{X}_{inv}(X_{inv})$ --- УМНФ по обратному преобразованию наблюдений;
+\item $\hat{X}_{lin} = \hat{X}_{lin}(Y)$ --- УМНФ по наблюдениям (линейная оценка);
+\item $\hat{X}_{UT} = \hat{X}_{UT}(Y)$ --- оценка, полученная с помощью Unscented transform.
+\end{itemize}
+
+
+\subsubsection{Объект близко}
+\begin{equation}
+M_X = 
+\left(
+\begin{array}{c}
+30 \\
+40
+\end{array}\right),
+\quad
+D_X = 
+\left(
+\begin{array}{cc}
+30 \cdot 30 & 0 \\
+0 & 30 \cdot 30
+\end{array}\right);
+\end{equation}
+\begin{equation}
+M_{\nu} = 
+\left(
+\begin{array}{c}
+0 \\
+ 0
+\end{array}\right),
+\quad
+D_{\nu} = 
+\left(
+\begin{array}{cc}
+\left(\frac{5 \cdot \pi}{180} \right)^2 & 0 \\
+0 & 30 \cdot 30
+\end{array}\right).
+\end{equation}
+
+
+
+\subsection{Сферические кординаты}
+
+\section{Динамическая модель}
+\include{CubicSensor}
+
+\end{document}

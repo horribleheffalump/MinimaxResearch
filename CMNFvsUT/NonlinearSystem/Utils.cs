@@ -7,7 +7,7 @@ using System.Globalization;
 
 namespace NonlinearSystem
 {
-    public static class Extensions
+    public static class Utils
     {
         public static string ToLine(this Vector<double> x)
         {
@@ -136,6 +136,57 @@ namespace NonlinearSystem
             return Matrix<double>.Build.DenseDiagonal(val.Length, val.Length, (i) => val[i]);
         }
 
+        public static string ToLatex(this Matrix<double> x)
+        {
+            StringBuilder result = new StringBuilder();
+            result.AppendLine(@"\left(\begin{array}{" + new String('c', x.ColumnCount) + @"}");
+            for (int i = 0; i < x.RowCount; i++)
+            {
+                for (int j = 0; j < x.ColumnCount; j++)
+                {
+                    result.Append($"{x[i, j]} ");
+                    if (j < x.ColumnCount - 1) result.Append("& ");
+                }
+                result.AppendLine(@"\\");
+            }
+            result.AppendLine(@"\end{array}\right)");
+            return result.ToString();
+        }
+
+        public static string ToLatex(this Vector<double> x)
+        {
+            return x.ToColumnMatrix().ToLatex();
+        }
+
+        public static string ToLatex(this string[] x)
+        {
+            StringBuilder result = new StringBuilder();
+            result.AppendLine(@"\left(\begin{array}{c}");
+            for (int i = 0; i < x.Length; i++)
+            {
+                result.Append($"{x[i]} ");
+                result.AppendLine(@"\\");
+            }
+            result.AppendLine(@"\end{array}\right)");
+            return result.ToString();
+        }
+
+        public static string ToLatex(this string[][] x)
+        {
+            StringBuilder result = new StringBuilder();
+            result.AppendLine(@"\left(\begin{array}{" + new String('c', x.Length) + @"}");
+            for (int i = 0; i < x.Length; i++)
+            {
+                for (int j = 0; j < x[i].Length; j++)
+                {
+                    result.Append($"{x[i][j]} ");
+                    if (j < x[i].Length - 1) result.Append("& ");
+                }
+                result.AppendLine(@"\\");
+            }
+            result.AppendLine(@"\end{array}\right)");
+            return result.ToString();
+        }
 
     }
 }

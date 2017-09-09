@@ -32,7 +32,7 @@ namespace UKF
             Vector<double>[] Xhat_UT = Y.Select(y => mX + P_UT * (y - M_UT)).ToArray();
             Vector<double>[] Err_UT = Xhat_UT.Subtract(X);
             mErr_UT = Err_UT.Average();
-            KErr_UT = Extensions.Cov(Err_UT, Err_UT);
+            KErr_UT = Utils.Cov(Err_UT, Err_UT);
 
             return Xhat_UT;
         }
@@ -125,7 +125,7 @@ namespace UKF
                 Vector<double>[] Xhat_UT = Y.Select(y => mX + P_UT * (y - M_UT)).ToArray();
                 Vector<double>[] Err_UT = Xhat_UT.Subtract(X);
                 Vector<double> mErr_UT = Err_UT.Average();
-                Matrix<double> KErr_UT = Extensions.Cov(Err_UT, Err_UT);
+                Matrix<double> KErr_UT = Utils.Cov(Err_UT, Err_UT);
                 crit = Crit(KErr_UT);//.Trace();
             }
             catch { }

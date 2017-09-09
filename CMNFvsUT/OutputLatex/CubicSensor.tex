@@ -1,0 +1,71 @@
+\subsection{Кубический сенсор}
+Система наблюдения:
+\begin{equation}\nonumber
+\left\lbrace\begin{array}{l}
+x_t = \left(\begin{array}{c}
+\frac{x_0}{1 + x_0^2} \\
+\frac{x_1}{1 + x_1^2} \\
+\end{array}\right)
+ + \left(\begin{array}{cc}
+1 & 0 \\
+0 & 1 \\
+\end{array}\right)
+ w_t, \quad t= 0,\ldots,T, \quad x_0 = \eta, \\
+y_t = \left(\begin{array}{c}
+x_0^3+x_0 \\
+x_1^3+x_1 \\
+\end{array}\right)
+ + \nu_t.
+\end{array}\right.
+\end{equation}
+
+$w_t \sim \mathcal{N}\left(\mathbf{0}, \mathbf{E}\right)$, 
+$\nu_t \sim \mathcal{N}\left(\mathbf{0}, \mathbf{E}\right)$, 
+$\eta_t \sim \mathcal{N}\left(\left(\begin{array}{c}
+100 \\
+100 \\
+\end{array}\right)
+, \left(\begin{array}{cc}
+100 & 0 \\
+0 & 100 \\
+\end{array}\right)
+\right)$
+
+\newpage
+
+Статистика процесса: 
+\begin{itemize}
+\item сплошная --- МО процесса;
+\item штрих --- дисперсия процесса.
+\end{itemize}
+
+\begin{figure}[h]
+\begin{center}
+\centerline{\includegraphics[width=0.9\textwidth]{test_CubicSensor_processAvg_0.pdf}}
+\caption{Статистика процесса. Компонента 1.}
+\vspace{2em}
+\centerline{\includegraphics[width=0.9\textwidth]{test_CubicSensor_processAvg_1.pdf}}
+\caption{Статистика процесса. Компонента 2.}
+
+\end{center}
+\end{figure}
+
+\newpage
+
+Результаты фильтрации УМНФ (черные линии) и UT (серые линии): 
+\begin{itemize}
+\item сплошная --- МО ошибки оценки;
+\item штрих --- дисперсия ошибки оценки;
+\item пунктир --- теоретическая дисперсия ошибки оценки.
+\end{itemize}
+
+\begin{figure}[h]
+\begin{center}
+\centerline{\includegraphics[width=0.9\textwidth]{test_CubicSensor_estimateAvg_0.pdf}}
+\caption{Результаты фильтрации. Компонента 1.}
+\vspace{2em}
+\centerline{\includegraphics[width=0.9\textwidth]{test_CubicSensor_estimateAvg_1.pdf}}
+\caption{Результаты фильтрации. Компонента 2.}
+
+\end{center}
+\end{figure}

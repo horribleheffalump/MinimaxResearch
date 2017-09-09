@@ -27,9 +27,14 @@ namespace CMNFTest
         public Func<int, Vector<double>, Matrix<double>> Phi2;
         public Func<int, Vector<double>, Vector<double>> Psi;
 
-        public string Phi1_latex;
-        public string Phi2_latex;
-        public string Psi_latex;
+        public string[] Phi1_latex;
+        public string[][] Phi2_latex;
+        public string[] Psi_latex;
+
+        public string P_W;
+        public string P_Nu;
+        public string P_Eta;
+
 
         public Func<int, Vector<double>> W;
         public Func<int, Vector<double>> Nu;
@@ -158,12 +163,12 @@ namespace CMNFTest
                 }
 
                 Vector<double> mx = x.Average();
-                Matrix<double> Dx = Extensions.Cov(x, x);
+                Matrix<double> Dx = Utils.Cov(x, x);
 
                 Vector<double> mxHat = xHat.Average();
 
                 Vector<double> mError = (x.Subtract(xHat)).Average();
-                Matrix<double> DError = Extensions.Cov(x.Subtract(xHat), x.Subtract(xHat));
+                Matrix<double> DError = Utils.Cov(x.Subtract(xHat), x.Subtract(xHat));
 
 
                 Vector<double> mErrorU = Vector<double>.Build.Dense(dimX, 0);
@@ -184,7 +189,7 @@ namespace CMNFTest
                     }
 
                     mErrorU = (x.Subtract(xHatU)).Average();
-                    DErrorU = Extensions.Cov(x.Subtract(xHatU), x.Subtract(xHatU));
+                    DErrorU = Utils.Cov(x.Subtract(xHatU), x.Subtract(xHatU));
 
                     mxHatU = xHatU.Average();
                     mPHatU = PHatU.Average();
@@ -237,25 +242,47 @@ namespace CMNFTest
 
         }
 
-        public void GenerateReport(string templateFileName, string outputFileName)
+        public void GenerateReport(string templateFileName, string outputFileName, string processPicFileNameTemplate, string filterPicFileNameTemplate)
         {
             Dictionary<string, string> replacements = new Dictionary<string, string>();
             replacements.Add("%Title%", TestName);
-            replacements.Add("%phi1%", Phi1_latex);
-            replacements.Add("%phi2%", Phi2_latex);
-            replacements.Add("%psi%", Psi_latex);
-            replacements.Add("%m_w%", "0");
-            replacements.Add("%D_w%", "1");
-            replacements.Add("%m_nu%", "0");
-            replacements.Add("%D_nu%", "1");
-            replacements.Add("%m_eta%", "0");
-            replacements.Add("%D_eta%", "1");
+            replacements.Add("%phi1%", Phi1_latex.ToLatex());
+            replacements.Add("%phi2%", Phi2_latex.ToLatex());
+            replacements.Add("%psi%", Psi_latex.ToLatex());
+            replacements.Add("%P_w%", P_W);
+            replacements.Add("%P_nu%", P_Nu);
+            replacements.Add("%P_eta%", P_Eta);
+
+            StringBuilder procPics = new StringBuilder();
+            for (int i = 0; i < X0Hat.Count; i++)
+            {
+                string pic = Settings.Default.LatexPictureTemplte.Replace("%file%", processPicFileNameTemplate.Replace("{0}", i.ToString()));
+                pic = pic.Replace("%caption%", "Статистика процесса." + (X0Hat.Count > 0 ? $" Компонента {i + 1}." : ""));
+                procPics.AppendLine(pic);
+                if (i != X0Hat.Count - 1)
+                    procPics.AppendLine(@"\vspace{2em}");
+            }
+            replacements.Add("%figs_process%", procPics.ToString());
+
+            StringBuilder filterPics = new StringBuilder();
+            for (int i = 0; i < X0Hat.Count; i++)
+            {
+                string pic = Settings.Default.LatexPictureTemplte.Replace("%file%", filterPicFileNameTemplate.Replace("{0}", i.ToString()));
+                pic = pic.Replace("%caption%", "Результаты фильтрации." + (X0Hat.Count > 0 ? $" Компонента {i+1}." : ""));
+                filterPics.AppendLine(pic);
+                if (i != X0Hat.Count - 1)
+                    filterPics.AppendLine(@"\vspace{2em}");
+            }
+            replacements.Add("%figs_filter%", filterPics.ToString());
 
             string template = File.ReadAllText(templateFileName, Encoding.Default);
             foreach (var pair in replacements)
             {
                 template = template.Replace(pair.Key, pair.Value);
             }
+
+
+
             File.WriteAllText(outputFileName, template, Encoding.Default);
         }
 

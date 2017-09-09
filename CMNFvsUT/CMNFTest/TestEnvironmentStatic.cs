@@ -68,18 +68,18 @@ namespace CMNFTest
                 YXinv[i] = models[i].YXinv;
             }
 
-            Kxy = Extensions.Cov(X, YXinv);
-            Kyy = Extensions.Cov(YXinv, YXinv);
+            Kxy = Utils.Cov(X, YXinv);
+            Kyy = Utils.Cov(YXinv, YXinv);
             My = YXinv.Average();
             P = Kxy * (Kyy.PseudoInverse());
 
-            Kxy_inv = Extensions.Cov(X, Xinv);
-            Kyy_inv = Extensions.Cov(Xinv, Xinv);
+            Kxy_inv = Utils.Cov(X, Xinv);
+            Kyy_inv = Utils.Cov(Xinv, Xinv);
             My_inv = Xinv.Average();
             P_inv = Kxy_inv * (Kyy_inv.PseudoInverse());
 
-            Kxy_lin = Extensions.Cov(X, Y);
-            Kyy_lin = Extensions.Cov(Y, Y);
+            Kxy_lin = Utils.Cov(X, Y);
+            Kyy_lin = Utils.Cov(Y, Y);
             My_lin = Y.Average();
             P_lin = Kxy_lin * (Kyy_lin.PseudoInverse());
 
@@ -112,19 +112,19 @@ namespace CMNFTest
             Vector<double>[] Xhat = YXinv.Select(y => MX + P * (y - My)).ToArray();
             Vector<double>[] Err = Xhat.Subtract(X);
             mErr = Err.Average();
-            KErr = Extensions.Cov(Err, Err);
+            KErr = Utils.Cov(Err, Err);
             KErrTh = KX - P * Kyy * P.Transpose();
 
             Vector<double>[] Xhat_inv = Xinv.Select(y => MX + P_inv * (y - My_inv)).ToArray();
             Vector<double>[] Err_inv = Xhat_inv.Subtract(X);
             mErr_inv = Err_inv.Average();
-            KErr_inv = Extensions.Cov(Err_inv, Err_inv);
+            KErr_inv = Utils.Cov(Err_inv, Err_inv);
             KErrTh_inv = KX - P_inv * Kyy_inv * P_inv.Transpose();
 
             Vector<double>[] Xhat_lin = Y.Select(y => MX + P_lin * (y - My_lin)).ToArray();
             Vector<double>[] Err_lin = Xhat_lin.Subtract(X);
             mErr_lin = Err_lin.Average();
-            KErr_lin = Extensions.Cov(Err_lin, Err_lin);
+            KErr_lin = Utils.Cov(Err_lin, Err_lin);
             KErrTh_lin = KX - P_lin * Kyy_lin * P_lin.Transpose();
 
             Vector<double>[] Xhat_UT = utStaticEstimate.Estimate(Phi, X, Y, MX, KX, KNu, out mErr_UT, out KErr_UT, out KErrTh_UT);
