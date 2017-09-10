@@ -11,9 +11,5 @@
     <Setting Name="LatexFolder" Type="System.String" Scope="User">
       <Value Profile="(Default)">..\..\..\OutputLatex</Value>
     </Setting>
-    <Setting Name="LatexPictureTemplte" Type="System.String" Scope="User">
-      <Value Profile="(Default)">\centerline{\includegraphics[width=0.9\textwidth]{%file%}}
-\caption{%caption%}</Value>
-    </Setting>
   </Settings>
 </SettingsFile>

@@ -14,6 +14,8 @@ namespace CMNFTest
         public TestCubicSensor()
         {
             TestName = "Кубический сенсор";
+            TestFileName = "CubicSensor";
+
             Vector<double> mW = Utils.Vector(0, 0); Matrix<double> dW = Utils.Diag(1, 1);
             Vector<double> mNu = Utils.Vector(0, 0); Matrix<double> dNu = Utils.Diag(1, 1);
             Vector<double> mEta = Utils.Vector(100, 100); Matrix<double> dEta = Utils.Diag(100, 100);

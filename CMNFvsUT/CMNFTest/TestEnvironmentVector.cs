@@ -6,12 +6,12 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using CMNF;
-using CMNFTest.Properties;
 using MathNet.Numerics.Distributions;
 using MathNet.Numerics.LinearAlgebra;
 using NonlinearSystem;
 using UKF;
 using PythonInteract;
+using CMNFTest.Properties;
 
 namespace CMNFTest
 {
@@ -21,6 +21,8 @@ namespace CMNFTest
     public class TestEnvironmentVector
     {
         public string TestName;
+        public string TestFileName;
+
         private int T;
 
         public Func<int, Vector<double>, Vector<double>> Phi1;
@@ -58,7 +60,7 @@ namespace CMNFTest
         /// <param name="doCalculateUKF"></param>
         /// <param name="t">time interval right margin (number of steps)</param>
         /// <param name="n">number of trajectories</param>
-        public void Initialize(bool doCalculateUKF, int t, int n)
+        public void Initialize(int t, int n, bool doCalculateUKF, string outputFolder)
         {
             provider = new NumberFormatInfo();
             provider.NumberDecimalSeparator = ".";
@@ -82,7 +84,7 @@ namespace CMNFTest
             UKF = new UKFilter(X0().Count, Phi1, Psi, DW, DNu);
 
             if (doCalculateUKF)
-                UKF.EstimateParametersRandom(models, T, X0Hat, DX0Hat, Path.Combine(Settings.Default.OutputFolder, "optimize_UKF.txt"));
+                UKF.EstimateParametersRandom(models, T, X0Hat, DX0Hat, Path.Combine(outputFolder, "optimize_UKF.txt"));
         }
 
         //public TestEnvironmentVector()//bool doCalculateUKF, int T, int N)
@@ -91,39 +93,66 @@ namespace CMNFTest
         //}
 
 
-        //public void GenerateOne(string fileName)
-        //{
-        //    DiscreteScalarModel model = new DiscreteScalarModel(Phi1, Phi2, Psi, W, Nu, X0(), true);
-        //    using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName))
-        //    {
-        //        double xHat = X0Hat;
-        //        Vector<double> xHatU = Vector<double>.Build.Dense(1, X0Hat);
-        //        Matrix<double> PHatU = Matrix<double>.Build.Dense(1, 1, DX0Hat);
-
-        //        Matrix<double> xHatU_ = Matrix<double>.Build.Dense(1, 1, X0Hat);
-        //        Matrix<double> PHatU_ = Matrix<double>.Build.Dense(1, 1, DX0Hat);
-
-
-        //        for (int t = 0; t < T; t++)
-        //        {
-        //            double y = model.Step();
-        //            xHat = CMNFScalar.Step(t, y, xHat);
-        //            UKF.Step(Vector<double>.Build.Dense(1, y), xHatU, PHatU, out xHatU, out PHatU);
-
-        //            outputfile.WriteLine(string.Format(provider, "{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10}",
-        //                t, model.State, xHat, Math.Abs(model.State - xHat), Math.Sqrt(CMNFScalar.KHat[t]),
-        //                xHatU[0], Math.Abs(model.State - xHatU[0]), Math.Sqrt(PHatU[0, 0]),
-        //                0, 0, 0
-        //                ));
-        //        }
-        //        outputfile.Close();
-        //    }
-        //}
-
-
-        private void GenerateBundle(int n, string fileName, bool doCalculateUKF)
+        public void GenerateOne(string folderName)
         {
+            string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOne));
+            int dimX = X0().Count;
 
+            DiscreteVectorModel modelEst = new DiscreteVectorModel(Phi1, Phi2, Psi, new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0)), W, Nu, X0(), true);
+            for (int s = 0; s < T; s++)
+            {
+                modelEst.Step();
+            }
+
+            Vector<double> xHat = X0Hat;
+            Vector<double> xHatU = X0Hat;
+            Matrix<double> PHatU = DX0Hat;
+
+            for (int k = 0; k < dimX; k++)
+            {
+                using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString())))
+                {
+                    outputfile.Close();
+                }
+            }
+
+            for (int t = 0; t < T; t++)
+            {
+                var x = modelEst.Trajectory[t][0];
+                var y = modelEst.Trajectory[t][1];
+                xHat = CMNF.Step(t, y, xHat);
+
+                Vector<double> mError = x - xHat;
+
+                UKF.Step(y, xHatU, PHatU, out Vector<double> _xHatU, out Matrix<double> _PHatU);
+                xHatU = _xHatU;
+                PHatU = _PHatU;
+
+                Vector<double> mErrorU = x - xHatU;
+
+                for (int k = 0; k < dimX; k++)
+                {
+                    using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString()), true))
+                    {
+                        outputfile.Write(string.Format(provider, "{0} {1} {2} {3} {4}",
+                            t, x[k], y[k], mError[k], mErrorU[k]
+                            ));
+                        outputfile.WriteLine();
+                        outputfile.Close();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Generates a bundle of trajectories, applies the CMN and UK filters, calculates statistics for estimate errors and saves it to files
+        /// </summary> 
+        /// <param name="n">Number of trajectories</param>
+        /// <param name="folderName">Output folder name</param>
+        /// <param name="doCalculateUKF">(optional, default = true) if true, UKF and CMNF estimates are calculated, if false - only CMNF </param>
+        public void GenerateBundle(int n, string folderName, bool doCalculateUKF = true)
+        {
+            string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
             //DiscreteScalarModel[] modelsEst = new DiscreteScalarModel[N];
             DiscreteVectorModel[] modelsEst = new DiscreteVectorModel[n];
             int dimX = X0().Count;
@@ -206,7 +235,7 @@ namespace CMNFTest
                             ));
 
                         outputfile.Write(string.Format(provider, " {0} {1} {2} {3}",
-                            mxHatU[k], mErrorU[k], DErrorU[k, k], mPHatU[k,k]
+                            mxHatU[k], mErrorU[k], DErrorU[k, k], mPHatU[k, k]
                             ));
                         outputfile.WriteLine();
                         outputfile.Close();
@@ -215,15 +244,24 @@ namespace CMNFTest
             }
         }
 
-        /// <summary>
-        /// Runs the test: generates a bundle of trajectories, applies the CMN and UT filters, calculates statistics for estimate errors and saves it to files
-        /// </summary> 
-        /// <param name="n">Number of trajectories</param>
-        /// <param name="outputPath">Output files name template ({0} - number of state vector component)</param>
-        public void Run(int n, string outputPath)
+        public void ProcessResults(string dataFolder, string scriptsFolder, string outputFolder)
         {
-            GenerateBundle(n, outputPath, true);
-            //test1.GenerateBundle(n, Path.Combine(Settings.Default.OutputFolder, "test1_estimateAvg_{0}.txt"), true);
+            string[] scriptNames = new string[] { "process_sample", "process_statistics", "estimate_sample", "estimate_statistics" };
+
+            string fileNameOne = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOne);
+            string fileNameMany = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany);
+
+            string scriptOutputFileNameTemplate = Resources.OutputPictureNameTemplate.Replace("{name}", TestFileName);
+
+            foreach (string s in scriptNames)
+            {
+                RunScript(
+                        Path.Combine(scriptsFolder, s + ".py"),
+                        new string[] {
+                                                Path.Combine(dataFolder, fileNameMany),
+                                                Path.Combine(outputFolder, scriptOutputFileNameTemplate.Replace("{script}", s))
+                                    });
+            }
         }
 
         /// <summary>
@@ -231,7 +269,7 @@ namespace CMNFTest
         /// </summary>
         /// <param name="scriptName">Python script file path</param>
         /// <param name="scriptParamsTemplates">Script parameters templates array ({0} - number of state vector component)</param>
-        public void ProcessResults(string scriptName, string[] scriptParamsTemplates)
+        private void RunScript(string scriptName, string[] scriptParamsTemplates)
         {
             for (int i = 0; i < X0Hat.Count; i++)
             {
@@ -242,7 +280,23 @@ namespace CMNFTest
 
         }
 
-        public void GenerateReport(string templateFileName, string outputFileName, string processPicFileNameTemplate, string filterPicFileNameTemplate)
+        private string ProcessPics(string picFileNameTemplate, string caption)
+        {
+            StringBuilder procPics = new StringBuilder();
+            for (int i = 0; i < X0Hat.Count; i++)
+            {
+                string pic = Resources.LatexPictureTemplte.Replace("%file%", picFileNameTemplate.Replace("{0}", i.ToString()));
+                pic = pic.Replace("%caption%", caption + (X0Hat.Count > 0 ? $" Компонента {i + 1}." : ""));
+                procPics.AppendLine(pic);
+                if (i != X0Hat.Count - 1)
+                    procPics.AppendLine(@"\vspace{2em}");
+            }
+
+            return procPics.ToString();
+
+        }
+
+        public void GenerateReport(string folderName)
         {
             Dictionary<string, string> replacements = new Dictionary<string, string>();
             replacements.Add("%Title%", TestName);
@@ -253,37 +307,21 @@ namespace CMNFTest
             replacements.Add("%P_nu%", P_Nu);
             replacements.Add("%P_eta%", P_Eta);
 
-            StringBuilder procPics = new StringBuilder();
-            for (int i = 0; i < X0Hat.Count; i++)
-            {
-                string pic = Settings.Default.LatexPictureTemplte.Replace("%file%", processPicFileNameTemplate.Replace("{0}", i.ToString()));
-                pic = pic.Replace("%caption%", "Статистика процесса." + (X0Hat.Count > 0 ? $" Компонента {i + 1}." : ""));
-                procPics.AppendLine(pic);
-                if (i != X0Hat.Count - 1)
-                    procPics.AppendLine(@"\vspace{2em}");
-            }
-            replacements.Add("%figs_process%", procPics.ToString());
+            string picTemplate = Resources.OutputPictureNameTemplate.Replace("{name}", TestFileName);
 
-            StringBuilder filterPics = new StringBuilder();
-            for (int i = 0; i < X0Hat.Count; i++)
-            {
-                string pic = Settings.Default.LatexPictureTemplte.Replace("%file%", filterPicFileNameTemplate.Replace("{0}", i.ToString()));
-                pic = pic.Replace("%caption%", "Результаты фильтрации." + (X0Hat.Count > 0 ? $" Компонента {i+1}." : ""));
-                filterPics.AppendLine(pic);
-                if (i != X0Hat.Count - 1)
-                    filterPics.AppendLine(@"\vspace{2em}");
-            }
-            replacements.Add("%figs_filter%", filterPics.ToString());
+            replacements.Add("%figs_process%", ProcessPics(picTemplate.Replace("{script}", "process_statistics"), "Статистика процесса."));
+            replacements.Add("%figs_filter%", ProcessPics(picTemplate.Replace("{script}", "estimate_statistics"), "Результаты фильтрации."));
+            replacements.Add("%figs_process_sample%", ProcessPics(picTemplate.Replace("{script}", "process_sample"), "Пример траектории процесса и наблюдений."));
+            replacements.Add("%figs_estimate_sample%", ProcessPics(picTemplate.Replace("{script}", "estimate_sample"), "Пример оценки УМНФ и UKF."));
 
-            string template = File.ReadAllText(templateFileName, Encoding.Default);
+
+            string template = File.ReadAllText(Path.Combine(folderName, "modelling_dynamictemplate.tex"), Encoding.Default);
             foreach (var pair in replacements)
             {
                 template = template.Replace(pair.Key, pair.Value);
             }
 
-
-
-            File.WriteAllText(outputFileName, template, Encoding.Default);
+            File.WriteAllText(Path.Combine(folderName, TestFileName + ".tex"), template, Encoding.Default);
         }
 
 

@@ -258,25 +258,11 @@ namespace CMNFTest
             //polar!
 
             TestCubicSensor test1 = new TestCubicSensor();
-            //test1.Initialize(true, 100, 1000);
-            //test1.Run(1000, Path.Combine(Settings.Default.OutputFolder, "test_CubicSensor_estimateAvg_{0}.txt"));
-            test1.ProcessResults(
-                                Path.Combine(Settings.Default.ScriptsFolder, "process_statistics.py"),
-                                new string[] {
-                                                Path.Combine(Settings.Default.OutputFolder, "test_CubicSensor_estimateAvg_{0}.txt"),
-                                                Path.Combine(Settings.Default.LatexFolder, "test_CubicSensor_processAvg_{0}.pdf")
-                                            });
-            test1.ProcessResults(
-                                Path.Combine(Settings.Default.ScriptsFolder, "estimate_statistics.py"), 
-                                new string[] {
-                                                Path.Combine(Settings.Default.OutputFolder, "test_CubicSensor_estimateAvg_{0}.txt"),
-                                                Path.Combine(Settings.Default.LatexFolder, "test_CubicSensor_estimateAvg_{0}.pdf")
-                                            });
-            test1.GenerateReport(
-                                Path.Combine(Settings.Default.LatexFolder, "modelling_dynamictemplate.tex"), 
-                                Path.Combine(Settings.Default.LatexFolder, "CubicSensor.tex"),
-                                "test_CubicSensor_processAvg_{0}.pdf", 
-                                "test_CubicSensor_estimateAvg_{0}.pdf");
+            //test1.Initialize(100, 100, true, Settings.Default.OutputFolder);
+            //test1.GenerateBundle(100, Settings.Default.OutputFolder);
+            //test1.GenerateOne(Settings.Default.OutputFolder);
+            //test1.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
+            test1.GenerateReport(Settings.Default.LatexFolder);
            // Console.ReadLine();
         }
     }

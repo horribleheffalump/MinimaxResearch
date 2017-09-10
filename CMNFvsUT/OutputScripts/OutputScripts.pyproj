@@ -25,10 +25,16 @@
     <Compile Include="estimate.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="estimate_sample.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="estimate_statistics.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="polar.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="process_sample.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="process_statistics.py">
