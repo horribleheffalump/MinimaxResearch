@@ -15,7 +15,7 @@ Conditionally minimax filter from [2].
 ## TestEnvironments
 
 The filters are compared on a set of different models:
-1. static models: carthesian to polar and sphere coordinates transformation;
+1. static models: cartesian to polar and sphere coordinates transformation;
 2. cubic sensor;
 3. -- under construction --
 
