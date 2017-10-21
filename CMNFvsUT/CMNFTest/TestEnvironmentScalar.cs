@@ -39,7 +39,6 @@ namespace CMNFTest
         public CMNScalarFilter CMNFScalar;
         public CMNFilter CMNF;
         public UKFilter UKF;
-        public UKFTest UKFtest;
 
 
         private void Initialize(bool doCalculateUKF, int t, int n,

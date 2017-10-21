@@ -45,7 +45,6 @@
     <Compile Include="AsyncCalculator.cs" />
     <Compile Include="UKFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UKFTest.cs" />
     <Compile Include="UTStaticEstimate.cs" />
   </ItemGroup>
   <ItemGroup>
