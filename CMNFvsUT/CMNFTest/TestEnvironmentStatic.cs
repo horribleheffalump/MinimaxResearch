@@ -47,9 +47,9 @@ namespace CMNFTest
 
         private UTStaticEstimate utStaticEstimate;
 
-        public UTOptimizationType utOptimizationType;
+        public UTDefinitionType utOptimizationType;
 
-        public void Initialize(int n, int N1 = 100, int N2 = 100)
+        public void Initialize(int n, string outputFolder, int N1 = 100, int N2 = 100)
         {
             provider = new NumberFormatInfo();
             provider.NumberDecimalSeparator = ".";
@@ -83,8 +83,8 @@ namespace CMNFTest
             My_lin = Y.Average();
             P_lin = Kxy_lin * (Kyy_lin.PseudoInverse());
 
-            utStaticEstimate = new UTStaticEstimate(utOptimizationType);
-            utStaticEstimate.EstimateParameters(N1, N2, Phi, x => x.Trace(), X, Y, MX, KX, KNu);
+            utStaticEstimate = new UTStaticEstimate();
+            utStaticEstimate.EstimateParameters(N1, N2, Phi, x => x.Trace(), X, Y, MX, KX, KNu, outputFolder);
         }
 
         public void GenerateBundle(int n,

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System; 
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -58,8 +58,6 @@ namespace UKF
 
             Wc = Vector<double>.Build.Dense(2 * L + 1, 0.5 / (Lambda + L));
             Wc[0] = Lambda / (Lambda + L) + 1.0 - Math.Pow(Alpha, 2.0) + Beta;
-
-
         }
 
         public void RecalcParams()

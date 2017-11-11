@@ -320,7 +320,7 @@ namespace CMNFTest
             {
                 template = template.Replace(pair.Key, pair.Value);
             }
-
+            Directory.CreateDirectory(folderName);
             File.WriteAllText(Path.Combine(folderName, TestFileName + ".tex"), template, Encoding.Default);
         }
 
