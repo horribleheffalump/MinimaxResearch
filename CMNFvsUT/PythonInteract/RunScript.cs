@@ -13,14 +13,17 @@ namespace PythonInteract
             string output = string.Empty;
             try
             {
-                ProcessStartInfo pythonProcessStartInfo = new ProcessStartInfo(pythonPath);
+                ProcessStartInfo pythonProcessStartInfo = new ProcessStartInfo(pythonPath)
+                {
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    Arguments = scriptPath + " " + string.Join(" ", args)
+                };
 
-                pythonProcessStartInfo.UseShellExecute = false;
-                pythonProcessStartInfo.RedirectStandardOutput = true;
-                pythonProcessStartInfo.Arguments = scriptPath + " " + string.Join(" ", args);
-
-                Process pythonProcess = new Process();
-                pythonProcess.StartInfo = pythonProcessStartInfo;
+                Process pythonProcess = new Process
+                {
+                    StartInfo = pythonProcessStartInfo
+                };
                 pythonProcess.Start();
 
                 StreamReader outputStreamReader = pythonProcess.StandardOutput;
