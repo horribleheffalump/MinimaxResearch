@@ -139,14 +139,14 @@ namespace UKF
         }
 
         /// <summary>
-        /// Unscented transform parameters "optimization" procedure. 
-        /// - Step 1: generate N1 random samples, calculate the unscented transform estimates given the parameters determined by each random sample.
-        /// - Step 2:choose the random sample with the best estimate quality criterion value and generate N2 random samples in closer area of this sample.
-        /// - Step 3:again choose the random sample with the best estimate quality criterion value, save the samples ordered by the criterion value to the output file and return the best found unscented transform parameters.
-        /// The UTOptimizationType type param determines the way how the random samples define the unscented tranform params <see cref="UTParams"/>.
-        /// - If type is UTOptimizationType.ImplicitAlpha, then random samples define alpha0 - scalar weight of the central points for both sample mean and cov <see cref="UTParams.SetUTParams(int, double)"/>;
-        /// - If type is UTOptimizationType.ImplicitAlphaBetaKappa, then random samples are vectors of dim 3 and represent three parameters alpha, beta, kappa which are then transformed to the parameters of the inscented transform <see cref="UTParams.SetUTParams(int, double, double, double)"/>; 
-        /// - If type is UTOptimizationType.Explicit, then random samples are vectors of dim 4 and explicitly define the unscented transform parameters <see cref="UTParams.SetUTParams(int, double, double, double, double)"/>. ///TODO it is not right to define the parameters of the unsctnted transform arbitraty, they have to be interdependent, so that the mean and cov would be transformed correctly.
+        /// <para>Unscented transform parameters "optimization" procedure.</para>
+        /// <para>- Step 1: generate N1 random samples, calculate the unscented transform estimates given the parameters determined by each random sample.</para>
+        /// <para>- Step 2:choose the random sample with the best estimate quality criterion value and generate N2 random samples in closer area of this sample.</para>
+        /// <para>- Step 3:again choose the random sample with the best estimate quality criterion value, save the samples ordered by the criterion value to the output file and return the best found unscented transform parameters.</para>
+        /// <para>The UTOptimizationType type param determines the way how the random samples define the unscented tranform params (UTParams).</para>
+        /// <para>- If type is UTOptimizationType.ImplicitAlpha, then random samples define alpha0 - scalar weight of the central points for both sample mean and cov: UTParams.SetUTParams(int, double);</para>
+        /// <para>- If type is UTOptimizationType.ImplicitAlphaBetaKappa, then random samples are vectors of dim 3 and represent three parameters alpha, beta, kappa which are then transformed to the parameters of the inscented transform: UTParams.SetUTParams(int, double, double, double);</para> 
+        /// <para>- If type is UTOptimizationType.Explicit, then random samples are vectors of dim 4 and explicitly define the unscented transform parameters: UTParams.SetUTParams(int, double, double, double, double). ///TODO it is not right to define the parameters of the unsctnted transform arbitraty, they have to be interdependent, so that the mean and cov would be transformed correctly.</para>
         /// </summary>
         /// <param name="N1">Number of samples on the step 1</param>
         /// <param name="N2">Number of samples on the step 2</param>
@@ -215,7 +215,7 @@ namespace UKF
 
         /// <summary>
         /// Generates a random sample for the unscented transform parameters and calculates the criterion value for the unscented transform estimate.
-        /// The size of the distribution parameter determines the unscented transform parameters definition method <see cref="UTParams"/>
+        /// The size of the distribution parameter determines the unscented transform parameters definition method (UTParams)
         /// </summary>
         /// <param name="Phi">Transformation: a nonlinear function which determines the transformation of the random vector variable: y = Phi(x) + nu</param>
         /// <param name="Crit">Criterion: a function which determines the quality of the unscented transform estimate. Depends on the sample covariance of the estimation error: val = Crit(Cov(X-Xhat,X-Xhat))  </param>
@@ -278,14 +278,14 @@ namespace UKF
     public enum UTDefinitionType { ImplicitAlpha, ImplicitAlphaBetaKappa, Explicit }
 
     /// <summary>
-    /// Parameters of the unscented transform: 
-    /// - Lambda - scaling parameter
-    /// - Wm - weights for sample mean
-    /// - Wc - weights for sample covariance
-    /// Three ways to define: 
-    /// - explicitly,
-    /// - implicitly with one parameter alpha0, 
-    /// - implicitly with three parameters alpha, beta, kappa
+    /// <para>Parameters of the unscented transform:</para>
+    /// <para>- Lambda - scaling parameter</para>
+    /// <para>- Wm - weights for sample mean</para>
+    /// <para>- Wc - weights for sample covariance</para>
+    /// <para>Three ways to define:</para>
+    /// <para>- explicitly,</para>
+    /// <para>- implicitly with one parameter alpha0,</para>
+    /// <para>- implicitly with three parameters alpha, beta, kappa</para>
     /// </summary>
     public class UTParams
     {

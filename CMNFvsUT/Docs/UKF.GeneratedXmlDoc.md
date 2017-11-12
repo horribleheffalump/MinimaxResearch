@@ -89,7 +89,23 @@ It should be noted, that the train and test sets may be different. That is, the 
 ---
 #### Method UTStaticEstimate.UTParmsOptimize(System.Int32,System.Int32,UKF.UTDefinitionType,System.Func{MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}[],MathNet.Numerics.LinearAlgebra.Vector{System.Double}[],MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.String)
 
- Unscented transform parameters "optimization" procedure. - Step 1: generate N1 random samples, calculate the unscented transform estimates given the parameters determined by each random sample. - Step 2:choose the random sample with the best estimate quality criterion value and generate N2 random samples in closer area of this sample. - Step 3:again choose the random sample with the best estimate quality criterion value, save the samples ordered by the criterion value to the output file and return the best found unscented transform parameters. The UTOptimizationType type param determines the way how the random samples define the unscented tranform params [[|T:UKF.UTParams]]. - If type is UTOptimizationType.ImplicitAlpha, then random samples define alpha0 - scalar weight of the central points for both sample mean and cov [[|M:UKF.UTParams.SetUTParams(System.Int32,System.Double)]]; - If type is UTOptimizationType.ImplicitAlphaBetaKappa, then random samples are vectors of dim 3 and represent three parameters alpha, beta, kappa which are then transformed to the parameters of the inscented transform [[|M:UKF.UTParams.SetUTParams(System.Int32,System.Double,System.Double,System.Double)]]; - If type is UTOptimizationType.Explicit, then random samples are vectors of dim 4 and explicitly define the unscented transform parameters [[|M:UKF.UTParams.SetUTParams(System.Int32,System.Double,System.Double,System.Double,System.Double)]]. ///TODO it is not right to define the parameters of the unsctnted transform arbitraty, they have to be interdependent, so that the mean and cov would be transformed correctly. 
+Unscented transform parameters "optimization" procedure.
+
+- Step 1: generate N1 random samples, calculate the unscented transform estimates given the parameters determined by each random sample.
+
+- Step 2:choose the random sample with the best estimate quality criterion value and generate N2 random samples in closer area of this sample.
+
+- Step 3:again choose the random sample with the best estimate quality criterion value, save the samples ordered by the criterion value to the output file and return the best found unscented transform parameters.
+
+The UTOptimizationType type param determines the way how the random samples define the unscented tranform params (UTParams).
+
+- If type is UTOptimizationType.ImplicitAlpha, then random samples define alpha0 - scalar weight of the central points for both sample mean and cov: UTParams.SetUTParams(int, double);
+
+- If type is UTOptimizationType.ImplicitAlphaBetaKappa, then random samples are vectors of dim 3 and represent three parameters alpha, beta, kappa which are then transformed to the parameters of the inscented transform: UTParams.SetUTParams(int, double, double, double);
+
+- If type is UTOptimizationType.Explicit, then random samples are vectors of dim 4 and explicitly define the unscented transform parameters: UTParams.SetUTParams(int, double, double, double, double). ///TODO it is not right to define the parameters of the unsctnted transform arbitraty, they have to be interdependent, so that the mean and cov would be transformed correctly.
+
+
 
 |Name | Description |
 |-----|------|
@@ -111,7 +127,7 @@ It should be noted, that the train and test sets may be different. That is, the 
 ---
 #### Method UTStaticEstimate.CalculateSampleCriterion(System.Func{MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double},MathNet.Numerics.Distributions.IContinuousDistribution[],MathNet.Numerics.LinearAlgebra.Vector{System.Double}[],MathNet.Numerics.LinearAlgebra.Vector{System.Double}[],MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double})
 
- Generates a random sample for the unscented transform parameters and calculates the criterion value for the unscented transform estimate. The size of the distribution parameter determines the unscented transform parameters definition method [[|T:UKF.UTParams]]
+ Generates a random sample for the unscented transform parameters and calculates the criterion value for the unscented transform estimate. The size of the distribution parameter determines the unscented transform parameters definition method (UTParams) 
 
 |Name | Description |
 |-----|------|
@@ -156,7 +172,23 @@ It should be noted, that the train and test sets may be different. That is, the 
 ---
 ## Type UTParams
 
- Parameters of the unscented transform: - Lambda - scaling parameter - Wm - weights for sample mean - Wc - weights for sample covariance Three ways to define: - explicitly, - implicitly with one parameter alpha0, - implicitly with three parameters alpha, beta, kappa 
+Parameters of the unscented transform:
+
+- Lambda - scaling parameter
+
+- Wm - weights for sample mean
+
+- Wc - weights for sample covariance
+
+Three ways to define:
+
+- explicitly,
+
+- implicitly with one parameter alpha0,
+
+- implicitly with three parameters alpha, beta, kappa
+
+
 
 
 
