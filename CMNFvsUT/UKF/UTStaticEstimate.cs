@@ -11,14 +11,20 @@ using System.IO;
 namespace UKF
 {
     /// <summary>
-    /// Unscented transform estimate for the model y = Phi(x) + Nu, where 
+    /// Unscented transform estimate for the model $`y = Phi(x) + Nu`$, where 
+    /// 
     /// * x is a random variable with known mean and covariance,
+    /// 
     /// * Nu - noise with zero mean and known covariance
+    /// 
     /// Usage:
+    /// 
     /// * specify the parameters of the unscented transform in utProperty manually or by means of primitive optmization procedure  <see cref="UTStaticEstimate.EstimateParameters"/>
+    /// 
     /// * calculate the estimate <see cref="UTStaticEstimate.Estimate"/>
+    /// 
     /// It should be noted, that the train and test sets may be different. 
-    /// That is, the arrays of samples X = [x_0,...,x_N] and observations Y = [y_0,...,y_N] = [Phi(x_0) + Nu_0,...,Phi(x_N) + Nu_N]  may vary 
+    /// That is, the arrays of samples $`X = [x_0,...,x_N]`$ and observations $`Y = [y_0,...,y_N] = [Phi(x_0) + Nu_0,...,Phi(x_N) + Nu_N]`$  may vary 
     /// for the step of the unscented transform parameters optimization and the step of unscented transform estimate calculation.
     /// </summary>
     public class UTStaticEstimate
