@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using MathNet.Numerics.Distributions;
-using MathNet.Numerics.Random;
 using MathNet.Numerics.LinearAlgebra;
+using MathNetExtensions;
 
 namespace NonlinearSystem
 {

@@ -12,6 +12,7 @@ using NonlinearSystem;
 using UKF;
 using PythonInteract;
 using CMNFTest.Properties;
+using MathNetExtensions;
 
 namespace CMNFTest
 {
@@ -60,7 +61,7 @@ namespace CMNFTest
         /// <param name="doCalculateUKF"></param>
         /// <param name="t">time interval right margin (number of steps)</param>
         /// <param name="n">number of trajectories</param>
-        public void Initialize(int t, int n, bool doCalculateUKF, string outputFolder)
+        public void Initialize(int t, int n, bool doCalculateUKF, string outputFolder, int N1 = 100, int N2 = 100)
         {
             provider = new NumberFormatInfo();
             provider.NumberDecimalSeparator = ".";
@@ -81,10 +82,10 @@ namespace CMNFTest
             CMNF = new CMNFilter(Xi, Zeta);
             CMNF.EstimateParameters(models, X0Hat, T);
 
-            UKF = new UKFilter(X0().Count, Phi1, Psi, DW, DNu);
+            UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.NelderMeed);
 
             if (doCalculateUKF)
-                UKF.EstimateParametersRandom(models, T, X0Hat, DX0Hat, Path.Combine(outputFolder, "optimize_UKF.txt"));
+                UKF.EstimateParameters(N1, N2, Phi1, Psi, DW, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
         }
 
         //public TestEnvironmentVector()//bool doCalculateUKF, int T, int N)
@@ -124,7 +125,7 @@ namespace CMNFTest
 
                 Vector<double> mError = x - xHat;
 
-                UKF.Step(y, xHatU, PHatU, out Vector<double> _xHatU, out Matrix<double> _PHatU);
+                UKF.Step(Phi1, Psi, DW, DNu, t, y, xHatU, PHatU, out Vector<double> _xHatU, out Matrix<double> _PHatU);
                 xHatU = _xHatU;
                 PHatU = _PHatU;
 
@@ -192,12 +193,12 @@ namespace CMNFTest
                 }
 
                 Vector<double> mx = x.Average();
-                Matrix<double> Dx = Utils.Cov(x, x);
+                Matrix<double> Dx = Exts.Cov(x, x);
 
                 Vector<double> mxHat = xHat.Average();
 
                 Vector<double> mError = (x.Subtract(xHat)).Average();
-                Matrix<double> DError = Utils.Cov(x.Subtract(xHat), x.Subtract(xHat));
+                Matrix<double> DError = Exts.Cov(x.Subtract(xHat), x.Subtract(xHat));
 
 
                 Vector<double> mErrorU = Vector<double>.Build.Dense(dimX, 0);
@@ -212,13 +213,13 @@ namespace CMNFTest
                     {
                         Vector<double> _xHatU;
                         Matrix<double> _PHatU;
-                        UKF.Step(y[i], xHatU[i], PHatU[i], out _xHatU, out _PHatU);
+                        UKF.Step(Phi1, Psi, DW, DNu, t, y[i], xHatU[i], PHatU[i], out _xHatU, out _PHatU);
                         xHatU[i] = _xHatU;
                         PHatU[i] = _PHatU;
                     }
 
                     mErrorU = (x.Subtract(xHatU)).Average();
-                    DErrorU = Utils.Cov(x.Subtract(xHatU), x.Subtract(xHatU));
+                    DErrorU = Exts.Cov(x.Subtract(xHatU), x.Subtract(xHatU));
 
                     mxHatU = xHatU.Average();
                     mPHatU = PHatU.Average();

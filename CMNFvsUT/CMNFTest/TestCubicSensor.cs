@@ -1,5 +1,6 @@
 ﻿using MathNet.Numerics.Distributions;
 using MathNet.Numerics.LinearAlgebra;
+using MathNetExtensions;
 using NonlinearSystem;
 using PythonInteract;
 using System;
@@ -16,12 +17,12 @@ namespace CMNFTest
             TestName = "Кубический сенсор";
             TestFileName = "CubicSensor";
 
-            Vector<double> mW = Utils.Vector(0, 0); Matrix<double> dW = Utils.Diag(1, 1);
-            Vector<double> mNu = Utils.Vector(0, 0); Matrix<double> dNu = Utils.Diag(1, 1);
-            Vector<double> mEta = Utils.Vector(100, 100); Matrix<double> dEta = Utils.Diag(100, 100);
-            Func<int, Vector<double>, Vector<double>> phi1 = (s, x) => Utils.Vector(x[0] / (1 + x[0] * x[0]), x[1] / (1 + x[1] * x[1]));
-            Func<int, Vector<double>, Matrix<double>> phi2 = (s, x) => Utils.Diag(1.0, 1.0);
-            Func<int, Vector<double>, Vector<double>> psi = (s, x) => Utils.Vector(Math.Pow(x[0], 3) + Math.Pow(x[0], 1), Math.Pow(x[1], 3) + Math.Pow(x[1], 1));
+            Vector<double> mW = Exts.Vector(0, 0); Matrix<double> dW = Exts.Diag(1, 1);
+            Vector<double> mNu = Exts.Vector(0, 0); Matrix<double> dNu = Exts.Diag(1, 1);
+            Vector<double> mEta = Exts.Vector(100, 100); Matrix<double> dEta = Exts.Diag(100, 100);
+            Func<int, Vector<double>, Vector<double>> phi1 = (s, x) => Exts.Vector(x[0] / (1 + x[0] * x[0]), x[1] / (1 + x[1] * x[1]));
+            Func<int, Vector<double>, Matrix<double>> phi2 = (s, x) => Exts.Diag(1.0, 1.0);
+            Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(Math.Pow(x[0], 3) + Math.Pow(x[0], 1), Math.Pow(x[1], 3) + Math.Pow(x[1], 1));
 
             Phi1_latex = new string[] { @"\frac{x_0}{1 + x_0^2}", @"\frac{x_1}{1 + x_1^2}" };
             Phi2_latex = new string[][] { new string[] { "1", "0" }, new string[] {"0", "1" } };
@@ -42,11 +43,11 @@ namespace CMNFTest
             Psi = psi;
             Xi = (s, x) => phi1(s, x) + phi2(s, x) * mW;
             Zeta = (s, x, y) => y - psi(s, x) - mNu;
-            W = (s) => Utils.Vector(NormalW[0].Sample(), NormalW[1].Sample());
-            Nu = (s) => Utils.Vector(NormalNu[0].Sample(), NormalNu[1].Sample());
+            W = (s) => Exts.Vector(NormalW[0].Sample(), NormalW[1].Sample());
+            Nu = (s) => Exts.Vector(NormalNu[0].Sample(), NormalNu[1].Sample());
             DW = dW;
             DNu = dNu;
-            X0 = () => Utils.Vector(NormalEta[0].Sample(), NormalEta[1].Sample());
+            X0 = () => Exts.Vector(NormalEta[0].Sample(), NormalEta[1].Sample());
             X0Hat = mEta;
             DX0Hat = dEta;
         }

@@ -1,4 +1,5 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
+using MathNetExtensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace UKF
         /// <para>- Xi_0 = x</para>
         /// <para>- Xi_i = x + sqrt((L+lambda)P)_i, i = 1,...,L</para>
         /// <para>- Xi_i = x - sqrt((L+lambda)P)_{i-L}, i = L+1,...,2L </para>
-        /// <para>L - dimention of x, sqrt(P) - Chlesky decomposition </para>
+        /// <para>L - dimention of x, sqrt(P) - Cholesky decomposition </para>
         /// </summary>
         /// <param name="x">Mean</param>
         /// <param name="P">Covariance</param>
@@ -42,6 +43,58 @@ namespace UKF
         }
     }
 
+    /// <summary>
+    /// The unscented transform
+    /// </summary>
+    public static class UnscentedTransform
+    {
+        /// <summary>
+        /// The unscented transform
+        /// </summary>
+        /// <param name="Phi">Transformation: a nonlinear function which determines the transformation of the random vector variable: y = Phi(x) + nu</param>
+        /// <param name="mX">Mean of the transformed random variable</param>
+        /// <param name="dX">Cov of the ransformed random variable</param>
+        /// <param name="dY">Cov of the additive random variable</param>
+        /// <param name="p">Parameters of the unscented transform</param>
+        /// <param name="y">Returns: approximated mean of the transformed variable</param>
+        /// <param name="Kxy">Returns: approximated cross-covariance of the initial and the transformed variable</param>
+        /// <param name="Kyy">Returns: approximated covariance of the transormed variable</param>
+        public static void Transform(Func<Vector<double>, Vector<double>> Phi, Vector<double> mX, Matrix<double> dX, Matrix<double> dY, UTParams p, out Vector<double> y, out Matrix<double> Kxy, out Matrix<double> Kyy)
+        {
+            int L = mX.Count;
+
+            Matrix<double> Xi = SigmaPoints.Generate(mX, dX, p.Lambda);
+
+            Matrix<double> Upsilon = Phi(Xi.Column(0)).ToColumnMatrix();
+            for (int i = 1; i < 2 * L + 1; i++)
+            {
+                Upsilon = Upsilon.Append(Phi(Xi.Column(i)).ToColumnMatrix());
+            }
+
+            y = p.Wm[0] * Upsilon.Column(0);
+            for (int i = 1; i < 2 * L + 1; i++)
+            {
+                y = y + p.Wm[i] * Upsilon.Column(i);
+            }
+
+
+            Kxy = p.Wc[0] * (Xi.Column(0) - mX).ToColumnMatrix() * (Upsilon.Column(0) - y).ToRowMatrix();
+            Kyy = p.Wc[0] * (Upsilon.Column(0) - y).ToColumnMatrix() * (Upsilon.Column(0) - y).ToRowMatrix();
+
+            Matrix<double> Z = Xi.Stack(Upsilon);
+            Vector<double> MZ = mX.Stack(y);
+            Matrix<double> PFull = p.Wc[0] * (Z.Column(0) - MZ).ToColumnMatrix() * (Z.Column(0) - MZ).ToRowMatrix();
+            for (int i = 1; i < 2 * L + 1; i++)
+            {
+                PFull = PFull + p.Wc[i] * (Z.Column(i) - MZ).ToColumnMatrix() * (Z.Column(i) - MZ).ToRowMatrix();
+                Kxy = Kxy + p.Wc[i] * (Xi.Column(i) - mX).ToColumnMatrix() * (Upsilon.Column(i) - y).ToRowMatrix();
+                Kyy = Kyy + p.Wc[i] * (Upsilon.Column(i) - y).ToColumnMatrix() * (Upsilon.Column(i) - y).ToRowMatrix();
+            }
+            Kyy = Kyy + dY;
+            //Py = Py + R;
+            //return PFull;
+        }
+    }
     /// <summary>
     /// Unscented transform parameters optimization type. 
     /// </summary>
@@ -125,6 +178,18 @@ namespace UKF
 
             Wc = Vector<double>.Build.Dense(2 * L + 1, wi);
             Wc[0] = wc0;
+        }
+        
+        /// <summary>
+        /// Get unscented transformation paramters as array
+        /// </summary>
+        public double[] Params
+        {
+            get 
+            {
+                return new double[4] { Lambda, Wm[0], Wc[0], Wm[1] };
+            }
+            
         }
     }
 

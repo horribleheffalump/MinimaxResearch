@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>adc1803e-e8b1-4a29-92d1-d159bfc60216</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>State.py</StartupFile>
+    <StartupFile>test.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -41,6 +41,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="State.py" />
+    <Compile Include="test.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="UKFoptimization.py">
       <SubType>Code</SubType>
     </Compile>

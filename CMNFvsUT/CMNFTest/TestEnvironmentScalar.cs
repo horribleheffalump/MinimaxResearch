@@ -10,6 +10,7 @@ using MathNet.Numerics.Distributions;
 using MathNet.Numerics.LinearAlgebra;
 using NonlinearSystem;
 using UKF;
+using MathNetExtensions;
 
 namespace CMNFTest
 {
@@ -41,7 +42,7 @@ namespace CMNFTest
         public UKFilter UKF;
 
 
-        private void Initialize(bool doCalculateUKF, int t, int n,
+        private void Initialize(int N1, int N2, bool doCalculateUKF, int t, int n,
             Func<double, double> phi1,
             Func<double, double> phi2,
             Func<double, double> psi,
@@ -85,13 +86,13 @@ namespace CMNFTest
             {
                 models[i] = new DiscreteVectorModel
                     (
-                    new Func<int, Vector<double>, Vector<double>>((s, x) => Vector<double>.Build.Dense(1, Phi1(x[0]))),
-                    new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, Phi2(x[0]))),
-                    new Func<int, Vector<double>, Vector<double>>((s, x) => Vector<double>.Build.Dense(1, Psi(x[0]))),
-                    new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0)),
-                    new Func<int, Vector<double>>((s) => Vector<double>.Build.Dense(1, W(s))),
-                    new Func<int, Vector<double>>((s) => Vector<double>.Build.Dense(1, Nu(s))),
-                    Vector<double>.Build.Dense(1, X0()),
+                    new Func<int, Vector<double>, Vector<double>>((s, x) => Exts.Vector(Phi1(x[0]))),
+                    new Func<int, Vector<double>, Matrix<double>>((s, x) => Exts.Matrix(Phi2(x[0]))),
+                    new Func<int, Vector<double>, Vector<double>>((s, x) => Exts.Vector(Psi(x[0]))),
+                    new Func<int, Vector<double>, Matrix<double>>((s, x) => Exts.Matrix(1.0)),
+                    new Func<int, Vector<double>>((s) => Exts.Vector(W(s))),
+                    new Func<int, Vector<double>>((s) => Exts.Vector(Nu(s))),
+                    Exts.Vector(X0()),
                     true);
             }
             for (int s = 0; s < T; s++)
@@ -103,13 +104,13 @@ namespace CMNFTest
             }
 
             CMNFScalar = new CMNScalarFilter(xi, zeta);
-            CMNFScalar.EstimateParameters(models, Vector<double>.Build.Dense(1, X0Hat), T);
+            CMNFScalar.EstimateParameters(models, Exts.Vector(X0Hat), T);
 
             CMNF = new CMNFilter(
-                new Func<int, Vector<double>, Vector<double>>((s, x) => Vector<double>.Build.Dense(1, xi(x[0]))),
-                new Func<int, Vector<double>, Vector<double>, Vector<double>>((s, x, y) => Vector<double>.Build.Dense(1, zeta(x[0], y[0])))
+                new Func<int, Vector<double>, Vector<double>>((s, x) => Exts.Vector(xi(x[0]))),
+                new Func<int, Vector<double>, Vector<double>, Vector<double>>((s, x, y) => Exts.Vector(zeta(x[0], y[0])))
                 );
-            CMNF.EstimateParameters(models, Vector<double>.Build.Dense(1, X0Hat), T);
+            CMNF.EstimateParameters(models, Exts.Vector(X0Hat), T);
 
             //Console.WriteLine("f, F, h, H, K");
             //for (int i = 0; i < T; i++)
@@ -117,22 +118,25 @@ namespace CMNFTest
             //    Console.WriteLine($"{Math.Abs(CMNFScalar.fHat[i] - CMNF.fHat[i][0])}, {Math.Abs(CMNFScalar.FHat[i] - CMNF.FHat[i][0,0])}, {Math.Abs(CMNFScalar.hHat[i] - CMNF.hHat[i][0])}, {Math.Abs(CMNFScalar.HHat[i] - CMNF.HHat[i][0, 0])}, {Math.Abs(CMNFScalar.KHat[i] - CMNF.KHat[i][0, 0])}");
             //}
 
-            UKF = new UKFilter(1,
-                new Func<int, Vector<double>, Vector<double>>((s,x) => Vector<double>.Build.Dense(1, Phi1(x[0]))),
-                new Func<int, Vector<double>, Vector<double>>((s,x) => Vector<double>.Build.Dense(1, Psi(x[0]))),
-                Matrix<double>.Build.Dense(1, 1, DW), Matrix<double>.Build.Dense(1, 1, DNu));
-            //
+            UKF = new UKFilter();
+                //1,
+                //new Func<int, Vector<double>, Vector<double>>((s,x) => Exts.Vector(Phi1(x[0]))),
+                //new Func<int, Vector<double>, Vector<double>>((s,x) => Exts.Vector(Psi(x[0]))),
+                //Exts.Matrix(DW), Exts.Matrix(DNu));
+                //
 
             //UKF.EstimateParameters(models, T, X0Hat, DX0Hat, Path.Combine(Settings.Default.OutputFolder, "test1_optimize_UKF.txt"));
             if (doCalculateUKF)
-                UKF.EstimateParametersRandom(models, T, Vector<double>.Build.Dense(1, X0Hat), Matrix<double>.Build.Dense(1, 1, DX0Hat), Path.Combine(Settings.Default.OutputFolder, "optimize_UKF.txt"));
-
-
-
+                UKF.EstimateParameters(N1, N2,
+                    (s, x) => Exts.Vector(Phi1(x[0])),
+                    (s, x) => Exts.Vector(Psi(x[0])),
+                    Exts.Matrix(DW), Exts.Matrix(DNu),
+                    x => x.Trace(), T,  
+                    models, Exts.Vector(X0Hat), Exts.Matrix(DX0Hat), Settings.Default.OutputFolder);
             //UKFtest = new UKFTest(1, 1);
         }
 
-        public TestEnvironmentScalar(bool doCalculateUKF, int T, int N,
+        public TestEnvironmentScalar(int N1, int N2, bool doCalculateUKF, int T, int N,
             Func<double, double> phi1,
             Func<double, double> phi2,
             Func<double, double> psi,
@@ -147,11 +151,11 @@ namespace CMNFTest
             Func<double, double, double> zeta
             )
         {
-            Initialize(doCalculateUKF, T, N, phi1, phi2, psi, w, nu, x0, dw, dnu, x0Hat, dx0Hat, xi, zeta);
+            Initialize(N1, N2, doCalculateUKF, T, N, phi1, phi2, psi, w, nu, x0, dw, dnu, x0Hat, dx0Hat, xi, zeta);
         }
 
 
-        public TestEnvironmentScalar(bool doCalculateUKF, int T, int N,
+        public TestEnvironmentScalar(int N1, int N2, bool doCalculateUKF, int T, int N,
            Func<double, double> phi1,
            Func<double, double> phi2,
            Func<double, double> psi,
@@ -170,7 +174,7 @@ namespace CMNFTest
             Normal NormalNu = new Normal(mNu, Math.Sqrt(DNu));
             Normal NormalEta = new Normal(mEta, Math.Sqrt(DEta));
 
-            Initialize(doCalculateUKF, T, N, phi1, phi2, psi, (x) => NormalW.Sample(), (x) => NormalNu.Sample(), () => NormalEta.Sample(), DW, DNu, mEta, DEta, xi, zeta);
+            Initialize(N1, N2, doCalculateUKF, T, N, phi1, phi2, psi, (x) => NormalW.Sample(), (x) => NormalNu.Sample(), () => NormalEta.Sample(), DW, DNu, mEta, DEta, xi, zeta);
 
         }
 
@@ -180,15 +184,15 @@ namespace CMNFTest
             using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName))
             {
                 double xHat = X0Hat;
-                Vector<double> xHatU = Vector<double>.Build.Dense(1, X0Hat);
-                Matrix<double> PHatU = Matrix<double>.Build.Dense(1, 1, DX0Hat);
+                Vector<double> xHatU = Exts.Vector(X0Hat);
+                Matrix<double> PHatU = Exts.Matrix(DX0Hat);
 
-                Matrix<double> xHatU_ = Matrix<double>.Build.Dense(1, 1, X0Hat);
-                Matrix<double> PHatU_ = Matrix<double>.Build.Dense(1, 1, DX0Hat);
+                Matrix<double> xHatU_ = Exts.Matrix(X0Hat);
+                Matrix<double> PHatU_ = Exts.Matrix(DX0Hat);
 
 
-                //Vector<double> xHatU = Vector<double>.Build.Dense(1, X0Hat);
-                //Matrix<double> PHatU = Matrix<double>.Build.Dense(1, 1, DX0Hat);
+                //Vector<double> xHatU = Exts.Vector(X0Hat);
+                //Matrix<double> PHatU = Exts.Matrix(DX0Hat);
                 //Matrix<double> t1 = UKF.GenerateSigmaPoints(xHatU, PHatU);
                 //Matrix<double> t2 = UKFtest.GetSigmaPoints(xHatU.ToColumnMatrix(), PHatU, UKFtest.c);
 
@@ -197,7 +201,7 @@ namespace CMNFTest
                 //Matrix<double> Py;
                 //UKF.UT(UKF.Phi, t1, UKF.Rw, out ups, out y, out Py);
                 //Matrix<double>[] o = UKFtest.UnscentedTransform(
-                //    new Func<Matrix<double>, Matrix<double>>(x => Matrix<double>.Build.Dense(1, 1, Phi1(x.At(0, 0)))),
+                //    new Func<Matrix<double>, Matrix<double>>(x => Exts.Matrix(Phi1(x.At(0, 0)))),
                 //    t2, UKFtest.Wm, UKFtest.Wc, 1, UKF.Rw);
 
 
@@ -205,15 +209,15 @@ namespace CMNFTest
                 {
                     double y = model.Step();
                     xHat = CMNFScalar.Step(t, y, xHat);
-                    UKF.Step(Vector<double>.Build.Dense(1, y), xHatU, PHatU, out xHatU, out PHatU);
+                    UKF.Step((s, x) => Exts.Vector(Phi1(x[0])), (s, x) => Exts.Vector(Psi(x[0])), Exts.Matrix(DW), Exts.Matrix(DNu), t, Exts.Vector(y), xHatU, PHatU, out xHatU, out PHatU);
 
                     //Matrix<double>[] o = UKFtest.Update(
-                    //    new Func<Matrix<double>, Matrix<double>>(x => Matrix<double>.Build.Dense(1, 1, Phi1(x[0, 0]))),
+                    //    new Func<Matrix<double>, Matrix<double>>(x => Exts.Matrix(Phi1(x[0, 0]))),
                     //    xHatU_, PHatU_,
-                    //    new Func<Matrix<double>, Matrix<double>>(x => Matrix<double>.Build.Dense(1, 1, Psi(x[0, 0]))),
-                    //    Matrix<double>.Build.Dense(1, 1, y),
-                    //    Matrix<double>.Build.Dense(1, 1, DW),
-                    //    Matrix<double>.Build.Dense(1, 1, DNu)
+                    //    new Func<Matrix<double>, Matrix<double>>(x => Exts.Matrix(Psi(x[0, 0]))),
+                    //    Exts.Matrix(y),
+                    //    Exts.Matrix(DW),
+                    //    Exts.Matrix(DNu)
                     //    );
                     //xHatU_ = o[0];
                     //PHatU_ = o[1];
@@ -236,13 +240,13 @@ namespace CMNFTest
         //    {
         //        modelsEst[i] = new DiscreteVectorModel
         //           (
-        //            new Func<int, Vector<double>, Vector<double>>((s, x) => Vector<double>.Build.Dense(1, Phi1(x[0]))),
-        //            new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, Phi2(x[0]))),
-        //            new Func<int, Vector<double>, Vector<double>>((s, x) => Vector<double>.Build.Dense(1, Psi(x[0]))),
-        //            new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0)),
-        //            new Func<int, Vector<double>>((s) => Vector<double>.Build.Dense(1, W(s))),
-        //            new Func<int, Vector<double>>((s) => Vector<double>.Build.Dense(1, Nu(s))),
-        //            Vector<double>.Build.Dense(1, X0()),
+        //            new Func<int, Vector<double>, Vector<double>>((s, x) => Exts.Vector(Phi1(x[0]))),
+        //            new Func<int, Vector<double>, Matrix<double>>((s, x) => Exts.Matrix(Phi2(x[0]))),
+        //            new Func<int, Vector<double>, Vector<double>>((s, x) => Exts.Vector(Psi(x[0]))),
+        //            new Func<int, Vector<double>, Matrix<double>>((s, x) => Exts.Matrix(1.0)),
+        //            new Func<int, Vector<double>>((s) => Exts.Vector(W(s))),
+        //            new Func<int, Vector<double>>((s) => Exts.Vector(Nu(s))),
+        //            Exts.Vector(X0()),
         //            true
         //           );
 
@@ -256,11 +260,11 @@ namespace CMNFTest
         //    {
         //        Vector<double> xHat = Vector<double>.Build.Dense(N, X0Hat);
 
-        //        Vector<double> xHatU = Vector<double>.Build.Dense(1, 0);// = Vector<double>.Build.Dense(N, X0Hat);
-        //        Vector<double> PHatU = Vector<double>.Build.Dense(1, 0);// = Vector<double>.Build.Dense(N, DX0Hat);
+        //        Vector<double> xHatU = Exts.Vector(0);// = Vector<double>.Build.Dense(N, X0Hat);
+        //        Vector<double> PHatU = Exts.Vector(0);// = Vector<double>.Build.Dense(N, DX0Hat);
 
-        //        Vector<double> xHatU_ = Vector<double>.Build.Dense(1, 0);// = Vector<double>.Build.Dense(N, X0Hat);
-        //        Vector<double> PHatU_ = Vector<double>.Build.Dense(1, 0);// = Vector<double>.Build.Dense(N, DX0Hat);
+        //        Vector<double> xHatU_ = Exts.Vector(0);// = Vector<double>.Build.Dense(N, X0Hat);
+        //        Vector<double> PHatU_ = Exts.Vector(0);// = Vector<double>.Build.Dense(N, DX0Hat);
 
         //        if (doCalculateUKF)
         //        {
@@ -277,7 +281,7 @@ namespace CMNFTest
         //            Vector<double> x = Vector<double>.Build.Dense(N, i => modelsEst[i].Trajectory[t][0][0]);
         //            Vector<double> y = Vector<double>.Build.Dense(N, i => modelsEst[i].Trajectory[t][1][0]);
         //            //xHat = Vector<double>.Build.Dense(N, i => CMNFScalar.Step(t, y[i], xHat[i]));
-        //            xHat = Vector<double>.Build.Dense(N, i => CMNF.Step(t, Vector<double>.Build.Dense(1,y[i]), Vector<double>.Build.Dense(1, xHat[i]))[0]);
+        //            xHat = Vector<double>.Build.Dense(N, i => CMNF.Step(t, Vector<double>.Build.Dense(1,y[i]), Exts.Vector(xHat[i]))[0]);
 
         //            double mx = x.Average();
         //            double Dx = ((x - mx).PointwiseMultiply(x - mx)).Average();
@@ -293,21 +297,21 @@ namespace CMNFTest
         //                {
         //                    Vector<double> xHatU_i;
         //                    Matrix<double> PHatU_i;
-        //                    UKF.Step(Vector<double>.Build.Dense(1, y[i]),
-        //                        Vector<double>.Build.Dense(1, xHatU[i]),
-        //                        Matrix<double>.Build.Dense(1, 1, PHatU[i]),
+        //                    UKF.Step(Exts.Vector(y[i]),
+        //                        Exts.Vector(xHatU[i]),
+        //                        Exts.Matrix(PHatU[i]),
         //                        out xHatU_i, out PHatU_i);
         //                    xHatU[i] = xHatU_i[0];
         //                    PHatU[i] = PHatU_i[0, 0];
 
         //                    ////Matrix<double>[] o = UKFtest.Update(
-        //                    ////    new Func<Matrix<double>, Matrix<double>>(a => Matrix<double>.Build.Dense(1, 1, Phi1(a[0, 0]))),
-        //                    ////    Matrix<double>.Build.Dense(1, 1, xHatU_[i]),
-        //                    ////    Matrix<double>.Build.Dense(1, 1, PHatU_[i]),
-        //                    ////    new Func<Matrix<double>, Matrix<double>>(a => Matrix<double>.Build.Dense(1, 1, Psi(a[0, 0]))),
-        //                    ////    Matrix<double>.Build.Dense(1, 1, y[i]),
-        //                    ////    Matrix<double>.Build.Dense(1, 1, DW),
-        //                    ////    Matrix<double>.Build.Dense(1, 1, DNu)
+        //                    ////    new Func<Matrix<double>, Matrix<double>>(a => Exts.Matrix(Phi1(a[0, 0]))),
+        //                    ////    Exts.Matrix(xHatU_[i]),
+        //                    ////    Exts.Matrix(PHatU_[i]),
+        //                    ////    new Func<Matrix<double>, Matrix<double>>(a => Exts.Matrix(Psi(a[0, 0]))),
+        //                    ////    Exts.Matrix(y[i]),
+        //                    ////    Exts.Matrix(DW),
+        //                    ////    Exts.Matrix(DNu)
         //                    ////    );
         //                    //xHatU_[i] = o[0][0,0];
         //                    //PHatU_[i] = o[1][0,0];
@@ -347,13 +351,13 @@ namespace CMNFTest
             {
                 modelsEst[i] = new DiscreteVectorModel
                    (
-                    new Func<int, Vector<double>, Vector<double>>((s, x) => Vector<double>.Build.Dense(1, Phi1(x[0]))),
-                    new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, Phi2(x[0]))),
-                    new Func<int, Vector<double>, Vector<double>>((s, x) => Vector<double>.Build.Dense(1, Psi(x[0]))),
-                    new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0)),
-                    new Func<int, Vector<double>>((s) => Vector<double>.Build.Dense(1, W(s))),
-                    new Func<int, Vector<double>>((s) => Vector<double>.Build.Dense(1, Nu(s))),
-                    Vector<double>.Build.Dense(1, X0()),
+                    new Func<int, Vector<double>, Vector<double>>((s, x) => Exts.Vector(Phi1(x[0]))),
+                    new Func<int, Vector<double>, Matrix<double>>((s, x) => Exts.Matrix(Phi2(x[0]))),
+                    new Func<int, Vector<double>, Vector<double>>((s, x) => Exts.Vector(Psi(x[0]))),
+                    new Func<int, Vector<double>, Matrix<double>>((s, x) => Exts.Matrix(1.0)),
+                    new Func<int, Vector<double>>((s) => Exts.Vector(W(s))),
+                    new Func<int, Vector<double>>((s) => Exts.Vector(Nu(s))),
+                    Exts.Vector(X0()),
                     true
                    );
 
@@ -367,11 +371,11 @@ namespace CMNFTest
             {
                 Vector<double> xHat = Vector<double>.Build.Dense(N, X0Hat);
 
-                Vector<double> xHatU = Vector<double>.Build.Dense(1, 0);// = Vector<double>.Build.Dense(N, X0Hat);
-                Vector<double> PHatU = Vector<double>.Build.Dense(1, 0);// = Vector<double>.Build.Dense(N, DX0Hat);
+                Vector<double> xHatU = Exts.Vector(0);// = Vector<double>.Build.Dense(N, X0Hat);
+                Vector<double> PHatU = Exts.Vector(0);// = Vector<double>.Build.Dense(N, DX0Hat);
 
-                Vector<double> xHatU_ = Vector<double>.Build.Dense(1, 0);// = Vector<double>.Build.Dense(N, X0Hat);
-                Vector<double> PHatU_ = Vector<double>.Build.Dense(1, 0);// = Vector<double>.Build.Dense(N, DX0Hat);
+                Vector<double> xHatU_ = Exts.Vector(0);// = Vector<double>.Build.Dense(N, X0Hat);
+                Vector<double> PHatU_ = Exts.Vector(0);// = Vector<double>.Build.Dense(N, DX0Hat);
 
                 if (doCalculateUKF)
                 {
@@ -388,7 +392,7 @@ namespace CMNFTest
                     Vector<double> x = Vector<double>.Build.Dense(N, i => modelsEst[i].Trajectory[t][0][0]);
                     Vector<double> y = Vector<double>.Build.Dense(N, i => modelsEst[i].Trajectory[t][1][0]);
                     //xHat = Vector<double>.Build.Dense(N, i => CMNFScalar.Step(t, y[i], xHat[i]));
-                    xHat = Vector<double>.Build.Dense(N, i => CMNF.Step(t, Vector<double>.Build.Dense(1, y[i]), Vector<double>.Build.Dense(1, xHat[i]))[0]);
+                    xHat = Vector<double>.Build.Dense(N, i => CMNF.Step(t, Exts.Vector(y[i]), Exts.Vector(xHat[i]))[0]);
 
                     double mx = x.Average();
                     double Dx = ((x - mx).PointwiseMultiply(x - mx)).Average();
@@ -404,21 +408,26 @@ namespace CMNFTest
                         {
                             Vector<double> xHatU_i;
                             Matrix<double> PHatU_i;
-                            UKF.Step(Vector<double>.Build.Dense(1, y[i]),
-                                Vector<double>.Build.Dense(1, xHatU[i]),
-                                Matrix<double>.Build.Dense(1, 1, PHatU[i]),
+                            UKF.Step(
+                                (s, _x) => Exts.Vector(Phi1(_x[0])),
+                                (s, _x) => Exts.Vector(Psi(_x[0])),
+                                Exts.Matrix(DW), Exts.Matrix(DNu),
+                                t,
+                                Exts.Vector(y[i]),
+                                Exts.Vector(xHatU[i]),
+                                Exts.Matrix(PHatU[i]),
                                 out xHatU_i, out PHatU_i);
                             xHatU[i] = xHatU_i[0];
                             PHatU[i] = PHatU_i[0, 0];
 
                             ////Matrix<double>[] o = UKFtest.Update(
-                            ////    new Func<Matrix<double>, Matrix<double>>(a => Matrix<double>.Build.Dense(1, 1, Phi1(a[0, 0]))),
-                            ////    Matrix<double>.Build.Dense(1, 1, xHatU_[i]),
-                            ////    Matrix<double>.Build.Dense(1, 1, PHatU_[i]),
-                            ////    new Func<Matrix<double>, Matrix<double>>(a => Matrix<double>.Build.Dense(1, 1, Psi(a[0, 0]))),
-                            ////    Matrix<double>.Build.Dense(1, 1, y[i]),
-                            ////    Matrix<double>.Build.Dense(1, 1, DW),
-                            ////    Matrix<double>.Build.Dense(1, 1, DNu)
+                            ////    new Func<Matrix<double>, Matrix<double>>(a => Exts.Matrix(Phi1(a[0, 0]))),
+                            ////    Exts.Matrix(xHatU_[i]),
+                            ////    Exts.Matrix(PHatU_[i]),
+                            ////    new Func<Matrix<double>, Matrix<double>>(a => Exts.Matrix(Psi(a[0, 0]))),
+                            ////    Exts.Matrix(y[i]),
+                            ////    Exts.Matrix(DW),
+                            ////    Exts.Matrix(DNu)
                             ////    );
                             //xHatU_[i] = o[0][0,0];
                             //PHatU_[i] = o[1][0,0];

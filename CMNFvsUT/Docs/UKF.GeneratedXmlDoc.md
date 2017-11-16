@@ -1,5 +1,139 @@
 # UKF #
 
+## Type SigmaPoints
+
+ Static sigma points generator 
+
+
+
+---
+#### Method SigmaPoints.Generate(MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double)
+
+Generates sigma-points given the mean x, covarianve P and spread parameter lambda
+
+- Xi_0 = x
+
+- Xi_i = x + sqrt((L+lambda)P)_i, i = 1,...,L
+
+- Xi_i = x - sqrt((L+lambda)P)_{i-L}, i = L+1,...,2L 
+
+L - dimention of x, sqrt(P) - Cholesky decomposition 
+
+
+
+|Name | Description |
+|-----|------|
+|x: |Mean|
+|P: |Covariance|
+|lambda: |Spread parameter|
+**Returns**: 
+
+
+
+---
+## Type UnscentedTransform
+
+ The unscented transform 
+
+
+
+---
+#### Method UnscentedTransform.Transform(System.Func{MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},UKF.UTParams,MathNet.Numerics.LinearAlgebra.Vector{System.Double}@,MathNet.Numerics.LinearAlgebra.Matrix{System.Double}@,MathNet.Numerics.LinearAlgebra.Matrix{System.Double}@)
+
+ The unscented transform 
+
+|Name | Description |
+|-----|------|
+|Phi: |Transformation: a nonlinear function which determines the transformation of the random vector variable: y = Phi(x) + nu|
+|mX: |Mean of the transformed random variable|
+|dX: |Cov of the ransformed random variable|
+|dY: |Cov of the additive random variable|
+|p: |Parameters of the unscented transform|
+|y: |Returns: approximated mean of the transformed variable|
+|Kxy: |Returns: approximated cross-covariance of the initial and the transformed variable|
+|Kyy: |Returns: approximated covariance of the transormed variable|
+
+
+---
+## Type UTDefinitionType
+
+ Unscented transform parameters optimization type. 
+
+
+
+---
+## Type UTParams
+
+Parameters of the unscented transform:
+
+- Lambda - scaling parameter
+
+- Wm - weights for sample mean
+
+- Wc - weights for sample covariance
+
+Three ways to define:
+
+- explicitly,
+
+- implicitly with one parameter alpha0,
+
+- implicitly with three parameters alpha, beta, kappa
+
+
+
+
+
+---
+#### Method UTParams.#ctor(System.Int32,System.Double[])
+
+ Constructor 
+
+|Name | Description |
+|-----|------|
+|L: |Dimension of the transformed random variable|
+|p: |Input params to define the unscented transform params. The appropriate method to define UT params is chosen depending on the size of the array.|
+
+
+---
+#### Method UTParams.SetUTParams(System.Int32,System.Double)
+
+ The parameters of the unscented transform are defined by a single parameter alpha0: 
+
+|Name | Description |
+|-----|------|
+|L: |Dimension of the transformed random variable|
+|alpha0: |Alpha0 - weight of the central points for both sample mean and cov |
+
+
+---
+#### Method UTParams.SetUTParams(System.Int32,System.Double,System.Double,System.Double)
+
+ The parameters of the unscented transform are defined by three parameters: alpha, beta, kappa 
+
+|Name | Description |
+|-----|------|
+|L: |Dimension of the transformed random variable|
+|alpha: |Alpha - determines the spread of the sigma points around the mean of the transformed random variable (small positive value 0 \leq alpha \leq 10e-4)|
+|beta: |Beta - is used to incorporate prior knowledge of the distribution of the transformed random variable (for Gaussian b = 2 is optimal)|
+|kappa: |Kappa - is a secondary scaling parameter|
+
+
+---
+#### Method UTParams.SetUTParams(System.Int32,System.Double,System.Double,System.Double,System.Double)
+
+ Explicit definition of the unscented transform parameters 
+
+|Name | Description |
+|-----|------|
+|L: |Dimension of the transformed random variable|
+|lambda: |Scaling parameter|
+|wm0: |Central point weight for the sample mean|
+|wc0: |Central point weight for the sample cov|
+|wi: |Non-central points weight for sample mean and cov|
+
+
+---
 ## Type UTStaticEstimate
 
 Unscented transform estimate for the model y = Phi(x) + Nu, where
@@ -48,23 +182,6 @@ It should be noted, that the train and test sets may be different. That is, the 
 |KErrTh_UT: |Returns: estimation error theoretical covariance marix|
 **Returns**: Array of estimates \hat{X} = [\hat{x}_0,...,\hat{x}_N]
 
-
-
----
-#### Method UTStaticEstimate.K_UT(System.Func{MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},UKF.UTParams,MathNet.Numerics.LinearAlgebra.Vector{System.Double}@,MathNet.Numerics.LinearAlgebra.Matrix{System.Double}@,MathNet.Numerics.LinearAlgebra.Matrix{System.Double}@)
-
- The unscented transform 
-
-|Name | Description |
-|-----|------|
-|Phi: |Transformation: a nonlinear function which determines the transformation of the random vector variable: y = Phi(x) + nu|
-|mX: |Mean of the transformed random variable|
-|dX: |Cov of the ransformed random variable|
-|dY: |Cov of the additive random variable|
-|p: |Parameters of the unscented transform|
-|y: |Returns: approximated mean of the transformed variable|
-|Kxy: |Returns: approximated cross-covariance of the initial and the transformed variable|
-|Kyy: |Returns: approximated covariance of the transormed variable|
 
 
 ---
@@ -160,85 +277,6 @@ The UTOptimizationType type param determines the way how the random samples defi
 |KNu: |Cov of the noize nu|
 **Returns**: 
 
-
-
----
-## Type UTDefinitionType
-
- Unscented transform parameters optimization type. 
-
-
-
----
-## Type UTParams
-
-Parameters of the unscented transform:
-
-- Lambda - scaling parameter
-
-- Wm - weights for sample mean
-
-- Wc - weights for sample covariance
-
-Three ways to define:
-
-- explicitly,
-
-- implicitly with one parameter alpha0,
-
-- implicitly with three parameters alpha, beta, kappa
-
-
-
-
-
----
-#### Method UTParams.#ctor(System.Int32,System.Double[])
-
- Constructor 
-
-|Name | Description |
-|-----|------|
-|L: |Dimension of the transformed random variable|
-|p: |Input params to define the unscented transform params. The appropriate method to define UT params is chosen depending on the size of the array.|
-
-
----
-#### Method UTParams.SetUTParams(System.Int32,System.Double)
-
- The parameters of the unscented transform are defined by a single parameter alpha0: 
-
-|Name | Description |
-|-----|------|
-|L: |Dimension of the transformed random variable|
-|alpha0: |Alpha0 - weight of the central points for both sample mean and cov |
-
-
----
-#### Method UTParams.SetUTParams(System.Int32,System.Double,System.Double,System.Double)
-
- The parameters of the unscented transform are defined by three parameters: alpha, beta, kappa 
-
-|Name | Description |
-|-----|------|
-|L: |Dimension of the transformed random variable|
-|alpha: |Alpha - determines the spread of the sigma points around the mean of the transformed random variable (small positive value 0 \leq alpha \leq 10e-4)|
-|beta: |Beta - is used to incorporate prior knowledge of the distribution of the transformed random variable (for Gaussian b = 2 is optimal)|
-|kappa: |Kappa - is a secondary scaling parameter|
-
-
----
-#### Method UTParams.SetUTParams(System.Int32,System.Double,System.Double,System.Double,System.Double)
-
- Explicit definition of the unscented transform parameters 
-
-|Name | Description |
-|-----|------|
-|L: |Dimension of the transformed random variable|
-|lambda: |Scaling parameter|
-|wm0: |Central point weight for the sample mean|
-|wc0: |Central point weight for the sample cov|
-|wi: |Non-central points weight for sample mean and cov|
 
 
 ---
