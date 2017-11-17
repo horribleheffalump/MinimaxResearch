@@ -127,7 +127,7 @@ namespace CMNFTest
 
             //UKF.EstimateParameters(models, T, X0Hat, DX0Hat, Path.Combine(Settings.Default.OutputFolder, "test1_optimize_UKF.txt"));
             if (doCalculateUKF)
-                UKF.EstimateParameters(N1, N2,
+                UKF.EstimateParameters(
                     (s, x) => Exts.Vector(Phi1(x[0])),
                     (s, x) => Exts.Vector(Psi(x[0])),
                     Exts.Matrix(DW), Exts.Matrix(DNu),

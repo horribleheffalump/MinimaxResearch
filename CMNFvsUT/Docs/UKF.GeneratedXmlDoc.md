@@ -1,5 +1,120 @@
 # UKF #
 
+## Type UKFilter
+
+Unscented Kalman filter for the model x_{t+1} = Phi(x_t) + W_t, y[t] = Psi(x_t) + Nu_t, where
+
+- x_t is unobservable state with disturbances W_t ~ (0, R_w) in dynamics,
+
+- y_t - observations with noise Nu_t ~ (0, R_nu).
+
+Usage:
+
+- specify the parameters of the unscented transform on forecast and correction phases in utParamsForecast and utParamsCorrection properties manually or by means of the optmization procedure: UKFilter.EstimateParameters
+
+- calculate the estimate step by step with UKFilter.Step
+
+It should be noted, that the train and test trajectory bundles may be different. That is, the arrays of discrete vector models may vary for the step of the unscented transform parameters optimization and the step of unscented transform filter calculation.
+
+
+
+
+
+---
+#### Method UKFilter.#ctor(UKF.UTDefinitionType,UKF.OptimizationMethod)
+
+ Constructor 
+
+|Name | Description |
+|-----|------|
+|type: |Unscented transform parameters definition type|
+|method: |Unscented transform parameters optimization method|
+
+
+---
+#### Method UKFilter.CalculateSampleCriterion(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Func{MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},System.Int32,NonlinearSystem.DiscreteVectorModel[],MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double})
+
+ Wrapper for CalculateCriterionValue function. The sample vector is transformed to a couple of the unscented transform parameters (the way it is done depends on the length of the sample vector, see UTParams and its constructors for details). Then the criterion value given the provided unscented transform parameters for the forecast and the correction phases is calculated. 
+
+|Name | Description |
+|-----|------|
+|Phi: |State transformation: a nonlinear function which determines the dynamics: x_{t+1} = Phi(x_t) + W_t|
+|Psi: |Observations transformation: a nonlinear function which determines the relation between the state and the observations: y[t] = Psi(x_t) + Nu_t|
+|Rw: |Covariance matrix of the state disturbances|
+|Rnu: |Convariance matrix of the observation noise|
+|Crit: |Criterion: a function which determines the quality of the unscented Kalman filter. Depends on the sample covariance of the estimation error on the last step: val = Crit(Cov(X_T-Xhat_T,X_T-Xhat_T)) |
+|P: |Sample vector to be transformed to a couple of the unscented transfrom parameters|
+|T: |The upper bound of the observation interval|
+|models: |Discrete vector model samples|
+|xhat0: |Initial condition|
+|DX0Hat: |Initial condition covariance|
+**Returns**: The criterion value for the unscented transfrom parameters obtained from the sample vactor
+
+
+
+---
+#### Method UKFilter.CalculateCriterionValue(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Func{MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double},UKF.UTParams,UKF.UTParams,System.Int32,NonlinearSystem.DiscreteVectorModel[],MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double})
+
+ Calculates the criterion value for the estimate given the particular unscented transform parameters 
+
+|Name | Description |
+|-----|------|
+|Phi: |State transformation: a nonlinear function which determines the dynamics: x_{t+1} = Phi(x_t) + W_t|
+|Psi: |Observations transformation: a nonlinear function which determines the relation between the state and the observations: y[t] = Psi(x_t) + Nu_t|
+|Rw: |Covariance matrix of the state disturbances|
+|Rnu: |Convariance matrix of the observation noise|
+|Crit: |Criterion: a function which determines the quality of the unscented Kalman filter. Depends on the sample covariance of the estimation error on the last step: val = Crit(Cov(X_T-Xhat_T,X_T-Xhat_T)) |
+|p1: |Unscented transfrom parameters for the forecast phase|
+|p2: |Unscented transfrom parameters for the correction phase|
+|T: |The upper bound of the observation interval|
+|models: |Discrete vector model samples|
+|xhat0: |Initial condition|
+|DX0Hat: |Initial condition covariance|
+**Returns**: The criterion value for the particular unscented transform parameters
+
+
+
+---
+#### Method UKFilter.Step(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},UKF.UTParams,UKF.UTParams,System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}@,MathNet.Numerics.LinearAlgebra.Matrix{System.Double}@)
+
+ Performs a step of Unscented Kalman Filter given the particular unscented transform parameters for forecast and correction phases 
+
+|Name | Description |
+|-----|------|
+|Phi: |State transformation: a nonlinear function which determines the dynamics: x_{t+1} = Phi(x_t) + W_t|
+|Psi: |Observations transformation: a nonlinear function which determines the relation between the state and the observations: y[t] = Psi(x_t) + Nu_t|
+|Rw: |Covariance matrix of the state disturbances|
+|Rnu: |Convariance matrix of the observation noise|
+|p1: |Unscented transfrom parameters for the forecast phase|
+|p2: |Unscented transfrom parameters for the correction phase|
+|t: |Current step time instant|
+|y: |Observations on the current step|
+|xHat_: |Estimate on the previous step|
+|P_: |Approximated previous step error covariance|
+|xHat: |Returns: current step estimate|
+|P: |Returns: approximated current step error covariance|
+
+
+---
+#### Method UKFilter.Step(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}@,MathNet.Numerics.LinearAlgebra.Matrix{System.Double}@)
+
+ Performs a step of Unscented Kalman Filter with fixed transformation parameters for forecast and correction phases (utParamsForecast and utParamsCorrection must be initialized) 
+
+|Name | Description |
+|-----|------|
+|Phi: |State transformation: a nonlinear function which determines the dynamics: x_{t+1} = Phi(x_t) + W_t|
+|Psi: |Observations transformation: a nonlinear function which determines the relation between the state and the observations: y[t] = Psi(x_t) + Nu_t|
+|Rw: |Covariance matrix of the state disturbances|
+|Rnu: |Convariance matrix of the observation noise|
+|t: |Current step time instant|
+|y: |Observations on the current step|
+|xHat_: |Estimate on the previous step|
+|P_: |Approximated previous step error covariance|
+|xHat: |Returns: current step estimate|
+|P: |Returns: approximated current step error covariance|
+
+
+---
 ## Type SigmaPoints
 
  Static sigma points generator 
@@ -26,7 +141,7 @@ L - dimention of x, sqrt(P) - Cholesky decomposition
 |x: |Mean|
 |P: |Covariance|
 |lambda: |Spread parameter|
-**Returns**: 
+**Returns**: Matrix of sigma points
 
 
 
@@ -55,9 +170,16 @@ L - dimention of x, sqrt(P) - Cholesky decomposition
 
 
 ---
+## Type OptimizationMethod
+
+ Unscented transform parameters optimization method. 
+
+
+
+---
 ## Type UTDefinitionType
 
- Unscented transform parameters optimization type. 
+ Unscented transform parameters definition type. 
 
 
 
@@ -134,6 +256,13 @@ Three ways to define:
 
 
 ---
+#### Property UTParams.Params
+
+ Get unscented transformation paramters as array 
+
+
+
+---
 ## Type UTStaticEstimate
 
 Unscented transform estimate for the model y = Phi(x) + Nu, where
@@ -144,7 +273,7 @@ Unscented transform estimate for the model y = Phi(x) + Nu, where
 
 Usage:
 
-- specify the parameters of the unscented transform in utProperty manually or by means of primitive optmization procedure: UTStaticEstimate.EstimateParameters
+- specify the parameters of the unscented transform in utProperty manually or by means of the optmization procedure UTStaticEstimate.EstimateParameters
 
 - calculate the estimate: UTStaticEstimate.Estimate
 
@@ -155,13 +284,14 @@ It should be noted, that the train and test sets may be different. That is, the 
 
 
 ---
-#### Method UTStaticEstimate.#ctor(UKF.UTDefinitionType)
+#### Method UTStaticEstimate.#ctor(UKF.UTDefinitionType,UKF.OptimizationMethod)
 
  Constructor 
 
 |Name | Description |
 |-----|------|
-|type: |The way to calculate the unscented transform parameters in the optimization procedure.|
+|type: |Unscented transform parameters definition type|
+|method: |Unscented transform parameters optimization method|
 
 
 ---
@@ -185,14 +315,12 @@ It should be noted, that the train and test sets may be different. That is, the 
 
 
 ---
-#### Method UTStaticEstimate.EstimateParameters(System.Int32,System.Int32,System.Func{MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}[],MathNet.Numerics.LinearAlgebra.Vector{System.Double}[],MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.String)
+#### Method UTStaticEstimate.EstimateParameters(System.Func{MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}[],MathNet.Numerics.LinearAlgebra.Vector{System.Double}[],MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.String)
 
- Calls the static unscented transform parameters "optimization" procedure and saves the result into the utParams property. The way how the random samples are transformed to the UT params is determined by the optimizationType property. 
+ Calls the static unscented transform parameters optimization procedure and saves the result into the utParams property. The way how to define the UT params is determined by the optimizationType property. The optimization method is determined by the optimizationMethod property. 
 
 |Name | Description |
 |-----|------|
-|N1: |Number of samples on the step 1|
-|N2: |Number of samples on the step 2|
 |Phi: |Transformation: a nonlinear function which determines the transformation of the random vector variable: y = Phi(x) + nu|
 |Crit: |Criterion: a function which determines the quality of the unscented transform estimate. Depends on the sample covariance of the estimation error: val = Crit(Cov(X-Xhat,X-Xhat)) |
 |X: |Array of initial variable x samples|
@@ -204,59 +332,21 @@ It should be noted, that the train and test sets may be different. That is, the 
 
 
 ---
-#### Method UTStaticEstimate.UTParmsOptimize(System.Int32,System.Int32,UKF.UTDefinitionType,System.Func{MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}[],MathNet.Numerics.LinearAlgebra.Vector{System.Double}[],MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.String)
+#### Method UTStaticEstimate.CalculateSampleCriterion(System.Func{MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}[],MathNet.Numerics.LinearAlgebra.Vector{System.Double}[],MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double})
 
-Unscented transform parameters "optimization" procedure.
-
-- Step 1: generate N1 random samples, calculate the unscented transform estimates given the parameters determined by each random sample.
-
-- Step 2:choose the random sample with the best estimate quality criterion value and generate N2 random samples in closer area of this sample.
-
-- Step 3:again choose the random sample with the best estimate quality criterion value, save the samples ordered by the criterion value to the output file and return the best found unscented transform parameters.
-
-The UTOptimizationType type param determines the way how the random samples define the unscented tranform params (UTParams).
-
-- If type is UTOptimizationType.ImplicitAlpha, then random samples define alpha0 - scalar weight of the central points for both sample mean and cov: UTParams.SetUTParams(int, double);
-
-- If type is UTOptimizationType.ImplicitAlphaBetaKappa, then random samples are vectors of dim 3 and represent three parameters alpha, beta, kappa which are then transformed to the parameters of the inscented transform: UTParams.SetUTParams(int, double, double, double);
-
-- If type is UTOptimizationType.Explicit, then random samples are vectors of dim 4 and explicitly define the unscented transform parameters: UTParams.SetUTParams(int, double, double, double, double). ///TODO it is not right to define the parameters of the unsctnted transform arbitraty, they have to be interdependent, so that the mean and cov would be transformed correctly.
-
-
-
-|Name | Description |
-|-----|------|
-|N1: |Number of samples on the step 1|
-|N2: |Number of samples on the step 2|
-|type: |The way how the random samples are transformed to the UT params|
-|Phi: |Transformation: a nonlinear function which determines the transformation of the random vector variable: y = Phi(x) + nu|
-|Crit: |Criterion: a function which determines the quality of the unscented transform estimate. Depends on the sample covariance of the estimation error: val = Crit(Cov(X-Xhat,X-Xhat)) |
-|X: |Array of initial variable x samples|
-|Y: |Array of transformed variable y = Phi(x) + nu samples|
-|mX: |Mean of x|
-|KX: |Cov of x|
-|KNu: |Cov of the noize nu|
-|outputFolder: |The results are saved to this folder in file "UT_optimization_{type}.txt"|
-**Returns**: Returns the parameters of the unscented transform with best estimation quality
-
-
-
----
-#### Method UTStaticEstimate.CalculateSampleCriterion(System.Func{MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double},MathNet.Numerics.Distributions.IContinuousDistribution[],MathNet.Numerics.LinearAlgebra.Vector{System.Double}[],MathNet.Numerics.LinearAlgebra.Vector{System.Double}[],MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double})
-
- Generates a random sample for the unscented transform parameters and calculates the criterion value for the unscented transform estimate. The size of the distribution parameter determines the unscented transform parameters definition method (UTParams) 
+ Wrapper for CalculateCriterionValue function. The sample vector is transformed to the form unscented transform parameters (the way it is done depends on the length of the sample vector, see UTParams and its constructors for details). Then the criterion value given the provided unscented transform parameters is calculated. 
 
 |Name | Description |
 |-----|------|
 |Phi: |Transformation: a nonlinear function which determines the transformation of the random vector variable: y = Phi(x) + nu|
 |Crit: |Criterion: a function which determines the quality of the unscented transform estimate. Depends on the sample covariance of the estimation error: val = Crit(Cov(X-Xhat,X-Xhat)) |
-|distribution: |Array of distributions to generate random unscented transform parameters|
+|P: |Sample vector to be transformed ro unscented transfrom parameters|
 |X: |Array of initial variable x samples|
 |Y: |Array of transformed variable y = Phi(x) + nu samples|
 |mX: |Mean of x|
 |KX: |Cov of x|
 |KNu: |Cov of the noize nu|
-**Returns**: 
+**Returns**: The criterion value for the unscented transfrom parameters obtained from the sample vactor
 
 
 
@@ -275,7 +365,7 @@ The UTOptimizationType type param determines the way how the random samples defi
 |mX: |Mean of x|
 |KX: |Cov of x|
 |KNu: |Cov of the noize nu|
-**Returns**: 
+**Returns**: The criterion value for the particular unscented transform parameters
 
 
 

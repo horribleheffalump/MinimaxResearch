@@ -85,7 +85,7 @@ namespace CMNFTest
             UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.NelderMeed);
 
             if (doCalculateUKF)
-                UKF.EstimateParameters(N1, N2, Phi1, Psi, DW, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
+                UKF.EstimateParameters(Phi1, Psi, DW, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
         }
 
         //public TestEnvironmentVector()//bool doCalculateUKF, int T, int N)

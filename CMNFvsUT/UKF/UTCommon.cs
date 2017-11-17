@@ -22,7 +22,7 @@ namespace UKF
         /// <param name="x">Mean</param>
         /// <param name="P">Covariance</param>
         /// <param name="lambda">Spread parameter</param>
-        /// <returns></returns>
+        /// <returns>Matrix of sigma points</returns>
         public static Matrix<double> Generate(Vector<double> x, Matrix<double> P, double lambda)
         {
             int L = x.Count;
@@ -95,8 +95,14 @@ namespace UKF
             //return PFull;
         }
     }
+
     /// <summary>
-    /// Unscented transform parameters optimization type. 
+    /// Unscented transform parameters optimization method.
+    /// </summary>
+    public enum OptimizationMethod { RandomShoot, NelderMeed }
+
+    /// <summary>
+    /// Unscented transform parameters definition type.
     /// </summary>
     public enum UTDefinitionType { ImplicitAlpha, ImplicitAlphaBetaKappa, Explicit }
 
