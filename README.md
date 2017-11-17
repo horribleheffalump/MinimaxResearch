@@ -6,7 +6,7 @@ stochastic dynamic system state estimation.
 ## UKFilter
 
 Unscented Kalman filter algorithm from [1, Ch. 7.3]. In order to improve the performance, an additional procedure for UKF parameter
-tuning is proposed. 
+tuning is proposed. [Details](https://github.com/horribleheffalump/MinimaxResearch/blob/master/CMNFvsUT/Docs/UKF.GeneratedXmlDoc.md) 
 
 ## CMNFilter
 
