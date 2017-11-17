@@ -11,9 +11,26 @@ using System.Threading.Tasks;
 
 namespace MathNetExtensions
 {
+    /// <summary>
+    /// Random shoot optimizer: inputs of the objective function are randomly sampled and the best sample is chosen as optimal
+    /// </summary>
     public static class RandomOptimizer
     {
         const int PackSize = 10;
+        /// <summary>
+        /// <para>Random shoot optimization procedure.</para>
+        /// <para>- Step 1: generate PointsUniform uniform random samples in [LowerBound, UpperBound] interval, calculate the objective outputs.</para>
+        /// <para>- Step 2: choose the random sample with the best output and generate PointsNormal random uniform samples in closer area of this best sample.</para>
+        /// <para>- Step 3: again choose the random sample with the best output, save the samples ordered by the objective value to the output file and return the best found sample and objective output.</para>
+        /// <para>Samples generation and objective function calculation is performed asynchronously.</para>
+        /// </summary>
+        /// <param name="Objective">Objective function</param>
+        /// <param name="LowerBound">Lower bound of the uniform sampling interval</param>
+        /// <param name="UpperBound">Upper bound of the uniform sampling interval</param>
+        /// <param name="PointsUniform">Number of uniform samples on the first step</param>
+        /// <param name="PointsNormal">Number of normal samples on the second step (may be zero)</param>
+        /// <param name="OutputFileName">Output file name</param>
+        /// <returns>Returns touple (best found objective value, sample with the best found objective value)</returns>
         public static (double min, Vector<double> argmin) Minimize(Func<Vector<double>, double> Objective, Vector<double> LowerBound, Vector<double> UpperBound, int PointsUniform = 100, int PointsNormal = 100, string OutputFileName = null)
         {
             int n = LowerBound.Count;
@@ -74,7 +91,8 @@ namespace MathNetExtensions
             return min2;
         }
 
-        public static (double, Vector<double>) CalculateSample(Func<Vector<double>, double> Objective, IContinuousDistribution[] distribution)
+
+        static (double, Vector<double>) CalculateSample(Func<Vector<double>, double> Objective, IContinuousDistribution[] distribution)
         {
             int n = distribution.Count();
 
@@ -89,7 +107,7 @@ namespace MathNetExtensions
 
 
 
-    public class AsyncCalculator
+    class AsyncCalculator
     {
         private ManualResetEvent doneEvent;
         private (double, Vector<double>) result;
@@ -117,7 +135,7 @@ namespace MathNetExtensions
         
     }
 
-    public class AsyncCalculatorPlanner
+    class AsyncCalculatorPlanner
     {
         private int samplesCount;
         private int packCount;
