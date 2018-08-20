@@ -4,17 +4,14 @@
 \begin{equation}\nonumber
 \left\lbrace\begin{array}{l}
 x_t = \left(\begin{array}{c}
-\frac{x_0}{1 + x_0^2} \\
-\frac{x_1}{1 + x_1^2} \\
+\frac{x}{1 + x^2} \\
 \end{array}\right)
- + \left(\begin{array}{cc}
-1 & 0 \\
-0 & 1 \\
+ + \left(\begin{array}{c}
+1 \\
 \end{array}\right)
  w_t, \quad t= 0,\ldots,T, \quad x_0 = \eta, \\
 y_t = \left(\begin{array}{c}
-x_0^3+x_0 \\
-x_1^3+x_1 \\
+x^3+x \\
 \end{array}\right)
  + \nu_t.
 \end{array}\right.
@@ -23,12 +20,10 @@ x_1^3+x_1 \\
 $w_t \sim \mathcal{N}\left(\mathbf{0}, \mathbf{E}\right)$, 
 $\nu_t \sim \mathcal{N}\left(\mathbf{0}, \mathbf{E}\right)$, 
 $\eta_t \sim \mathcal{N}\left(\left(\begin{array}{c}
-100 \\
-100 \\
+10 \\
 \end{array}\right)
-, \left(\begin{array}{cc}
-100 & 0 \\
-0 & 100 \\
+, \left(\begin{array}{c}
+10 \\
 \end{array}\right)
 \right)$
 
@@ -44,9 +39,6 @@ $\eta_t \sim \mathcal{N}\left(\left(\begin{array}{c}
 \begin{center}
 \centerline{\includegraphics[width=0.9\textwidth]{CubicSensor_process_sample_0.pdf}}
 \caption{Пример траектории процесса и наблюдений. Компонента 1.}
-\vspace{2em}
-\centerline{\includegraphics[width=0.9\textwidth]{CubicSensor_process_sample_1.pdf}}
-\caption{Пример траектории процесса и наблюдений. Компонента 2.}
 
 \end{center}
 \end{figure}
@@ -63,9 +55,6 @@ $\eta_t \sim \mathcal{N}\left(\left(\begin{array}{c}
 \begin{center}
 \centerline{\includegraphics[width=0.9\textwidth]{CubicSensor_estimate_sample_0.pdf}}
 \caption{Пример оценки УМНФ и UKF. Компонента 1.}
-\vspace{2em}
-\centerline{\includegraphics[width=0.9\textwidth]{CubicSensor_estimate_sample_1.pdf}}
-\caption{Пример оценки УМНФ и UKF. Компонента 2.}
 
 \end{center}
 \end{figure}
@@ -82,9 +71,6 @@ $\eta_t \sim \mathcal{N}\left(\left(\begin{array}{c}
 \begin{center}
 \centerline{\includegraphics[width=0.9\textwidth]{CubicSensor_process_statistics_0.pdf}}
 \caption{Статистика процесса. Компонента 1.}
-\vspace{2em}
-\centerline{\includegraphics[width=0.9\textwidth]{CubicSensor_process_statistics_1.pdf}}
-\caption{Статистика процесса. Компонента 2.}
 
 \end{center}
 \end{figure}
@@ -102,9 +88,6 @@ $\eta_t \sim \mathcal{N}\left(\left(\begin{array}{c}
 \begin{center}
 \centerline{\includegraphics[width=0.9\textwidth]{CubicSensor_estimate_statistics_0.pdf}}
 \caption{Результаты фильтрации. Компонента 1.}
-\vspace{2em}
-\centerline{\includegraphics[width=0.9\textwidth]{CubicSensor_estimate_statistics_1.pdf}}
-\caption{Результаты фильтрации. Компонента 2.}
 
 \end{center}
 \end{figure}

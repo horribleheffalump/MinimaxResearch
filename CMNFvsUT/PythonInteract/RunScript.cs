@@ -8,7 +8,7 @@ namespace PythonInteract
 {
     public static class Python
     {
-        public static string RunScript(string scriptPath, string[] args, string pythonPath = @"C:\Program Files\Anaconda3\python.exe")
+        public static string RunScript(string scriptPath, string[] args, string pythonPath = @"C:\Program Files (x86)\Microsoft Visual Studio\Shared\Anaconda3_64\python.exe")
         {
             string output = string.Empty;
             try
