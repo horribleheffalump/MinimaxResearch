@@ -61,17 +61,17 @@ namespace CMNFTest
 
             Vector<double> mW = Exts.Vector(0); Matrix<double> dW = Exts.Diag(1);
             Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(1);
-            Vector<double> mEta = Exts.Vector(10); Matrix<double> dEta = Exts.Diag(10);
+            Vector<double> mEta = Exts.Vector(100); Matrix<double> dEta = Exts.Diag(100);
             Func<int, Vector<double>, Vector<double>> phi1 = (s, x) => Exts.Vector(x[0] / (1 + x[0] * x[0]));
             Func<int, Vector<double>, Matrix<double>> phi2 = (s, x) => Exts.Diag(1.0);
             Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(Math.Pow(x[0], 3) + Math.Pow(x[0], 1));
 
-            Phi1_latex = new string[] { @"\frac{x}{1 + x^2}"};
+            Phi1_latex = new string[] { @"\frac{x_t}{1 + x_t^2}"};
             Phi2_latex = new string[][] { new string[] { "1"}};
-            Psi_latex = new string[] { @"x^3+x"};
+            Psi_latex = new string[] { @"x_t^3+x_t"};
 
-            P_W = @"\mathcal{N}\left(\mathbf{0}, \mathbf{E}\right)";
-            P_Nu = @"\mathcal{N}\left(\mathbf{0}, \mathbf{E}\right)";
+            P_W = @"\mathcal{N}\left(" + mW.ToLatex() + ", " + mW.ToLatex() + @"\right)";
+            P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + dNu.ToLatex() + @"\right)";
             P_Eta = @"\mathcal{N}\left(" + mEta.ToLatex() + ", " + dEta.ToLatex() + @"\right)";
 
             Normal[] NormalW = new Normal[1] { new Normal(mW[0], Math.Sqrt(dW[0, 0])) };

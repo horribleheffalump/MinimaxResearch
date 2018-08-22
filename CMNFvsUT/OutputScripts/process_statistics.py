@@ -33,7 +33,7 @@ params = {
 ax1.plot(t, mx, **params, linestyle=ls_m)
 ax1.plot(t, Dx, **params, linestyle=ls_D)
 
-ax1.set_ylim(min_m, max_D * 1.1)
+#ax1.set_ylim(min_m, max_D * 1.1)
 
 plt.savefig(outputfilename)
 

@@ -59,7 +59,7 @@ namespace NonlinearSystem
             {
                 State = Phi1(t, State) + Phi2(t, State) * W(t);
             }
-            Obs = Psi1(t,State) + Psi1(t, State) * Nu(t);
+            Obs = Psi1(t,State) + Psi2(t, State) * Nu(t);
             Vector<double>[] result = new Vector<double>[] { State, Obs };
             if (doSave) Trajectory.Add(t, result);
             t++;

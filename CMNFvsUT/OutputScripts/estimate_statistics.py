@@ -54,7 +54,7 @@ ax1.plot(t, mErr_UMF, **params_UMF, linestyle=ls_m)
 ax1.plot(t, DErr_UMF, **params_UMF, linestyle=ls_D)
 ax1.plot(t, DErrTheor_UMF, color = 'black', alpha = alpha_UMF, linewidth = 1.5, linestyle =ls_Dth)
 
-ax1.set_ylim(minmErr, maxDErr * 1.1)
+#ax1.set_ylim(minmErr, maxDErr * 1.1)
 
 
 #ax1.set_ylim(-0.5,0.5)

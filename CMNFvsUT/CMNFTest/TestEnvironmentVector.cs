@@ -63,6 +63,7 @@ namespace CMNFTest
         /// <param name="n">number of trajectories</param>
         public void Initialize(int t, int n, bool doCalculateUKF, string outputFolder, int N1 = 100, int N2 = 100)
         {
+            Console.WriteLine("Init");
             provider = new NumberFormatInfo();
             provider.NumberDecimalSeparator = ".";
 
@@ -71,6 +72,7 @@ namespace CMNFTest
             DiscreteVectorModel[] models = new DiscreteVectorModel[n];
             for (int i = 0; i < n; i++)
             {
+                Console.WriteLine($"model {i}");
                 models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi, new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0)), W, Nu, X0(), true);
                 for (int s = 0; s < T; s++)
                 {
@@ -153,6 +155,7 @@ namespace CMNFTest
         /// <param name="doCalculateUKF">(optional, default = true) if true, UKF and CMNF estimates are calculated, if false - only CMNF </param>
         public void GenerateBundle(int n, string folderName, bool doCalculateUKF = true)
         {
+            Console.WriteLine($"GenerateBundle");
             string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
             //DiscreteScalarModel[] modelsEst = new DiscreteScalarModel[N];
             DiscreteVectorModel[] modelsEst = new DiscreteVectorModel[n];
@@ -160,6 +163,7 @@ namespace CMNFTest
 
             for (int i = 0; i < n; i++)
             {
+                Console.WriteLine($"model {i}");
                 modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi, new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0)), W, Nu, X0(), true);
                 for (int s = 0; s < T; s++)
                 {
@@ -247,14 +251,24 @@ namespace CMNFTest
 
         public void ProcessResults(string dataFolder, string scriptsFolder, string outputFolder)
         {
-            string[] scriptNames = new string[] { "process_sample", "process_statistics", "estimate_sample", "estimate_statistics" };
+            string[] scriptNamesOne = new string[] { "process_sample", "estimate_sample"};
+            string[] scriptNamesMany = new string[] { "process_statistics", "estimate_statistics" };
 
             string fileNameOne = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOne);
             string fileNameMany = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany);
 
             string scriptOutputFileNameTemplate = Resources.OutputPictureNameTemplate.Replace("{name}", TestFileName);
 
-            foreach (string s in scriptNames)
+            foreach (string s in scriptNamesOne)
+            {
+                RunScript(
+                        Path.Combine(scriptsFolder, s + ".py"),
+                        new string[] {
+                                                Path.Combine(dataFolder, fileNameOne),
+                                                Path.Combine(outputFolder, scriptOutputFileNameTemplate.Replace("{script}", s))
+                                    });
+            }
+            foreach (string s in scriptNamesMany)
             {
                 RunScript(
                         Path.Combine(scriptsFolder, s + ".py"),
@@ -287,7 +301,7 @@ namespace CMNFTest
             for (int i = 0; i < X0Hat.Count; i++)
             {
                 string pic = Resources.LatexPictureTemplte.Replace("%file%", picFileNameTemplate.Replace("{0}", i.ToString()));
-                pic = pic.Replace("%caption%", caption + (X0Hat.Count > 0 ? $" Компонента {i + 1}." : ""));
+                pic = pic.Replace("%caption%", caption + (X0Hat.Count > 1 ? $" Компонента {i + 1}." : ""));
                 procPics.AppendLine(pic);
                 if (i != X0Hat.Count - 1)
                     procPics.AppendLine(@"\vspace{2em}");

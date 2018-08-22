@@ -38,17 +38,22 @@ namespace NonlinearSystem
         public static string ToLatex(this Matrix<double> x)
         {
             StringBuilder result = new StringBuilder();
-            result.AppendLine(@"\left(\begin{array}{" + new String('c', x.ColumnCount) + @"}");
-            for (int i = 0; i < x.RowCount; i++)
+            if (x.ColumnCount == 1 && x.RowCount == 1)
+                result.Append($"{x[0, 0]} ");
+            else
             {
-                for (int j = 0; j < x.ColumnCount; j++)
+                result.AppendLine(@"\left(\begin{array}{" + new String('c', x.ColumnCount) + @"}");
+                for (int i = 0; i < x.RowCount; i++)
                 {
-                    result.Append($"{x[i, j]} ");
-                    if (j < x.ColumnCount - 1) result.Append("& ");
+                    for (int j = 0; j < x.ColumnCount; j++)
+                    {
+                        result.Append($"{x[i, j]} ");
+                        if (j < x.ColumnCount - 1) result.Append("& ");
+                    }
+                    result.AppendLine(@"\\");
                 }
-                result.AppendLine(@"\\");
+                result.AppendLine(@"\end{array}\right)");
             }
-            result.AppendLine(@"\end{array}\right)");
             return result.ToString();
         }
 
@@ -60,30 +65,40 @@ namespace NonlinearSystem
         public static string ToLatex(this string[] x)
         {
             StringBuilder result = new StringBuilder();
-            result.AppendLine(@"\left(\begin{array}{c}");
-            for (int i = 0; i < x.Length; i++)
+            if (x.Length == 1)
+                result.Append($"{x[0]} ");
+            else
             {
-                result.Append($"{x[i]} ");
-                result.AppendLine(@"\\");
+                result.AppendLine(@"\left(\begin{array}{c}");
+                for (int i = 0; i < x.Length; i++)
+                {
+                    result.Append($"{x[i]} ");
+                    result.AppendLine(@"\\");
+                }
+                result.AppendLine(@"\end{array}\right)");
             }
-            result.AppendLine(@"\end{array}\right)");
             return result.ToString();
         }
 
         public static string ToLatex(this string[][] x)
         {
             StringBuilder result = new StringBuilder();
-            result.AppendLine(@"\left(\begin{array}{" + new String('c', x.Length) + @"}");
-            for (int i = 0; i < x.Length; i++)
+            if (x.Length == 1)
+                result.Append($"{x[0][0]} ");
+            else
             {
-                for (int j = 0; j < x[i].Length; j++)
+                result.AppendLine(@"\left(\begin{array}{" + new String('c', x.Length) + @"}");
+                for (int i = 0; i < x.Length; i++)
                 {
-                    result.Append($"{x[i][j]} ");
-                    if (j < x[i].Length - 1) result.Append("& ");
+                    for (int j = 0; j < x[i].Length; j++)
+                    {
+                        result.Append($"{x[i][j]} ");
+                        if (j < x[i].Length - 1) result.Append("& ");
+                    }
+                    result.AppendLine(@"\\");
                 }
-                result.AppendLine(@"\\");
+                result.AppendLine(@"\end{array}\right)");
             }
-            result.AppendLine(@"\end{array}\right)");
             return result.ToString();
         }
 

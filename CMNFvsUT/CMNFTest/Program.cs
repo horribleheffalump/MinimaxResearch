@@ -155,6 +155,8 @@ namespace CMNFTest
             //    outputfile.Close();
             //}
 
+
+            // cubic sensor
             TestCubicSensorScalar testCubicSensor = new TestCubicSensorScalar();
             testCubicSensor.Initialize(50, 10000, true, Settings.Default.OutputFolder);
             testCubicSensor.GenerateBundle(10000, Settings.Default.OutputFolder);
@@ -162,6 +164,21 @@ namespace CMNFTest
             testCubicSensor.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
             testCubicSensor.GenerateReport(Settings.Default.LatexFolder);
 
+            // inverse proportion good
+            //TestInverseProportionGoodScalar testInverseProportion = new TestInverseProportionGoodScalar();
+            //testInverseProportion.Initialize(50, 10000, true, Settings.Default.OutputFolder);
+            //testInverseProportion.GenerateBundle(10000, Settings.Default.OutputFolder);
+            //testInverseProportion.GenerateOne(Settings.Default.OutputFolder);
+            //testInverseProportion.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
+            //testInverseProportion.GenerateReport(Settings.Default.LatexFolder);
+
+            // inverse proportion bad
+            //TestInverseProportionBadScalar testInverseProportion = new TestInverseProportionBadScalar();
+            //testInverseProportion.Initialize(50, 10000, true, Settings.Default.OutputFolder);
+            //testInverseProportion.GenerateBundle(10000, Settings.Default.OutputFolder);
+            //testInverseProportion.GenerateOne(Settings.Default.OutputFolder);
+            //testInverseProportion.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
+            //testInverseProportion.GenerateReport(Settings.Default.LatexFolder);
         }
     }
 }

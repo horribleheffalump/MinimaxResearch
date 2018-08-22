@@ -44,7 +44,7 @@ params_UMF = {
 ax1.plot(t, err_umf, **params_UMF, linestyle=ls_x)
 ax1.plot(t, err_ut, **params_UT, linestyle=ls_x)
 
-ax1.set_ylim(min(min_1, min_1), max(max_2, max_2))
+#ax1.set_ylim(min(min_1, min_1), max(max_2, max_2))
 
 plt.savefig(outputfilename)
 

@@ -1,10 +1,10 @@
 \newpage
-\subsection{Кубический сенсор}
+\subsection{Обратнопропорциональная зависимость (неуст)}
 Система наблюдения:
 \begin{equation}\nonumber
 \left\lbrace\begin{array}{l}
-x_t = \frac{x_t}{1 + x_t^2}  + 1  w_t, \quad t= 0,\ldots,T, \quad x_0 = \eta, \\
-y_t = x_t^3+x_t  + \nu_t.
+x_t = min(10^5,\frac{1}{x_t^2})  + 1  w_t, \quad t= 0,\ldots,T, \quad x_0 = \eta, \\
+y_t = x_t  + \nu_t.
 \end{array}\right.
 \end{equation}
 
@@ -22,7 +22,7 @@ $\eta_t \sim \mathcal{N}\left(100 , 100 \right)$
 
 \begin{figure}[h]
 \begin{center}
-\centerline{\includegraphics[width=0.9\textwidth]{CubicSensor_process_sample_0.pdf}}
+\centerline{\includegraphics[width=0.9\textwidth]{InverseProportionBad_process_sample_0.pdf}}
 \caption{Пример траектории процесса и наблюдений.}
 
 \end{center}
@@ -30,15 +30,15 @@ $\eta_t \sim \mathcal{N}\left(100 , 100 \right)$
 
 \newpage
 
-Пример оценки процесса: 
+Пример ошибки оценки процесса: 
 \begin{itemize}
-\item черный --- УМНФ;
-\item серый --- UT.
+\item черный --- ошибка УМНФ;
+\item серый --- ошибка UT.
 \end{itemize}
 
 \begin{figure}[h]
 \begin{center}
-\centerline{\includegraphics[width=0.9\textwidth]{CubicSensor_estimate_sample_0.pdf}}
+\centerline{\includegraphics[width=0.9\textwidth]{InverseProportionBad_estimate_sample_0.pdf}}
 \caption{Пример оценки УМНФ и UKF.}
 
 \end{center}
@@ -54,7 +54,7 @@ $\eta_t \sim \mathcal{N}\left(100 , 100 \right)$
 
 \begin{figure}[h]
 \begin{center}
-\centerline{\includegraphics[width=0.9\textwidth]{CubicSensor_process_statistics_0.pdf}}
+\centerline{\includegraphics[width=0.9\textwidth]{InverseProportionBad_process_statistics_0.pdf}}
 \caption{Статистика процесса.}
 
 \end{center}
@@ -71,7 +71,7 @@ $\eta_t \sim \mathcal{N}\left(100 , 100 \right)$
 
 \begin{figure}[h]
 \begin{center}
-\centerline{\includegraphics[width=0.9\textwidth]{CubicSensor_estimate_statistics_0.pdf}}
+\centerline{\includegraphics[width=0.9\textwidth]{InverseProportionBad_estimate_statistics_0.pdf}}
 \caption{Результаты фильтрации.}
 
 \end{center}

@@ -36,7 +36,7 @@ params = {
 ax1.plot(t, x, **params, linestyle=ls_x)
 ax1.plot(t, y, **params, linestyle=ls_y)
 
-ax1.set_ylim(min(min_x, min_y), max(max_x, max_y))
+#ax1.set_ylim(min(min_x, min_y), max(max_x, max_y))
 
 plt.savefig(outputfilename)
 

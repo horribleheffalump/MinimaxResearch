@@ -152,9 +152,18 @@ namespace UKF
                 case OptimizationMethod.NelderMeed:
                     NelderMeadSimplex optimizer = new NelderMeadSimplex(1e-3, 100);
                     var objective = ObjectiveFunction.Value((x) => CalculateSampleCriterion(Phi, Psi, Rw, Rnu, Crit, x, T, models, xhat0, DX0Hat));
-                    var optimumNM = optimizer.FindMinimum(objective, Exts.Stack(initialGuess, initialGuess));
-                    min = optimumNM.FunctionInfoAtMinimum.Value;
-                    argmin = optimumNM.MinimizingPoint;
+                    try
+                    {
+                        var optimumNM = optimizer.FindMinimum(objective, Exts.Stack(initialGuess, initialGuess));
+                        min = optimumNM.FunctionInfoAtMinimum.Value;
+                        argmin = optimumNM.MinimizingPoint;
+                    }
+                    catch
+                    {
+                        var OptimumRandom_ = RandomOptimizer.Minimize((x) => CalculateSampleCriterion(Phi, Psi, Rw, Rnu, Crit, x, T, models, xhat0, DX0Hat), Exts.Stack(lowerBound, lowerBound), Exts.Stack(upperBound, upperBound), 100, 100, filename);
+                        min = OptimumRandom_.min;
+                        argmin = OptimumRandom_.argmin;
+                    }
                     break;
 
             }
