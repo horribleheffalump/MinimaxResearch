@@ -34,6 +34,9 @@
     <Compile Include="estimate_statistics.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="findspike.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="polar.py">
       <SubType>Code</SubType>
     </Compile>

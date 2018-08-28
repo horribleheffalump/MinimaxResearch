@@ -166,9 +166,9 @@ namespace CMNFTest
 
             //inverse proportion good
             TestInverseProportionGoodScalar testInverseProportion = new TestInverseProportionGoodScalar();
-            testInverseProportion.Initialize(50, 10000, true, Settings.Default.OutputFolder);
-            testInverseProportion.GenerateBundle(1000, Settings.Default.OutputFolder, true, true);
-            testInverseProportion.GenerateOne(Settings.Default.OutputFolder);
+            //testInverseProportion.Initialize(50, 10000, true, Settings.Default.OutputFolder);
+            //testInverseProportion.GenerateBundle(10000, Settings.Default.OutputFolder);
+            //testInverseProportion.GenerateOne(Settings.Default.OutputFolder);
             testInverseProportion.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
             testInverseProportion.GenerateReport(Settings.Default.LatexFolder);
 

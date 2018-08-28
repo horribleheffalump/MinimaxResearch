@@ -156,7 +156,7 @@ namespace CMNFTest
         public void GenerateBundle(int n, string folderName, bool doCalculateUKF = true)
         {
             Console.WriteLine($"GenerateBundle");
-            string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));One));
+            string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
             //DiscreteScalarModel[] modelsEst = new DiscreteScalarModel[N];
             DiscreteVectorModel[] modelsEst = new DiscreteVectorModel[n];
             int dimX = X0().Count;
