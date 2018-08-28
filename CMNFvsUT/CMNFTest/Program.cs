@@ -20,15 +20,7 @@ namespace CMNFTest
     {
         static void Main(string[] args)
         {
-            NumberFormatInfo provider;
-            provider = new NumberFormatInfo()
-            {
-                NumberDecimalSeparator = "."
-            };
-
-
-
-            //sphere 
+            #region sphere
             //int N = 10000;
             //Vector<double> mX = Exts.Vector(30, 40, 100); Matrix<double> KX = Exts.Diag(30 * 30, 30 * 30, 30 * 30);
             //Vector<double> mNu = Exts.Vector(0, 0, 0); Matrix<double> KNu = Exts.Diag(30 * 30, Math.Pow(5 * Math.PI / 180.0, 2.0), Math.Pow(5 * Math.PI / 180.0, 2.0));
@@ -89,9 +81,9 @@ namespace CMNFTest
 
             //    outputfile.Close();
             //}
+            #endregion
 
-
-            // polar close (not precise)
+            #region polar 
             //Vector<double> mX = Exts.Vector(300, 400); Matrix<double> KX = Exts.Diag(30 * 30, 30 * 30);
             //Vector<double> mNu = Exts.Vector(0, 0); Matrix<double> KNu = Exts.Diag(Math.Pow(5 * Math.PI / 180.0, 2.0), 30 * 30);
             //Normal[] NormalX = new Normal[2] { new Normal(mX[0], Math.Sqrt(KX[0, 0])), new Normal(mX[1], Math.Sqrt(KX[1, 1])) };
@@ -154,31 +146,62 @@ namespace CMNFTest
 
             //    outputfile.Close();
             //}
+            #endregion
 
-
-            // cubic sensor
+            #region cubic sensor
             //TestCubicSensorScalar testCubicSensor = new TestCubicSensorScalar();
             //testCubicSensor.Initialize(50, 10000, true, Settings.Default.OutputFolder);
             //testCubicSensor.GenerateBundle(10000, Settings.Default.OutputFolder);
             //testCubicSensor.GenerateOne(Settings.Default.OutputFolder);
             //testCubicSensor.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
             //testCubicSensor.GenerateReport(Settings.Default.LatexFolder);
+            #endregion
 
-            //inverse proportion good
-            TestInverseProportionGoodScalar testInverseProportion = new TestInverseProportionGoodScalar();
+            #region inverse proportion good
+            //TestInverseProportionGoodScalar testInverseProportion = new TestInverseProportionGoodScalar();
             //testInverseProportion.Initialize(50, 10000, true, Settings.Default.OutputFolder);
             //testInverseProportion.GenerateBundle(10000, Settings.Default.OutputFolder);
             //testInverseProportion.GenerateOne(Settings.Default.OutputFolder);
-            testInverseProportion.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
-            testInverseProportion.GenerateReport(Settings.Default.LatexFolder);
+            //testInverseProportion.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
+            //testInverseProportion.GenerateReport(Settings.Default.LatexFolder);
+            #endregion
 
-            //inverse proportion bad
+            #region inverse proportion bad
             //TestInverseProportionBadScalar testInverseProportion = new TestInverseProportionBadScalar();
             //testInverseProportion.Initialize(50, 10000, true, Settings.Default.OutputFolder);
             //testInverseProportion.GenerateBundle(1000000, Settings.Default.OutputFolder);
             //testInverseProportion.GenerateOne(Settings.Default.OutputFolder);
             //testInverseProportion.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
-            //testInverseProportion.GenerateReport(Settings.Default.LatexFolder);
+            //testInverseProportion.GenerateReport(Settings.Default.LatexFolder); 
+            #endregion
+
+            #region logistic regression
+            //TestLogisticModelScalar testLogisticModel = new TestLogisticModelScalar();
+            //testLogisticModel.Initialize(50, 1000, true, Settings.Default.OutputFolder);
+            //testLogisticModel.GenerateBundle(10000, Settings.Default.OutputFolder, true);
+            //testLogisticModel.GenerateOne(Settings.Default.OutputFolder, true);
+            //testLogisticModel.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
+            //testLogisticModel.GenerateReport(Settings.Default.LatexFolder);
+            #endregion
+
+            #region logistic regression zero
+            //TestLogisticModelZeroScalar testLogisticZeroModel = new TestLogisticModelZeroScalar();
+            //testLogisticZeroModel.Initialize(50, 1000, true, Settings.Default.OutputFolder);
+            //testLogisticZeroModel.GenerateBundle(10000, Settings.Default.OutputFolder, true);
+            //testLogisticZeroModel.GenerateOne(Settings.Default.OutputFolder, true);
+            //testLogisticZeroModel.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
+            //testLogisticZeroModel.GenerateReport(Settings.Default.LatexFolder);
+            #endregion
+
+            #region logistic regression uniform noise
+            TestLogisticModelUniformNoiseScalar testLogisticUniformNoiseModel = new TestLogisticModelUniformNoiseScalar();
+            //testLogisticUniformNoiseModel.Initialize(50, 1000, true, Settings.Default.OutputFolder);
+            //testLogisticUniformNoiseModel.GenerateBundle(10000, Settings.Default.OutputFolder, true);
+            //testLogisticUniformNoiseModel.GenerateOne(Settings.Default.OutputFolder, true);
+            testLogisticUniformNoiseModel.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
+            testLogisticUniformNoiseModel.GenerateReport(Settings.Default.LatexFolder);
+            #endregion
+
         }
     }
 }

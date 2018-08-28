@@ -1,0 +1,78 @@
+\newpage
+\subsection{Логистическая модель}
+Система наблюдения:
+\begin{equation}\nonumber
+\left\lbrace\begin{array}{l}
+x_t = x(1-x) if abs(x(1-x)) < 10^5; 0 else  + 1  w_t, \quad t= 0,\ldots,T, \quad x_0 = \eta, \\
+y_t = x_t  + \nu_t.
+\end{array}\right.
+\end{equation}
+
+$w_t \sim \mathcal{N}\left(0 , 0 \right)$, 
+$\nu_t \sim \mathcal{N}\left(0 , 1 \right)$, 
+$\eta_t \sim \mathcal{N}\left(0,1 , 0,01 \right)$
+
+\newpage
+
+Пример траектории процесса и наблюдений: 
+\begin{itemize}
+\item сплошная --- процесс;
+\item пунктир --- наблюдения.
+\end{itemize}
+
+\begin{figure}[h]
+\begin{center}
+\centerline{\includegraphics[width=0.9\textwidth]{LogisticModel_process_sample_0.pdf}}
+\caption{Пример траектории процесса и наблюдений.}
+
+\end{center}
+\end{figure}
+
+\newpage
+
+Пример ошибки оценки процесса: 
+\begin{itemize}
+\item черный --- ошибка УМНФ;
+\item серый --- ошибка UT.
+\end{itemize}
+
+\begin{figure}[h]
+\begin{center}
+\centerline{\includegraphics[width=0.9\textwidth]{LogisticModel_estimate_sample_0.pdf}}
+\caption{Пример оценки УМНФ и UKF.}
+
+\end{center}
+\end{figure}
+
+\newpage
+
+Статистика процесса: 
+\begin{itemize}
+\item сплошная --- МО процесса;
+\item штрих --- дисперсия процесса.
+\end{itemize}
+
+\begin{figure}[h]
+\begin{center}
+\centerline{\includegraphics[width=0.9\textwidth]{LogisticModel_process_statistics_0.pdf}}
+\caption{Статистика процесса.}
+
+\end{center}
+\end{figure}
+
+\newpage
+
+Результаты фильтрации УМНФ (черные линии) и UT (серые линии): 
+\begin{itemize}
+\item сплошная --- МО ошибки оценки;
+\item штрих --- дисперсия ошибки оценки;
+\item пунктир --- теоретическая дисперсия ошибки оценки.
+\end{itemize}
+
+\begin{figure}[h]
+\begin{center}
+\centerline{\includegraphics[width=0.9\textwidth]{LogisticModel_estimate_statistics_0.pdf}}
+\caption{Результаты фильтрации.}
+
+\end{center}
+\end{figure}

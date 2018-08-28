@@ -96,7 +96,7 @@ namespace CMNFTest
         //}
 
 
-        public void GenerateOne(string folderName)
+        public void GenerateOne(string folderName, bool doCalculateUKF = true)
         {
             string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOne));
             int dimX = X0().Count;
@@ -127,10 +127,12 @@ namespace CMNFTest
 
                 Vector<double> mError = x - xHat;
 
-                UKF.Step(Phi1, Psi, DW, DNu, t, y, xHatU, PHatU, out Vector<double> _xHatU, out Matrix<double> _PHatU);
-                xHatU = _xHatU;
-                PHatU = _PHatU;
-
+                if (doCalculateUKF)
+                {
+                    UKF.Step(Phi1, Psi, DW, DNu, t, y, xHatU, PHatU, out Vector<double> _xHatU, out Matrix<double> _PHatU);
+                    xHatU = _xHatU;
+                    PHatU = _PHatU;
+                }
                 Vector<double> mErrorU = x - xHatU;
 
                 for (int k = 0; k < dimX; k++)

@@ -83,6 +83,7 @@
     <Compile Include="TestEnvironmentStatic.cs" />
     <Compile Include="TestEnvironmentVector.cs" />
     <Compile Include="TestInverseProportion.cs" />
+    <Compile Include="TestLogisticModel.cs" />
     <Compile Include="TestPolar.cs" />
   </ItemGroup>
   <ItemGroup>
