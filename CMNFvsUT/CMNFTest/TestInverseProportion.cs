@@ -19,7 +19,7 @@ namespace CMNFTest
 
             Vector<double> mW = Exts.Vector(0); Matrix<double> dW = Exts.Diag(10);
             Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(1);
-            Vector<double> mEta = Exts.Vector(100.0); Matrix<double> dEta = Exts.Diag(100.0);
+            Vector<double> mEta = Exts.Vector(3.0); Matrix<double> dEta = Exts.Diag(1.0 + 1e-6); // small values are for regularization
             Func<int, Vector<double>, Vector<double>> phi1 = (s, x) => Exts.Vector(1.0 / (Math.Sign(x[0]) * Math.Pow(Math.Abs(x[0]), 1.0 / 3.0)));
             Func<int, Vector<double>, Matrix<double>> phi2 = (s, x) => Exts.Diag(1.0);
             Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(x[0]);
@@ -42,7 +42,7 @@ namespace CMNFTest
             Phi2 = phi2;
             Psi = psi;
             Xi = (s, x) => phi1(s, x) + phi2(s, x) * mW;
-            Zeta = (s, x, y) => y - psi(s, x) - mNu;
+            Zeta = (s, x, y, k) => y - psi(s, x) - mNu;
             W = (s) => Exts.Vector(NormalW[0].Sample());
             Nu = (s) => Exts.Vector(NormalNu[0].Sample());
             DW = dW;
@@ -62,7 +62,7 @@ namespace CMNFTest
 
             Vector<double> mW = Exts.Vector(0); Matrix<double> dW = Exts.Diag(10);
             Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(1);
-            Vector<double> mEta = Exts.Vector(100.0); Matrix<double> dEta = Exts.Diag(100.0);
+            Vector<double> mEta = Exts.Vector(3.0); Matrix<double> dEta = Exts.Diag(1.0); // small values are for regularization
             Func<int, Vector<double>, Vector<double>> phi1 = (s, x) => Exts.Vector(Math.Min(1e5, 1.0 / Math.Pow(Math.Abs(x[0]), 2.0)));
             Func<int, Vector<double>, Matrix<double>> phi2 = (s, x) => Exts.Diag(1.0);
             Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(x[0]);
@@ -85,7 +85,7 @@ namespace CMNFTest
             Phi2 = phi2;
             Psi = psi;
             Xi = (s, x) => phi1(s, x) + phi2(s, x) * mW;
-            Zeta = (s, x, y) => y - psi(s, x) - mNu;
+            Zeta = (s, x, y, k) => y - psi(s, x) - mNu;
             W = (s) => Exts.Vector(NormalW[0].Sample());
             Nu = (s) => Exts.Vector(NormalNu[0].Sample());
             DW = dW;

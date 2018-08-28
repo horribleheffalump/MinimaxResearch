@@ -1,5 +1,6 @@
 import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib import gridspec
 import numpy as np
 matplotlib.rc('text', usetex = True)
 import pylab
@@ -25,9 +26,11 @@ minmErr = min(min_mErr_UMF, min_mErr_UT)
 
 from pylab import *
 
-f = plt.figure(num=None, figsize=(7, 3.5), dpi=150, facecolor='w', edgecolor='k')
-plt.subplots_adjust(left=0.06, bottom=0.01, right=0.98, top=0.99, wspace=0.1)
-ax1 = plt.subplot(111)
+f = plt.figure(num=None, figsize=(14, 3.5), dpi=150, facecolor='w', edgecolor='k')
+gs = gridspec.GridSpec(1, 2, width_ratios=[1, 1])     
+gs.update(left=0.06, bottom=0.07, right=0.98, top=0.95, wspace=0.1, hspace=0.1)
+ax_CMNF = plt.subplot(gs[0])
+ax_UKF = plt.subplot(gs[1])
 
 ls_m = (0, ())
 ls_D =  (0, (5, 1))
@@ -46,13 +49,13 @@ params_UMF = {
             'linewidth' : 2.5,
             }
 
-ax1.plot(t, mErr_UT, **params_UT, linestyle=ls_m)
-ax1.plot(t, DErr_UT, **params_UT, linestyle=ls_D)
-ax1.plot(t, DErrTheor_UT, **params_UT, linestyle =ls_Dth)
+ax_UKF.plot(t, mErr_UT, **params_UT, linestyle=ls_m)
+ax_UKF.plot(t, DErr_UT, **params_UT, linestyle=ls_D)
+ax_UKF.plot(t, DErrTheor_UT, **params_UT, linestyle =ls_Dth)
 
-ax1.plot(t, mErr_UMF, **params_UMF, linestyle=ls_m)
-ax1.plot(t, DErr_UMF, **params_UMF, linestyle=ls_D)
-ax1.plot(t, DErrTheor_UMF, color = 'black', alpha = alpha_UMF, linewidth = 1.5, linestyle =ls_Dth)
+ax_CMNF.plot(t, mErr_UMF, **params_UMF, linestyle=ls_m)
+ax_CMNF.plot(t, DErr_UMF, **params_UMF, linestyle=ls_D)
+ax_CMNF.plot(t, DErrTheor_UMF, color = 'black', alpha = alpha_UMF, linewidth = 1.5, linestyle = ls_Dth)
 
 #ax1.set_ylim(minmErr, maxDErr * 1.1)
 

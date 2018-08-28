@@ -123,7 +123,8 @@ namespace UKF
                     n = 3;
                     lowerBound = Exts.Vector(0, 0, 0);
                     upperBound = Exts.Vector(5, 5, 5);
-                    initialGuess = Exts.Vector(1, 2, 1);
+                    //initialGuess = Exts.Vector(1, 2, 1);
+                    initialGuess = Exts.Vector(3, 2, 1);
                     filename = filename.Replace("{type}", "ImplicitABK"); break;
                 case UTDefinitionType.Explicit:
                     n = 4;
@@ -150,20 +151,20 @@ namespace UKF
                     argmin = OptimumRandom.argmin;
                     break;
                 case OptimizationMethod.NelderMeed:
-                    NelderMeadSimplex optimizer = new NelderMeadSimplex(1e-3, 100);
+                    NelderMeadSimplex optimizer = new NelderMeadSimplex(1e-3, 1000);
                     var objective = ObjectiveFunction.Value((x) => CalculateSampleCriterion(Phi, Psi, Rw, Rnu, Crit, x, T, models, xhat0, DX0Hat));
-                    try
-                    {
+                    //try
+                    //{
                         var optimumNM = optimizer.FindMinimum(objective, Exts.Stack(initialGuess, initialGuess));
                         min = optimumNM.FunctionInfoAtMinimum.Value;
                         argmin = optimumNM.MinimizingPoint;
-                    }
-                    catch
-                    {
-                        var OptimumRandom_ = RandomOptimizer.Minimize((x) => CalculateSampleCriterion(Phi, Psi, Rw, Rnu, Crit, x, T, models, xhat0, DX0Hat), Exts.Stack(lowerBound, lowerBound), Exts.Stack(upperBound, upperBound), 100, 100, filename);
-                        min = OptimumRandom_.min;
-                        argmin = OptimumRandom_.argmin;
-                    }
+                    //}
+                    //catch
+                    //{
+                    //    var OptimumRandom_ = RandomOptimizer.Minimize((x) => CalculateSampleCriterion(Phi, Psi, Rw, Rnu, Crit, x, T, models, xhat0, DX0Hat), Exts.Stack(lowerBound, lowerBound), Exts.Stack(upperBound, upperBound), 100, 100, filename);
+                    //    min = OptimumRandom_.min;
+                    //    argmin = OptimumRandom_.argmin;
+                    //}
                     break;
 
             }

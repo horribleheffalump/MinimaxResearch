@@ -19,7 +19,7 @@ min_m = min(sorted(mx)[round(len(t) * 0.02) : len(t)])
 from pylab import *
 
 f = plt.figure(num=None, figsize=(7, 3.5), dpi=150, facecolor='w', edgecolor='k')
-plt.subplots_adjust(left=0.06, bottom=0.01, right=0.98, top=0.99, wspace=0.1)
+plt.subplots_adjust(left=0.06, bottom=0.07, right=0.98, top=0.95, wspace=0.1)
 ax1 = plt.subplot(111)
 
 ls_m = (0, ())
@@ -33,8 +33,13 @@ params = {
 ax1.plot(t, mx, **params, linestyle=ls_m)
 ax1.plot(t, Dx, **params, linestyle=ls_D)
 
-#ax1.set_ylim(min_m, max_D * 1.1)
+ax1.set_ylim(min_m, max_D * 1.1)
 
+#print(t)
+#print(mx)
+#print(Dx)
+
+#plt.show()
 plt.savefig(outputfilename)
 
 

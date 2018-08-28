@@ -42,7 +42,7 @@ namespace CMNFTest
             Phi2 = phi2;
             Psi = psi;
             Xi = (s, x) => phi1(s, x) + phi2(s, x) * mW;
-            Zeta = (s, x, y) => y - psi(s, x) - mNu;
+            Zeta = (s, x, y, k) => y - psi(s, x) - mNu;
             W = (s) => Exts.Vector(NormalW[0].Sample(), NormalW[1].Sample());
             Nu = (s) => Exts.Vector(NormalNu[0].Sample(), NormalNu[1].Sample());
             DW = dW;
@@ -65,6 +65,7 @@ namespace CMNFTest
             Func<int, Vector<double>, Vector<double>> phi1 = (s, x) => Exts.Vector(x[0] / (1 + x[0] * x[0]));
             Func<int, Vector<double>, Matrix<double>> phi2 = (s, x) => Exts.Diag(1.0);
             Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(Math.Pow(x[0], 3) + Math.Pow(x[0], 1));
+            Func<int, Vector<double>, Matrix<double>> dpsi = (s, x) => Exts.Matrix(3.0 * Math.Pow(x[0], 2) + 1.0);
 
             Phi1_latex = new string[] { @"\frac{x_t}{1 + x_t^2}"};
             Phi2_latex = new string[][] { new string[] { "1"}};
@@ -83,8 +84,11 @@ namespace CMNFTest
             Phi1 = phi1;
             Phi2 = phi2;
             Psi = psi;
+            
+
             Xi = (s, x) => phi1(s, x) + phi2(s, x) * mW;
-            Zeta = (s, x, y) => y - psi(s, x) - mNu;
+            //Zeta = (s, x, y, k) => y - psi(s, x) - mNu;
+            Zeta = (s, x, y, k) => k * dpsi(s,x).Transpose() * (dpsi(s,x) * k * dpsi(s,x).Transpose() + dNu ).PseudoInverse() * (y - psi(s, x) - mNu);
             W = (s) => Exts.Vector(NormalW[0].Sample());
             Nu = (s) => Exts.Vector(NormalNu[0].Sample());
             DW = dW;

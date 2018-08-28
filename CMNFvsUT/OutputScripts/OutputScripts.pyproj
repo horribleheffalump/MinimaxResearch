@@ -12,6 +12,9 @@
     <OutputPath>.</OutputPath>
     <Name>OutputScripts</Name>
     <RootNamespace>OutputScripts</RootNamespace>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <CommandLineArguments>"D:\projects.git\MinimaxResearch\CMNFvsUT\output\InverseProportionBad_average_0.txt" "D:\projects.git\MinimaxResearch\CMNFvsUT\OutputLatex\InverseProportionBad_estimate_statistics_0.pdf"</CommandLineArguments>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>

@@ -157,25 +157,25 @@ namespace CMNFTest
 
 
             // cubic sensor
-            TestCubicSensorScalar testCubicSensor = new TestCubicSensorScalar();
-            testCubicSensor.Initialize(50, 10000, true, Settings.Default.OutputFolder);
-            testCubicSensor.GenerateBundle(10000, Settings.Default.OutputFolder);
-            testCubicSensor.GenerateOne(Settings.Default.OutputFolder);
-            testCubicSensor.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
-            testCubicSensor.GenerateReport(Settings.Default.LatexFolder);
+            //TestCubicSensorScalar testCubicSensor = new TestCubicSensorScalar();
+            //testCubicSensor.Initialize(50, 10000, true, Settings.Default.OutputFolder);
+            //testCubicSensor.GenerateBundle(10000, Settings.Default.OutputFolder);
+            //testCubicSensor.GenerateOne(Settings.Default.OutputFolder);
+            //testCubicSensor.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
+            //testCubicSensor.GenerateReport(Settings.Default.LatexFolder);
 
-            // inverse proportion good
-            //TestInverseProportionGoodScalar testInverseProportion = new TestInverseProportionGoodScalar();
-            //testInverseProportion.Initialize(50, 10000, true, Settings.Default.OutputFolder);
-            //testInverseProportion.GenerateBundle(10000, Settings.Default.OutputFolder);
-            //testInverseProportion.GenerateOne(Settings.Default.OutputFolder);
-            //testInverseProportion.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
-            //testInverseProportion.GenerateReport(Settings.Default.LatexFolder);
+            //inverse proportion good
+            TestInverseProportionGoodScalar testInverseProportion = new TestInverseProportionGoodScalar();
+            testInverseProportion.Initialize(50, 10000, true, Settings.Default.OutputFolder);
+            testInverseProportion.GenerateBundle(1000, Settings.Default.OutputFolder, true, true);
+            testInverseProportion.GenerateOne(Settings.Default.OutputFolder);
+            testInverseProportion.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
+            testInverseProportion.GenerateReport(Settings.Default.LatexFolder);
 
-            // inverse proportion bad
+            //inverse proportion bad
             //TestInverseProportionBadScalar testInverseProportion = new TestInverseProportionBadScalar();
             //testInverseProportion.Initialize(50, 10000, true, Settings.Default.OutputFolder);
-            //testInverseProportion.GenerateBundle(10000, Settings.Default.OutputFolder);
+            //testInverseProportion.GenerateBundle(1000000, Settings.Default.OutputFolder);
             //testInverseProportion.GenerateOne(Settings.Default.OutputFolder);
             //testInverseProportion.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
             //testInverseProportion.GenerateReport(Settings.Default.LatexFolder);

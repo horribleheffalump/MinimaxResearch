@@ -48,7 +48,7 @@ namespace CMNFTest
         public Matrix<double> DX0Hat;
 
         public Func<int, Vector<double>, Vector<double>> Xi;
-        public Func<int, Vector<double>, Vector<double>, Vector<double>> Zeta;
+        public Func<int, Vector<double>, Vector<double>, Matrix<double>, Vector<double>> Zeta;
 
         private NumberFormatInfo provider;
 
@@ -156,14 +156,15 @@ namespace CMNFTest
         public void GenerateBundle(int n, string folderName, bool doCalculateUKF = true)
         {
             Console.WriteLine($"GenerateBundle");
-            string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
+            string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));One));
             //DiscreteScalarModel[] modelsEst = new DiscreteScalarModel[N];
             DiscreteVectorModel[] modelsEst = new DiscreteVectorModel[n];
             int dimX = X0().Count;
 
             for (int i = 0; i < n; i++)
             {
-                Console.WriteLine($"model {i}");
+                if (i % 1000 == 0) // inform every 1000-th trajectory
+                    Console.WriteLine($"model {i}");
                 modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi, new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0)), W, Nu, X0(), true);
                 for (int s = 0; s < T; s++)
                 {
@@ -184,8 +185,10 @@ namespace CMNFTest
                 }
             }
 
+            Console.WriteLine($"calculate estimates");
             for (int t = 0; t < T; t++)
             {
+                Console.WriteLine($"t={t}");
                 Vector<double>[] x = new Vector<double>[n];
                 Vector<double>[] y = new Vector<double>[n];
 
@@ -246,12 +249,14 @@ namespace CMNFTest
                         outputfile.Close();
                     }
                 }
+
+
             }
         }
 
         public void ProcessResults(string dataFolder, string scriptsFolder, string outputFolder)
         {
-            string[] scriptNamesOne = new string[] { "process_sample", "estimate_sample"};
+            string[] scriptNamesOne = new string[] { "process_sample", "estimate_sample" };
             string[] scriptNamesMany = new string[] { "process_statistics", "estimate_statistics" };
 
             string fileNameOne = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOne);
