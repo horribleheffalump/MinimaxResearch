@@ -8,7 +8,7 @@ namespace CMNFTest
 {
     class TestLogisticModelScalar : TestEnvironmentVector
     {
-        public TestLogisticModelScalar(double bound)
+        public TestLogisticModelScalar(double bound, double _dw, double _dnu)
         {
             TestName = "Логистическая модель";
             TestFileName = "LogisticModel";
@@ -51,13 +51,13 @@ namespace CMNFTest
 
     class TestLogisticModelZeroScalar : TestEnvironmentVector
     {
-        public TestLogisticModelZeroScalar(double bound)
+        public TestLogisticModelZeroScalar(double bound, double _dw, double _dnu)
         {
             TestName = "Логистическая модель с возвратом";
             TestFileName = "LogisticModelZero";
 
-            Vector<double> mW = Exts.Vector(0); Matrix<double> dW = Exts.Diag(0.01);
-            Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(1);
+            Vector<double> mW = Exts.Vector(0); Matrix<double> dW = Exts.Diag(_dw);
+            Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(_dnu);
             Vector<double> mEta = Exts.Vector(0.1); Matrix<double> dEta = Exts.Diag(0.01); // small values are for regularization
             Func<int, Vector<double>, Vector<double>> phi1 = (s, x) =>
             {

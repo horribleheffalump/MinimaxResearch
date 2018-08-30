@@ -89,6 +89,15 @@ namespace CMNFTest.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to bulk.
+        /// </summary>
+        internal static string OutputTypeBulk {
+            get {
+                return ResourceManager.GetString("OutputTypeBulk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to average.
         /// </summary>
         internal static string OutputTypeMany {

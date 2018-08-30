@@ -127,6 +127,9 @@
   <data name="OutputPictureNameTemplate" xml:space="preserve">
     <value>{name}_{script}_{0}.pdf</value>
   </data>
+  <data name="OutputTypeBulk" xml:space="preserve">
+    <value>bulk</value>
+  </data>
   <data name="OutputTypeMany" xml:space="preserve">
     <value>average</value>
   </data>

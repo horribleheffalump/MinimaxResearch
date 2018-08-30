@@ -40,6 +40,9 @@
     <Compile Include="polar.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="process_hyst.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="process_sample.py">
       <SubType>Code</SubType>
     </Compile>

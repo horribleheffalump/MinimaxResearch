@@ -96,6 +96,63 @@ namespace CMNFTest
         //}
 
 
+        /// <summary>
+        /// Generates a bundle of trajectories and saves the state dynamics to files
+        /// </summary>
+        /// <param name="t">time interval right margin (number of steps)</param>
+        /// <param name="n">number of trajectories</param>
+        public void GenerateBundleSamples(int t, int n, string outputFolder)
+        {
+            provider = new NumberFormatInfo();
+            provider.NumberDecimalSeparator = ".";
+
+            T = t;
+
+            DiscreteVectorModel[] models = new DiscreteVectorModel[n];
+            for (int i = 0; i < n; i++)
+            {
+                Console.WriteLine($"model {i}");
+                models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi, new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0)), W, Nu, X0(), true);
+                for (int s = 0; s < T; s++)
+                {
+                    models[i].Step();
+                }
+            }
+
+            for (int k = 0; k < models[0].State.Count; k++)
+            {
+                string fileName = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeBulk));
+                using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString())))
+                {
+                    for (int s = 0; s < T; s++)
+                    {
+                        outputfile.Write(string.Format(provider, "{0} ", s));
+                    }
+                    outputfile.WriteLine();
+                    for (int i = 0; i < n; i++)
+                    {
+                        for (int s = 0; s < T; s++)
+                        {
+                            outputfile.Write(string.Format(provider, "{0} ", models[i].Trajectory[s][0][k]));
+                        }
+                        outputfile.WriteLine();
+                    }
+
+                    //outputfile.Write(string.Format(provider, "{0} {1} {2} {3} {4} {5} {6}",
+                    //    t, mx[k], Dx[k, k], mxHat[k], mError[k], DError[k, k], CMNF.KHat[t][k, k]
+                    //    ));
+
+                    //outputfile.Write(string.Format(provider, " {0} {1} {2} {3}",
+                    //    mxHatU[k], mErrorU[k], DErrorU[k, k], mPHatU[k, k]
+                    //    ));
+                    outputfile.WriteLine();
+                    outputfile.Close();
+                }
+            }
+
+
+        }
+
         public void GenerateOne(string folderName, bool doCalculateUKF = true)
         {
             string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOne));
@@ -251,8 +308,6 @@ namespace CMNFTest
                         outputfile.Close();
                     }
                 }
-
-
             }
         }
 

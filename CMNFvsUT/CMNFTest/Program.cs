@@ -42,6 +42,12 @@ namespace CMNFTest
             [Option('b', "bound", Required = false, HelpText = "Upper bound for the state")]
             public double Bound { get; set; }
 
+            [Option('W', "DW", Required = false, Default = 1.0,  HelpText = "State noise variation")]
+            public double DW { get; set; }
+
+            [Option('N', "DNu", Required = false, Default = 1.0, HelpText = "Observations noise variation")]
+            public double DNu { get; set; }
+
             [Option('o', "output-folder", Required = false, HelpText = "Folder to store numeric results")]
             public string OutputFolder { get; set; }
 
@@ -53,6 +59,10 @@ namespace CMNFTest
 
             [Option('q', "templates-folder", Required = false, HelpText = "Folder where the latex templates are stored")]
             public string TemplatesFolder { get; set; }
+
+            [Option('B', "bulk", Required = false, Default = false, HelpText = "Bulk output of the state process trajectories bundle")]
+            public bool Bulk { get; set; }
+
 
 
         }
@@ -215,11 +225,16 @@ namespace CMNFTest
             if (o.Model == "cubic")
             {
                 TestCubicSensorScalar testCubicSensor = new TestCubicSensorScalar();
-                testCubicSensor.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
-                testCubicSensor.GenerateBundle(o.TestCount, o.OutputFolder);
-                testCubicSensor.GenerateOne(o.OutputFolder);
-                testCubicSensor.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
-                testCubicSensor.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
+                if (o.Bulk)
+                    testCubicSensor.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
+                else
+                {
+                    testCubicSensor.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
+                    testCubicSensor.GenerateBundle(o.TestCount, o.OutputFolder);
+                    testCubicSensor.GenerateOne(o.OutputFolder);
+                    testCubicSensor.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
+                    testCubicSensor.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
+                }
             }
             #endregion
 
@@ -227,11 +242,16 @@ namespace CMNFTest
             if (o.Model == "invprop-good")
             {
                 TestInverseProportionGoodScalar testInverseProportion = new TestInverseProportionGoodScalar();
-                testInverseProportion.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
-                testInverseProportion.GenerateBundle(o.TestCount, o.OutputFolder);
-                testInverseProportion.GenerateOne(o.OutputFolder);
-                testInverseProportion.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
-                testInverseProportion.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
+                if (o.Bulk)
+                    testInverseProportion.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
+                else
+                {
+                    testInverseProportion.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
+                    testInverseProportion.GenerateBundle(o.TestCount, o.OutputFolder);
+                    testInverseProportion.GenerateOne(o.OutputFolder);
+                    testInverseProportion.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
+                    testInverseProportion.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
+                }
             }
             #endregion
 
@@ -239,35 +259,50 @@ namespace CMNFTest
             if (o.Model == "invprop-bad")
             {
                 TestInverseProportionBadScalar testInverseProportion = new TestInverseProportionBadScalar(o.Bound);
-                testInverseProportion.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
-                testInverseProportion.GenerateBundle(o.TestCount, o.OutputFolder);
-                testInverseProportion.GenerateOne(o.OutputFolder);
-                testInverseProportion.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
-                testInverseProportion.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
+                if (o.Bulk)
+                    testInverseProportion.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
+                else
+                {
+                    testInverseProportion.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
+                    testInverseProportion.GenerateBundle(o.TestCount, o.OutputFolder);
+                    testInverseProportion.GenerateOne(o.OutputFolder);
+                    testInverseProportion.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
+                    testInverseProportion.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
+                }
             }
             #endregion
 
             #region logistic regression
             if (o.Model == "logreg-simple")
             {
-                TestLogisticModelScalar testLogisticModel = new TestLogisticModelScalar(o.Bound);
-                testLogisticModel.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
-                testLogisticModel.GenerateBundle(o.TestCount, o.OutputFolder, o.UKF);
-                testLogisticModel.GenerateOne(o.OutputFolder, o.UKF);
-                testLogisticModel.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
-                testLogisticModel.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
+                TestLogisticModelScalar testLogisticModel = new TestLogisticModelScalar(o.Bound, o.DW, o.DNu);
+                if (o.Bulk)
+                    testLogisticModel.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
+                else
+                {
+                    testLogisticModel.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
+                    testLogisticModel.GenerateBundle(o.TestCount, o.OutputFolder, o.UKF);
+                    testLogisticModel.GenerateOne(o.OutputFolder, o.UKF);
+                    testLogisticModel.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
+                    testLogisticModel.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
+                }
             }
             #endregion
 
             #region logistic regression zero
             if (o.Model == "logreg-zero")
             {
-                TestLogisticModelZeroScalar testLogisticZeroModel = new TestLogisticModelZeroScalar(o.Bound);
-                testLogisticZeroModel.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
-                testLogisticZeroModel.GenerateBundle(o.TestCount, o.OutputFolder, o.UKF);
-                testLogisticZeroModel.GenerateOne(o.OutputFolder, o.UKF);
-                testLogisticZeroModel.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
-                testLogisticZeroModel.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
+                TestLogisticModelZeroScalar testLogisticZeroModel = new TestLogisticModelZeroScalar(o.Bound, o.DW, o.DNu);
+                if (o.Bulk)
+                    testLogisticZeroModel.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
+                else
+                {
+                    testLogisticZeroModel.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
+                    testLogisticZeroModel.GenerateBundle(o.TestCount, o.OutputFolder, o.UKF);
+                    testLogisticZeroModel.GenerateOne(o.OutputFolder, o.UKF);
+                    testLogisticZeroModel.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
+                    testLogisticZeroModel.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
+                }
             }
             #endregion
 
@@ -275,12 +310,17 @@ namespace CMNFTest
             if (o.Model == "logreg-uniform")
             {
                 TestLogisticModelUniformNoiseScalar testLogisticUniformNoiseModel = new TestLogisticModelUniformNoiseScalar();
-                testLogisticUniformNoiseModel.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
-                testLogisticUniformNoiseModel.GenerateBundle(o.TestCount, o.OutputFolder, o.UKF);
-                testLogisticUniformNoiseModel.GenerateOne(o.OutputFolder, o.UKF);
-                testLogisticUniformNoiseModel.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
-                testLogisticUniformNoiseModel.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
-                #endregion
+                if (o.Bulk)
+                    testLogisticUniformNoiseModel.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
+                else
+                {
+                    testLogisticUniformNoiseModel.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
+                    testLogisticUniformNoiseModel.GenerateBundle(o.TestCount, o.OutputFolder, o.UKF);
+                    testLogisticUniformNoiseModel.GenerateOne(o.OutputFolder, o.UKF);
+                    testLogisticUniformNoiseModel.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
+                    testLogisticUniformNoiseModel.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
+                    #endregion
+                }
             }
 
         }

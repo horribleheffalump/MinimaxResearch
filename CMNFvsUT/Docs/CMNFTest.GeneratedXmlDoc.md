@@ -42,6 +42,13 @@
 
 
 ---
+#### Property Properties.Resources.OutputTypeBulk
+
+ Looks up a localized string similar to bulk. 
+
+
+
+---
 #### Property Properties.Resources.OutputTypeMany
 
  Looks up a localized string similar to average. 
@@ -70,6 +77,17 @@
 |Name | Description |
 |-----|------|
 |doCalculateUKF: ||
+|t: |time interval right margin (number of steps)|
+|n: |number of trajectories|
+
+
+---
+#### Method TestEnvironmentVector.GenerateBundleSamples(System.Int32,System.Int32,System.String)
+
+ Generates a bundle of trajectories and saves the state dynamics to files 
+
+|Name | Description |
+|-----|------|
 |t: |time interval right margin (number of steps)|
 |n: |number of trajectories|
 
