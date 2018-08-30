@@ -13,194 +13,251 @@ using UKF;
 using PythonInteract;
 using System.Linq.Expressions;
 using MathNetExtensions;
+using CommandLine;
 
 namespace CMNFTest
 {
     class Program
     {
+        public class Options
+        {
+            [Option('m', "model", Required = true, HelpText = "Model name, one of: sphere, polar, cubic, invprop-good, invprop-bad, logreg-simple, logreg-zero, logreg-uniform")]
+            public string Model { get; set; }
+
+            [Option('n', "samples", Required = false, HelpText = "Number of samples for static models (sphere and polar)")]
+            public int N { get; set; }
+
+            [Option('T', "upper-bound", Required = false, HelpText = "The upper bound of the observation interval for dynamic models")]
+            public int T { get; set; }
+
+            [Option('t', "train-count", Required = false, HelpText = "Number of trajectoris in the training set for dynamic models")]
+            public int TrainCount { get; set; }
+
+            [Option('e', "test-count", Required = false, HelpText = "Number of trajectoris in the test set for dynamic models")]
+            public int TestCount { get; set; }
+
+            [Option('U', "UKF", Required = false, Default = true, HelpText = "Do calculate Unscented Kalman Filter")]
+            public bool UKF { get; set; }
+
+            [Option('b', "bound", Required = false, HelpText = "Upper bound for the state")]
+            public double Bound { get; set; }
+
+        }
+
         static void Main(string[] args)
         {
+            CommandLine.Parser.Default.ParseArguments<Options>(args).WithParsed<Options>(opts => Run(opts));
+        }
+
+        static void Run(Options o)
+        {
+
             #region sphere
-            //int N = 10000;
-            //Vector<double> mX = Exts.Vector(30, 40, 100); Matrix<double> KX = Exts.Diag(30 * 30, 30 * 30, 30 * 30);
-            //Vector<double> mNu = Exts.Vector(0, 0, 0); Matrix<double> KNu = Exts.Diag(30 * 30, Math.Pow(5 * Math.PI / 180.0, 2.0), Math.Pow(5 * Math.PI / 180.0, 2.0));
-            //Normal[] NormalX = new Normal[3] { new Normal(mX[0], Math.Sqrt(KX[0, 0])), new Normal(mX[1], Math.Sqrt(KX[1, 1])), new Normal(mX[2], Math.Sqrt(KX[2, 2])) };
-            //Normal[] NormalNu = new Normal[3] { new Normal(mNu[0], Math.Sqrt(KNu[0, 0])), new Normal(mNu[1], Math.Sqrt(KNu[1, 1])), new Normal(mNu[2], Math.Sqrt(KNu[2, 2])) }; ;
+            if (o.Model == "sphere")
+            {
+                int N = o.N;
+                Vector<double> mX = Exts.Vector(30, 40, 100); Matrix<double> KX = Exts.Diag(30 * 30, 30 * 30, 30 * 30);
+                Vector<double> mNu = Exts.Vector(0, 0, 0); Matrix<double> KNu = Exts.Diag(30 * 30, Math.Pow(5 * Math.PI / 180.0, 2.0), Math.Pow(5 * Math.PI / 180.0, 2.0));
+                Normal[] NormalX = new Normal[3] { new Normal(mX[0], Math.Sqrt(KX[0, 0])), new Normal(mX[1], Math.Sqrt(KX[1, 1])), new Normal(mX[2], Math.Sqrt(KX[2, 2])) };
+                Normal[] NormalNu = new Normal[3] { new Normal(mNu[0], Math.Sqrt(KNu[0, 0])), new Normal(mNu[1], Math.Sqrt(KNu[1, 1])), new Normal(mNu[2], Math.Sqrt(KNu[2, 2])) }; ;
 
-            //TestEnvironmentStatic testSphere = new TestEnvironmentStatic
-            //{
-            //    Phi = x => Utils.cart2sphere(x),
-            //    InvPhi = y => Utils.sphere2cart(y),
-            //    W = () => Exts.Vector(NormalX[0].Sample(), NormalX[1].Sample(), NormalX[2].Sample()),
-            //    Nu = () => Exts.Vector(NormalNu[0].Sample(), NormalNu[1].Sample(), NormalNu[2].Sample()),
-            //    MX = mX,
-            //    KX = KX,
-            //    KNu = KNu
-            //};
+                TestEnvironmentStatic testSphere = new TestEnvironmentStatic
+                {
+                    Phi = x => Utils.cart2sphere(x),
+                    InvPhi = y => Utils.sphere2cart(y),
+                    W = () => Exts.Vector(NormalX[0].Sample(), NormalX[1].Sample(), NormalX[2].Sample()),
+                    Nu = () => Exts.Vector(NormalNu[0].Sample(), NormalNu[1].Sample(), NormalNu[2].Sample()),
+                    MX = mX,
+                    KX = KX,
+                    KNu = KNu
+                };
 
-            //testSphere.Initialize(N, Settings.Default.OutputFolder);
-            //Vector<double> mErr;
-            //Matrix<double> KErr;
-            //Matrix<double> KErrTh;
-            //Vector<double> mErr_inv;
-            //Matrix<double> KErr_inv;
-            //Matrix<double> KErrTh_inv;
-            //Vector<double> mErr_lin;
-            //Matrix<double> KErr_lin;
-            //Matrix<double> KErrTh_lin;
-            //Vector<double> mErr_UT;
-            //Matrix<double> KErr_UT;
-            //Matrix<double> KErrTh_UT;
+                testSphere.Initialize(N, Settings.Default.OutputFolder);
+                Vector<double> mErr;
+                Matrix<double> KErr;
+                Matrix<double> KErrTh;
+                Vector<double> mErr_inv;
+                Matrix<double> KErr_inv;
+                Matrix<double> KErrTh_inv;
+                Vector<double> mErr_lin;
+                Matrix<double> KErr_lin;
+                Matrix<double> KErrTh_lin;
+                Vector<double> mErr_UT;
+                Matrix<double> KErr_UT;
+                Matrix<double> KErrTh_UT;
 
-            //string fileName_alldata = Path.Combine(Settings.Default.OutputFolder, "test_sphere_close_alldata.txt");
-            //testSphere.GenerateBundle(N, out mErr, out KErr, out KErrTh, out mErr_inv, out KErr_inv, out KErrTh_inv, out mErr_lin, out KErr_lin, out KErrTh_lin, out mErr_UT, out KErr_UT, out KErrTh_UT, fileName_alldata);
+                string fileName_alldata = Path.Combine(Settings.Default.OutputFolder, "test_sphere_close_alldata.txt");
+                testSphere.GenerateBundle(N, out mErr, out KErr, out KErrTh, out mErr_inv, out KErr_inv, out KErrTh_inv, out mErr_lin, out KErr_lin, out KErrTh_lin, out mErr_UT, out KErr_UT, out KErrTh_UT, fileName_alldata);
 
 
-            //string fileName = Path.Combine(Settings.Default.OutputFolder, "test_sphere_close.txt");
-            //using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName))
-            //{
-            //    //outputfile.WriteLine($"P = {P}");
-            //    outputfile.WriteLine($"mErr = {mErr}");
-            //    outputfile.WriteLine($"KErr = {KErr}");
-            //    outputfile.WriteLine($"KErrTh = {KErrTh}");
+                string fileName = Path.Combine(Settings.Default.OutputFolder, "test_sphere_close.txt");
+                using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName))
+                {
+                    //outputfile.WriteLine($"P = {P}");
+                    outputfile.WriteLine($"mErr = {mErr}");
+                    outputfile.WriteLine($"KErr = {KErr}");
+                    outputfile.WriteLine($"KErrTh = {KErrTh}");
 
-            //    //outputfile.WriteLine($"P_inv = {P_inv}");
-            //    outputfile.WriteLine($"mErr_inv = {mErr_inv}");
-            //    outputfile.WriteLine($"KErr_inv = {KErr_inv}");
-            //    outputfile.WriteLine($"KErrTh_inv = {KErrTh_inv}");
+                    //outputfile.WriteLine($"P_inv = {P_inv}");
+                    outputfile.WriteLine($"mErr_inv = {mErr_inv}");
+                    outputfile.WriteLine($"KErr_inv = {KErr_inv}");
+                    outputfile.WriteLine($"KErrTh_inv = {KErrTh_inv}");
 
-            //    //outputfile.WriteLine($"P_lin = {P_lin}");
-            //    outputfile.WriteLine($"mErr_lin = {mErr_lin}");
-            //    outputfile.WriteLine($"KErr_lin = {KErr_lin}");
-            //    outputfile.WriteLine($"KErrTh_lin = {KErrTh_lin}");
+                    //outputfile.WriteLine($"P_lin = {P_lin}");
+                    outputfile.WriteLine($"mErr_lin = {mErr_lin}");
+                    outputfile.WriteLine($"KErr_lin = {KErr_lin}");
+                    outputfile.WriteLine($"KErrTh_lin = {KErrTh_lin}");
 
-            //    //outputfile.WriteLine($"P_UT = {P_UT}");
-            //    outputfile.WriteLine($"mErr_UT = {mErr_UT}");
-            //    outputfile.WriteLine($"KErr_UT = {KErr_UT}");
-            //    outputfile.WriteLine($"KErrTh_UT = {KErrTh_UT}");
+                    //outputfile.WriteLine($"P_UT = {P_UT}");
+                    outputfile.WriteLine($"mErr_UT = {mErr_UT}");
+                    outputfile.WriteLine($"KErr_UT = {KErr_UT}");
+                    outputfile.WriteLine($"KErrTh_UT = {KErrTh_UT}");
 
-            //    outputfile.Close();
-            //}
+                    outputfile.Close();
+                }
+            }
             #endregion
 
             #region polar 
-            //Vector<double> mX = Exts.Vector(300, 400); Matrix<double> KX = Exts.Diag(30 * 30, 30 * 30);
-            //Vector<double> mNu = Exts.Vector(0, 0); Matrix<double> KNu = Exts.Diag(Math.Pow(5 * Math.PI / 180.0, 2.0), 30 * 30);
-            //Normal[] NormalX = new Normal[2] { new Normal(mX[0], Math.Sqrt(KX[0, 0])), new Normal(mX[1], Math.Sqrt(KX[1, 1])) };
-            //Normal[] NormalNu = new Normal[2] { new Normal(mNu[0], Math.Sqrt(KNu[0, 0])), new Normal(mNu[1], Math.Sqrt(KNu[1, 1])) }; ;
+            if (o.Model == "polar")
+            {
+                int N = o.N;
 
-            ////Console.WriteLine(mX.ToLine());
+                Vector<double> mX = Exts.Vector(300, 400); Matrix<double> KX = Exts.Diag(30 * 30, 30 * 30);
+                Vector<double> mNu = Exts.Vector(0, 0); Matrix<double> KNu = Exts.Diag(Math.Pow(5 * Math.PI / 180.0, 2.0), 30 * 30);
+                Normal[] NormalX = new Normal[2] { new Normal(mX[0], Math.Sqrt(KX[0, 0])), new Normal(mX[1], Math.Sqrt(KX[1, 1])) };
+                Normal[] NormalNu = new Normal[2] { new Normal(mNu[0], Math.Sqrt(KNu[0, 0])), new Normal(mNu[1], Math.Sqrt(KNu[1, 1])) }; ;
 
-            //TestEnvironmentStatic testPolar = new TestEnvironmentStatic
-            //{
-            //    Phi = x => Utils.cart2pol(x),
-            //    InvPhi = y => Utils.pol2cart(y),
-            //    W = () => Exts.Vector(NormalX[0].Sample(), NormalX[1].Sample()),
-            //    Nu = () => Exts.Vector(NormalNu[0].Sample(), NormalNu[1].Sample()),
-            //    MX = mX,
-            //    KX = KX,
-            //    KNu = KNu
-            //};
+                //Console.WriteLine(mX.ToLine());
 
-            //int N = 10000;
-            //testPolar.Initialize(N, Settings.Default.OutputFolder);
-            //Vector<double> mErr;
-            //Matrix<double> KErr;
-            //Matrix<double> KErrTh;
-            //Vector<double> mErr_inv;
-            //Matrix<double> KErr_inv;
-            //Matrix<double> KErrTh_inv;
-            //Vector<double> mErr_lin;
-            //Matrix<double> KErr_lin;
-            //Matrix<double> KErrTh_lin;
-            //Vector<double> mErr_UT;
-            //Matrix<double> KErr_UT;
-            //Matrix<double> KErrTh_UT;
+                TestEnvironmentStatic testPolar = new TestEnvironmentStatic
+                {
+                    Phi = x => Utils.cart2pol(x),
+                    InvPhi = y => Utils.pol2cart(y),
+                    W = () => Exts.Vector(NormalX[0].Sample(), NormalX[1].Sample()),
+                    Nu = () => Exts.Vector(NormalNu[0].Sample(), NormalNu[1].Sample()),
+                    MX = mX,
+                    KX = KX,
+                    KNu = KNu
+                };
 
-            //string fileName_alldata = Path.Combine(Settings.Default.OutputFolder, "test_polar_far_alldata.txt");
-            //testPolar.GenerateBundle(N, out mErr, out KErr, out KErrTh, out mErr_inv, out KErr_inv, out KErrTh_inv, out mErr_lin, out KErr_lin, out KErrTh_lin, out mErr_UT, out KErr_UT, out KErrTh_UT, fileName_alldata);
+                testPolar.Initialize(N, Settings.Default.OutputFolder);
+                Vector<double> mErr;
+                Matrix<double> KErr;
+                Matrix<double> KErrTh;
+                Vector<double> mErr_inv;
+                Matrix<double> KErr_inv;
+                Matrix<double> KErrTh_inv;
+                Vector<double> mErr_lin;
+                Matrix<double> KErr_lin;
+                Matrix<double> KErrTh_lin;
+                Vector<double> mErr_UT;
+                Matrix<double> KErr_UT;
+                Matrix<double> KErrTh_UT;
+
+                string fileName_alldata = Path.Combine(Settings.Default.OutputFolder, "test_polar_far_alldata.txt");
+                testPolar.GenerateBundle(N, out mErr, out KErr, out KErrTh, out mErr_inv, out KErr_inv, out KErrTh_inv, out mErr_lin, out KErr_lin, out KErrTh_lin, out mErr_UT, out KErr_UT, out KErrTh_UT, fileName_alldata);
 
 
-            //string fileName = Path.Combine(Settings.Default.OutputFolder, "test_polar_far.txt");
-            //using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName))
-            //{
-            //    //outputfile.WriteLine($"P = {P}");
-            //    outputfile.WriteLine($"mErr = {mErr}");
-            //    outputfile.WriteLine($"KErr = {KErr}");
-            //    outputfile.WriteLine($"KErrTh = {KErrTh}");
+                string fileName = Path.Combine(Settings.Default.OutputFolder, "test_polar_far.txt");
+                using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName))
+                {
+                    //outputfile.WriteLine($"P = {P}");
+                    outputfile.WriteLine($"mErr = {mErr}");
+                    outputfile.WriteLine($"KErr = {KErr}");
+                    outputfile.WriteLine($"KErrTh = {KErrTh}");
 
-            //    //outputfile.WriteLine($"P_inv = {P_inv}");
-            //    outputfile.WriteLine($"mErr_inv = {mErr_inv}");
-            //    outputfile.WriteLine($"KErr_inv = {KErr_inv}");
-            //    outputfile.WriteLine($"KErrTh_inv = {KErrTh_inv}");
+                    //outputfile.WriteLine($"P_inv = {P_inv}");
+                    outputfile.WriteLine($"mErr_inv = {mErr_inv}");
+                    outputfile.WriteLine($"KErr_inv = {KErr_inv}");
+                    outputfile.WriteLine($"KErrTh_inv = {KErrTh_inv}");
 
-            //    //outputfile.WriteLine($"P_lin = {P_lin}");
-            //    outputfile.WriteLine($"mErr_lin = {mErr_lin}");
-            //    outputfile.WriteLine($"KErr_lin = {KErr_lin}");
-            //    outputfile.WriteLine($"KErrTh_lin = {KErrTh_lin}");
+                    //outputfile.WriteLine($"P_lin = {P_lin}");
+                    outputfile.WriteLine($"mErr_lin = {mErr_lin}");
+                    outputfile.WriteLine($"KErr_lin = {KErr_lin}");
+                    outputfile.WriteLine($"KErrTh_lin = {KErrTh_lin}");
 
-            //    //outputfile.WriteLine($"P_UT = {P_UT}");
-            //    outputfile.WriteLine($"mErr_UT = {mErr_UT}");
-            //    outputfile.WriteLine($"KErr_UT = {KErr_UT}");
-            //    outputfile.WriteLine($"KErrTh_UT = {KErrTh_UT}");
+                    //outputfile.WriteLine($"P_UT = {P_UT}");
+                    outputfile.WriteLine($"mErr_UT = {mErr_UT}");
+                    outputfile.WriteLine($"KErr_UT = {KErr_UT}");
+                    outputfile.WriteLine($"KErrTh_UT = {KErrTh_UT}");
 
-            //    outputfile.Close();
-            //}
+                    outputfile.Close();
+                }
+            }
             #endregion
 
             #region cubic sensor
-            //TestCubicSensorScalar testCubicSensor = new TestCubicSensorScalar();
-            //testCubicSensor.Initialize(50, 10000, true, Settings.Default.OutputFolder);
-            //testCubicSensor.GenerateBundle(10000, Settings.Default.OutputFolder);
-            //testCubicSensor.GenerateOne(Settings.Default.OutputFolder);
-            //testCubicSensor.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
-            //testCubicSensor.GenerateReport(Settings.Default.LatexFolder);
+            if (o.Model == "cubic")
+            {
+                TestCubicSensorScalar testCubicSensor = new TestCubicSensorScalar();
+                testCubicSensor.Initialize(o.T, o.TrainCount, o.UKF, Settings.Default.OutputFolder);
+                testCubicSensor.GenerateBundle(o.TestCount, Settings.Default.OutputFolder);
+                testCubicSensor.GenerateOne(Settings.Default.OutputFolder);
+                testCubicSensor.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
+                testCubicSensor.GenerateReport(Settings.Default.LatexFolder);
+            }
             #endregion
 
             #region inverse proportion good
-            //TestInverseProportionGoodScalar testInverseProportion = new TestInverseProportionGoodScalar();
-            //testInverseProportion.Initialize(50, 10000, true, Settings.Default.OutputFolder);
-            //testInverseProportion.GenerateBundle(10000, Settings.Default.OutputFolder);
-            //testInverseProportion.GenerateOne(Settings.Default.OutputFolder);
-            //testInverseProportion.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
-            //testInverseProportion.GenerateReport(Settings.Default.LatexFolder);
+            if (o.Model == "invprop-good")
+            {
+                TestInverseProportionGoodScalar testInverseProportion = new TestInverseProportionGoodScalar();
+                testInverseProportion.Initialize(o.T, o.TrainCount, o.UKF, Settings.Default.OutputFolder);
+                testInverseProportion.GenerateBundle(o.TestCount, Settings.Default.OutputFolder);
+                testInverseProportion.GenerateOne(Settings.Default.OutputFolder);
+                testInverseProportion.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
+                testInverseProportion.GenerateReport(Settings.Default.LatexFolder);
+            }
             #endregion
 
             #region inverse proportion bad
-            //TestInverseProportionBadScalar testInverseProportion = new TestInverseProportionBadScalar();
-            //testInverseProportion.Initialize(50, 10000, true, Settings.Default.OutputFolder);
-            //testInverseProportion.GenerateBundle(1000000, Settings.Default.OutputFolder);
-            //testInverseProportion.GenerateOne(Settings.Default.OutputFolder);
-            //testInverseProportion.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
-            //testInverseProportion.GenerateReport(Settings.Default.LatexFolder); 
+            if (o.Model == "invprop-bad")
+            {
+                TestInverseProportionBadScalar testInverseProportion = new TestInverseProportionBadScalar(o.Bound);
+                testInverseProportion.Initialize(o.T, o.TrainCount, o.UKF, Settings.Default.OutputFolder);
+                testInverseProportion.GenerateBundle(o.TestCount, Settings.Default.OutputFolder);
+                testInverseProportion.GenerateOne(Settings.Default.OutputFolder);
+                testInverseProportion.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
+                testInverseProportion.GenerateReport(Settings.Default.LatexFolder);
+            }
             #endregion
 
             #region logistic regression
-            //TestLogisticModelScalar testLogisticModel = new TestLogisticModelScalar();
-            //testLogisticModel.Initialize(50, 1000, true, Settings.Default.OutputFolder);
-            //testLogisticModel.GenerateBundle(10000, Settings.Default.OutputFolder, true);
-            //testLogisticModel.GenerateOne(Settings.Default.OutputFolder, true);
-            //testLogisticModel.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
-            //testLogisticModel.GenerateReport(Settings.Default.LatexFolder);
+            if (o.Model == "logreg-simple")
+            {
+                TestLogisticModelScalar testLogisticModel = new TestLogisticModelScalar();
+                testLogisticModel.Initialize(o.T, o.TrainCount, o.UKF, Settings.Default.OutputFolder);
+                testLogisticModel.GenerateBundle(o.TestCount, Settings.Default.OutputFolder, o.UKF);
+                testLogisticModel.GenerateOne(Settings.Default.OutputFolder, o.UKF);
+                testLogisticModel.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
+                testLogisticModel.GenerateReport(Settings.Default.LatexFolder);
+            }
             #endregion
 
             #region logistic regression zero
-            //TestLogisticModelZeroScalar testLogisticZeroModel = new TestLogisticModelZeroScalar();
-            //testLogisticZeroModel.Initialize(50, 1000, true, Settings.Default.OutputFolder);
-            //testLogisticZeroModel.GenerateBundle(10000, Settings.Default.OutputFolder, true);
-            //testLogisticZeroModel.GenerateOne(Settings.Default.OutputFolder, true);
-            //testLogisticZeroModel.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
-            //testLogisticZeroModel.GenerateReport(Settings.Default.LatexFolder);
+            if (o.Model == "logreg-zero")
+            {
+                TestLogisticModelZeroScalar testLogisticZeroModel = new TestLogisticModelZeroScalar(o.Bound);
+                testLogisticZeroModel.Initialize(o.T, o.TrainCount, o.UKF, Settings.Default.OutputFolder);
+                testLogisticZeroModel.GenerateBundle(o.TestCount, Settings.Default.OutputFolder, o.UKF);
+                testLogisticZeroModel.GenerateOne(Settings.Default.OutputFolder, o.UKF);
+                testLogisticZeroModel.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
+                testLogisticZeroModel.GenerateReport(Settings.Default.LatexFolder);
+            }
             #endregion
 
             #region logistic regression uniform noise
-            TestLogisticModelUniformNoiseScalar testLogisticUniformNoiseModel = new TestLogisticModelUniformNoiseScalar();
-            //testLogisticUniformNoiseModel.Initialize(50, 1000, true, Settings.Default.OutputFolder);
-            //testLogisticUniformNoiseModel.GenerateBundle(10000, Settings.Default.OutputFolder, true);
-            //testLogisticUniformNoiseModel.GenerateOne(Settings.Default.OutputFolder, true);
-            testLogisticUniformNoiseModel.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
-            testLogisticUniformNoiseModel.GenerateReport(Settings.Default.LatexFolder);
-            #endregion
+            if (o.Model == "logreg-uniform")
+            {
+                TestLogisticModelUniformNoiseScalar testLogisticUniformNoiseModel = new TestLogisticModelUniformNoiseScalar();
+                testLogisticUniformNoiseModel.Initialize(o.T, o.TrainCount, o.UKF, Settings.Default.OutputFolder);
+                testLogisticUniformNoiseModel.GenerateBundle(o.TestCount, Settings.Default.OutputFolder, o.UKF);
+                testLogisticUniformNoiseModel.GenerateOne(Settings.Default.OutputFolder, o.UKF);
+                testLogisticUniformNoiseModel.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
+                testLogisticUniformNoiseModel.GenerateReport(Settings.Default.LatexFolder);
+                #endregion
+            }
 
         }
     }

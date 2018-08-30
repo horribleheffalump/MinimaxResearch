@@ -61,7 +61,7 @@ namespace CMNFTest
         /// <param name="doCalculateUKF"></param>
         /// <param name="t">time interval right margin (number of steps)</param>
         /// <param name="n">number of trajectories</param>
-        public void Initialize(int t, int n, bool doCalculateUKF, string outputFolder, int N1 = 100, int N2 = 100)
+        public void Initialize(int t, int n, bool doCalculateUKF, string outputFolder)
         {
             Console.WriteLine("Init");
             provider = new NumberFormatInfo();

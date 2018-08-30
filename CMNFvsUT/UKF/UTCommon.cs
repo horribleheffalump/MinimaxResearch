@@ -53,7 +53,7 @@ namespace UKF
         /// </summary>
         /// <param name="Phi">Transformation: a nonlinear function which determines the transformation of the random vector variable: y = Phi(x) + nu</param>
         /// <param name="mX">Mean of the transformed random variable</param>
-        /// <param name="dX">Cov of the ransformed random variable</param>
+        /// <param name="dX">Cov of the transformed random variable</param>
         /// <param name="dY">Cov of the additive random variable</param>
         /// <param name="p">Parameters of the unscented transform</param>
         /// <param name="y">Returns: approximated mean of the transformed variable</param>

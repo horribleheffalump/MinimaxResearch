@@ -161,7 +161,7 @@ L - dimention of x, sqrt(P) - Cholesky decomposition
 |-----|------|
 |Phi: |Transformation: a nonlinear function which determines the transformation of the random vector variable: y = Phi(x) + nu|
 |mX: |Mean of the transformed random variable|
-|dX: |Cov of the ransformed random variable|
+|dX: |Cov of the transformed random variable|
 |dY: |Cov of the additive random variable|
 |p: |Parameters of the unscented transform|
 |y: |Returns: approximated mean of the transformed variable|

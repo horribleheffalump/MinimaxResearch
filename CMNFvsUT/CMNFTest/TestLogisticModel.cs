@@ -8,7 +8,7 @@ namespace CMNFTest
 {
     class TestLogisticModelScalar : TestEnvironmentVector
     {
-        public TestLogisticModelScalar()
+        public TestLogisticModelScalar(double bound)
         {
             TestName = "Логистическая модель";
             TestFileName = "LogisticModel";
@@ -16,11 +16,11 @@ namespace CMNFTest
             Vector<double> mW = Exts.Vector(0); Matrix<double> dW = Exts.Diag(0.01);
             Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(1);
             Vector<double> mEta = Exts.Vector(0.1); Matrix<double> dEta = Exts.Diag(0.01); // small values are for regularization
-            Func<int, Vector<double>, Vector<double>> phi1 = (s, x) => Exts.Vector(Math.Max(-100, Math.Min(100, x[0] * (1 - x[0]))));
+            Func<int, Vector<double>, Vector<double>> phi1 = (s, x) => Exts.Vector(Math.Max(-bound, Math.Min(bound, x[0] * (1 - x[0]))));
             Func<int, Vector<double>, Matrix<double>> phi2 = (s, x) => Exts.Diag(1.0);
             Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(x[0]);
 
-            Phi1_latex = new string[] { @"max(-10, min(10,x(1-x)))" };
+            Phi1_latex = new string[] { @"max(-" + bound.ToString() + @", min(" + bound.ToString() + @",x(1-x)))" };
             Phi2_latex = new string[][] { new string[] { "1" } };
             Psi_latex = new string[] { @"x_t" };
 
@@ -51,7 +51,7 @@ namespace CMNFTest
 
     class TestLogisticModelZeroScalar : TestEnvironmentVector
     {
-        public TestLogisticModelZeroScalar()
+        public TestLogisticModelZeroScalar(double bound)
         {
             TestName = "Логистическая модель с возвратом";
             TestFileName = "LogisticModelZero";
@@ -61,7 +61,7 @@ namespace CMNFTest
             Vector<double> mEta = Exts.Vector(0.1); Matrix<double> dEta = Exts.Diag(0.01); // small values are for regularization
             Func<int, Vector<double>, Vector<double>> phi1 = (s, x) =>
             {
-                if (Math.Abs(x[0] * (1 - x[0])) < 1000)
+                if (Math.Abs(x[0] * (1 - x[0])) < bound)
                     return Exts.Vector(x[0] * (1 - x[0]));
                 else
                     return Exts.Vector(0);
@@ -69,7 +69,7 @@ namespace CMNFTest
             Func<int, Vector<double>, Matrix<double>> phi2 = (s, x) => Exts.Diag(1.0);
             Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(x[0]);
 
-            Phi1_latex = new string[] { @"x(1-x) if abs(x(1-x)) < 1000; 0 else" };
+            Phi1_latex = new string[] { @"x(1-x) if abs(x(1-x)) < " + bound.ToString() +"; 0 else" };
             Phi2_latex = new string[][] { new string[] { "1" } };
             Psi_latex = new string[] { @"x_t" };
 
