@@ -42,6 +42,19 @@ namespace CMNFTest
             [Option('b', "bound", Required = false, HelpText = "Upper bound for the state")]
             public double Bound { get; set; }
 
+            [Option('o', "output-folder", Required = false, HelpText = "Folder to store numeric results")]
+            public string OutputFolder { get; set; }
+
+            [Option('p', "plots-folder", Required = false, HelpText = "Folder to store plots")]
+            public string PlotsFolder { get; set; }
+
+            [Option('s', "scripts-folder", Required = false, HelpText = "Folder where the python scripts are stored")]
+            public string ScriptsFolder { get; set; }
+
+            [Option('q', "templates-folder", Required = false, HelpText = "Folder where the latex templates are stored")]
+            public string TemplatesFolder { get; set; }
+
+
         }
 
         static void Main(string[] args)
@@ -51,6 +64,17 @@ namespace CMNFTest
 
         static void Run(Options o)
         {
+            if (string.IsNullOrWhiteSpace(o.OutputFolder))
+                o.OutputFolder = Settings.Default.OutputFolder;
+
+            if (string.IsNullOrWhiteSpace(o.PlotsFolder))
+                o.PlotsFolder = Settings.Default.LatexFolder;
+
+            if (string.IsNullOrWhiteSpace(o.ScriptsFolder))
+                o.ScriptsFolder = Settings.Default.ScriptsFolder;
+
+            if (string.IsNullOrWhiteSpace(o.TemplatesFolder))
+                o.TemplatesFolder = Settings.Default.LatexFolder;
 
             #region sphere
             if (o.Model == "sphere")
@@ -72,7 +96,7 @@ namespace CMNFTest
                     KNu = KNu
                 };
 
-                testSphere.Initialize(N, Settings.Default.OutputFolder);
+                testSphere.Initialize(N, o.OutputFolder);
                 Vector<double> mErr;
                 Matrix<double> KErr;
                 Matrix<double> KErrTh;
@@ -86,11 +110,11 @@ namespace CMNFTest
                 Matrix<double> KErr_UT;
                 Matrix<double> KErrTh_UT;
 
-                string fileName_alldata = Path.Combine(Settings.Default.OutputFolder, "test_sphere_close_alldata.txt");
+                string fileName_alldata = Path.Combine(o.OutputFolder, "test_sphere_close_alldata.txt");
                 testSphere.GenerateBundle(N, out mErr, out KErr, out KErrTh, out mErr_inv, out KErr_inv, out KErrTh_inv, out mErr_lin, out KErr_lin, out KErrTh_lin, out mErr_UT, out KErr_UT, out KErrTh_UT, fileName_alldata);
 
 
-                string fileName = Path.Combine(Settings.Default.OutputFolder, "test_sphere_close.txt");
+                string fileName = Path.Combine(o.OutputFolder, "test_sphere_close.txt");
                 using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName))
                 {
                     //outputfile.WriteLine($"P = {P}");
@@ -141,7 +165,7 @@ namespace CMNFTest
                     KNu = KNu
                 };
 
-                testPolar.Initialize(N, Settings.Default.OutputFolder);
+                testPolar.Initialize(N, o.OutputFolder);
                 Vector<double> mErr;
                 Matrix<double> KErr;
                 Matrix<double> KErrTh;
@@ -155,11 +179,11 @@ namespace CMNFTest
                 Matrix<double> KErr_UT;
                 Matrix<double> KErrTh_UT;
 
-                string fileName_alldata = Path.Combine(Settings.Default.OutputFolder, "test_polar_far_alldata.txt");
+                string fileName_alldata = Path.Combine(o.OutputFolder, "test_polar_far_alldata.txt");
                 testPolar.GenerateBundle(N, out mErr, out KErr, out KErrTh, out mErr_inv, out KErr_inv, out KErrTh_inv, out mErr_lin, out KErr_lin, out KErrTh_lin, out mErr_UT, out KErr_UT, out KErrTh_UT, fileName_alldata);
 
 
-                string fileName = Path.Combine(Settings.Default.OutputFolder, "test_polar_far.txt");
+                string fileName = Path.Combine(o.OutputFolder, "test_polar_far.txt");
                 using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName))
                 {
                     //outputfile.WriteLine($"P = {P}");
@@ -191,11 +215,11 @@ namespace CMNFTest
             if (o.Model == "cubic")
             {
                 TestCubicSensorScalar testCubicSensor = new TestCubicSensorScalar();
-                testCubicSensor.Initialize(o.T, o.TrainCount, o.UKF, Settings.Default.OutputFolder);
-                testCubicSensor.GenerateBundle(o.TestCount, Settings.Default.OutputFolder);
-                testCubicSensor.GenerateOne(Settings.Default.OutputFolder);
-                testCubicSensor.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
-                testCubicSensor.GenerateReport(Settings.Default.LatexFolder);
+                testCubicSensor.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
+                testCubicSensor.GenerateBundle(o.TestCount, o.OutputFolder);
+                testCubicSensor.GenerateOne(o.OutputFolder);
+                testCubicSensor.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
+                testCubicSensor.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
             }
             #endregion
 
@@ -203,11 +227,11 @@ namespace CMNFTest
             if (o.Model == "invprop-good")
             {
                 TestInverseProportionGoodScalar testInverseProportion = new TestInverseProportionGoodScalar();
-                testInverseProportion.Initialize(o.T, o.TrainCount, o.UKF, Settings.Default.OutputFolder);
-                testInverseProportion.GenerateBundle(o.TestCount, Settings.Default.OutputFolder);
-                testInverseProportion.GenerateOne(Settings.Default.OutputFolder);
-                testInverseProportion.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
-                testInverseProportion.GenerateReport(Settings.Default.LatexFolder);
+                testInverseProportion.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
+                testInverseProportion.GenerateBundle(o.TestCount, o.OutputFolder);
+                testInverseProportion.GenerateOne(o.OutputFolder);
+                testInverseProportion.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
+                testInverseProportion.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
             }
             #endregion
 
@@ -215,23 +239,23 @@ namespace CMNFTest
             if (o.Model == "invprop-bad")
             {
                 TestInverseProportionBadScalar testInverseProportion = new TestInverseProportionBadScalar(o.Bound);
-                testInverseProportion.Initialize(o.T, o.TrainCount, o.UKF, Settings.Default.OutputFolder);
-                testInverseProportion.GenerateBundle(o.TestCount, Settings.Default.OutputFolder);
-                testInverseProportion.GenerateOne(Settings.Default.OutputFolder);
-                testInverseProportion.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
-                testInverseProportion.GenerateReport(Settings.Default.LatexFolder);
+                testInverseProportion.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
+                testInverseProportion.GenerateBundle(o.TestCount, o.OutputFolder);
+                testInverseProportion.GenerateOne(o.OutputFolder);
+                testInverseProportion.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
+                testInverseProportion.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
             }
             #endregion
 
             #region logistic regression
             if (o.Model == "logreg-simple")
             {
-                TestLogisticModelScalar testLogisticModel = new TestLogisticModelScalar();
-                testLogisticModel.Initialize(o.T, o.TrainCount, o.UKF, Settings.Default.OutputFolder);
-                testLogisticModel.GenerateBundle(o.TestCount, Settings.Default.OutputFolder, o.UKF);
-                testLogisticModel.GenerateOne(Settings.Default.OutputFolder, o.UKF);
-                testLogisticModel.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
-                testLogisticModel.GenerateReport(Settings.Default.LatexFolder);
+                TestLogisticModelScalar testLogisticModel = new TestLogisticModelScalar(o.Bound);
+                testLogisticModel.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
+                testLogisticModel.GenerateBundle(o.TestCount, o.OutputFolder, o.UKF);
+                testLogisticModel.GenerateOne(o.OutputFolder, o.UKF);
+                testLogisticModel.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
+                testLogisticModel.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
             }
             #endregion
 
@@ -239,11 +263,11 @@ namespace CMNFTest
             if (o.Model == "logreg-zero")
             {
                 TestLogisticModelZeroScalar testLogisticZeroModel = new TestLogisticModelZeroScalar(o.Bound);
-                testLogisticZeroModel.Initialize(o.T, o.TrainCount, o.UKF, Settings.Default.OutputFolder);
-                testLogisticZeroModel.GenerateBundle(o.TestCount, Settings.Default.OutputFolder, o.UKF);
-                testLogisticZeroModel.GenerateOne(Settings.Default.OutputFolder, o.UKF);
-                testLogisticZeroModel.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
-                testLogisticZeroModel.GenerateReport(Settings.Default.LatexFolder);
+                testLogisticZeroModel.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
+                testLogisticZeroModel.GenerateBundle(o.TestCount, o.OutputFolder, o.UKF);
+                testLogisticZeroModel.GenerateOne(o.OutputFolder, o.UKF);
+                testLogisticZeroModel.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
+                testLogisticZeroModel.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
             }
             #endregion
 
@@ -251,11 +275,11 @@ namespace CMNFTest
             if (o.Model == "logreg-uniform")
             {
                 TestLogisticModelUniformNoiseScalar testLogisticUniformNoiseModel = new TestLogisticModelUniformNoiseScalar();
-                testLogisticUniformNoiseModel.Initialize(o.T, o.TrainCount, o.UKF, Settings.Default.OutputFolder);
-                testLogisticUniformNoiseModel.GenerateBundle(o.TestCount, Settings.Default.OutputFolder, o.UKF);
-                testLogisticUniformNoiseModel.GenerateOne(Settings.Default.OutputFolder, o.UKF);
-                testLogisticUniformNoiseModel.ProcessResults(Settings.Default.OutputFolder, Settings.Default.ScriptsFolder, Settings.Default.LatexFolder);
-                testLogisticUniformNoiseModel.GenerateReport(Settings.Default.LatexFolder);
+                testLogisticUniformNoiseModel.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
+                testLogisticUniformNoiseModel.GenerateBundle(o.TestCount, o.OutputFolder, o.UKF);
+                testLogisticUniformNoiseModel.GenerateOne(o.OutputFolder, o.UKF);
+                testLogisticUniformNoiseModel.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
+                testLogisticUniformNoiseModel.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
                 #endregion
             }
 

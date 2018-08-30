@@ -318,7 +318,7 @@ namespace CMNFTest
 
         }
 
-        public void GenerateReport(string folderName)
+        public void GenerateReport(string templateFolderName, string folderName)
         {
             Dictionary<string, string> replacements = new Dictionary<string, string>();
             replacements.Add("%Title%", TestName);
@@ -337,7 +337,7 @@ namespace CMNFTest
             replacements.Add("%figs_estimate_sample%", ProcessPics(picTemplate.Replace("{script}", "estimate_sample"), "Пример оценки УМНФ и UKF."));
 
 
-            string template = File.ReadAllText(Path.Combine(folderName, "modelling_dynamictemplate.tex"), Encoding.Default);
+            string template = File.ReadAllText(Path.Combine(templateFolderName, "modelling_dynamictemplate.tex"), Encoding.Default);
             foreach (var pair in replacements)
             {
                 template = template.Replace(pair.Key, pair.Value);
