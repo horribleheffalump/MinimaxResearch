@@ -13,8 +13,8 @@ namespace CMNFTest
             TestName = "Логистическая модель";
             TestFileName = "LogisticModel";
 
-            Vector<double> mW = Exts.Vector(0); Matrix<double> dW = Exts.Diag(0.01);
-            Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(1);
+            Vector<double> mW = Exts.Vector(0); Matrix<double> dW = Exts.Diag(_dw);
+            Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(_dnu);
             Vector<double> mEta = Exts.Vector(0.1); Matrix<double> dEta = Exts.Diag(0.01); // small values are for regularization
             Func<int, Vector<double>, Vector<double>> phi1 = (s, x) => Exts.Vector(Math.Max(-bound, Math.Min(bound, x[0] * (1 - x[0]))));
             Func<int, Vector<double>, Matrix<double>> phi2 = (s, x) => Exts.Diag(1.0);
@@ -24,7 +24,7 @@ namespace CMNFTest
             Phi2_latex = new string[][] { new string[] { "1" } };
             Psi_latex = new string[] { @"x_t" };
 
-            P_W = @"\mathcal{N}\left(" + mW.ToLatex() + ", " + mW.ToLatex() + @"\right)";
+            P_W = @"\mathcal{N}\left(" + mW.ToLatex() + ", " + dW.ToLatex() + @"\right)";
             P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + dNu.ToLatex() + @"\right)";
             P_Eta = @"\mathcal{N}\left(" + mEta.ToLatex() + ", " + dEta.ToLatex() + @"\right)";
 
@@ -73,7 +73,7 @@ namespace CMNFTest
             Phi2_latex = new string[][] { new string[] { "1" } };
             Psi_latex = new string[] { @"x_t" };
 
-            P_W = @"\mathcal{N}\left(" + mW.ToLatex() + ", " + mW.ToLatex() + @"\right)";
+            P_W = @"\mathcal{N}\left(" + mW.ToLatex() + ", " + dW.ToLatex() + @"\right)";
             P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + dNu.ToLatex() + @"\right)";
             P_Eta = @"\mathcal{N}\left(" + mEta.ToLatex() + ", " + dEta.ToLatex() + @"\right)";
 
@@ -118,7 +118,7 @@ namespace CMNFTest
             Psi_latex = new string[] { @"x_t" };
 
             P_W = @"\mathcal{R}\left(0,1\right)";
-            P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + mNu.ToLatex() + @"\right)";
+            P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + dNu.ToLatex() + @"\right)";
             P_Eta = @"\mathcal{N}\left(" + mEta.ToLatex() + ", " + dEta.ToLatex() + @"\right)";
 
             ContinuousUniform[] UniformW = new ContinuousUniform[1] { new ContinuousUniform(-1 + 1e-5, 1 + 1e-5) };

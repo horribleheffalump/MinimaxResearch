@@ -90,10 +90,9 @@ namespace CMNFTest
                 UKF.EstimateParameters(Phi1, Psi, DW, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
         }
 
-        //public TestEnvironmentVector()//bool doCalculateUKF, int T, int N)
-        //{
-        //    //Initialize(doCalculateUKF, T, N);
-        //}
+        public TestEnvironmentVector()
+        {
+        }
 
 
         /// <summary>
@@ -310,6 +309,137 @@ namespace CMNFTest
                 }
             }
         }
+
+
+        /// <summary>
+        /// Generates N bundles of trajectories, applies the CMN and UK filters. The statistics for estimate errors are calculated by taking average on each bundle, and then on the whole set of bundles. 
+        /// Same as GenerateBundle but for larger numbers of trajectories. 
+        /// </summary> 
+        /// <param name="N">Number of bundles</param>
+        /// <param name="n">Number of trajectories</param>
+        /// <param name="folderName">Output folder name</param>
+        /// <param name="doCalculateUKF">(optional, default = true) if true, UKF and CMNF estimates are calculated, if false - only CMNF </param>
+        public void GenerateBundles(int N, int n, string folderName, bool doCalculateUKF = true)
+        {
+            Console.WriteLine($"GenerateBundles");
+            string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
+
+            Vector<double>[,] mx = new Vector<double>[N, T];
+            Matrix<double>[,] Dx = new Matrix<double>[N, T];
+
+            Vector<double>[,] mxHat = new Vector<double>[N, T];
+
+            Vector<double>[,] mError = new Vector<double>[N, T];
+            Matrix<double>[,] DError = new Matrix<double>[N, T];
+
+
+            Vector<double>[,] mErrorU = new Vector<double>[N, T];
+            Matrix<double>[,] DErrorU = new Matrix<double>[N, T];
+
+            Vector<double>[,] mxHatU = new Vector<double>[N, T];
+            Matrix<double>[,] mPHatU = new Matrix<double>[N, T];
+
+            int dimX = X0().Count;
+
+            for (int m = 0; m < N; m++)
+            {
+                Console.WriteLine($"GenerateBundle {m}");
+                DiscreteVectorModel[] modelsEst = new DiscreteVectorModel[n];
+       
+
+                for (int i = 0; i < n; i++)
+                {
+                    if (i % 1000 == 0) // inform every 1000-th trajectory
+                        Console.WriteLine($"model {i}");
+                    modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi, new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0)), W, Nu, X0(), true);
+                    for (int s = 0; s < T; s++)
+                    {
+                        modelsEst[i].Step();
+                    }
+                }
+
+                Vector<double>[] xHat = Enumerable.Repeat(X0Hat, n).ToArray();
+
+                Vector<double>[] xHatU = Enumerable.Repeat(X0Hat, n).ToArray();
+                Matrix<double>[] PHatU = Enumerable.Repeat(DX0Hat, n).ToArray();
+
+                Console.WriteLine($"calculate estimates");
+                for (int t = 0; t < T; t++)
+                {
+                    Console.WriteLine($"t={t}");
+                    Vector<double>[] x = new Vector<double>[n];
+                    Vector<double>[] y = new Vector<double>[n];
+
+                    for (int i = 0; i < n; i++)
+                    {
+                        x[i] = modelsEst[i].Trajectory[t][0];
+                        y[i] = modelsEst[i].Trajectory[t][1];
+                        xHat[i] = CMNF.Step(t, y[i], xHat[i]);
+                    }
+
+                    mx[m,t] = x.Average();
+                    Dx[m,t] = Exts.Cov(x, x);
+
+                    mxHat[m,t] = xHat.Average();
+
+                    mError[m,t] = (x.Subtract(xHat)).Average();
+                    DError[m,t] = Exts.Cov(x.Subtract(xHat), x.Subtract(xHat));
+
+
+                    mErrorU[m,t] = Vector<double>.Build.Dense(dimX, 0);
+                    DErrorU[m,t] = Matrix<double>.Build.Dense(dimX, dimX, 0);
+
+                    mxHatU[m,t] = Vector<double>.Build.Dense(dimX, 0);
+                    mPHatU[m,t] = Matrix<double>.Build.Dense(dimX, dimX, 0);
+
+
+                    if (doCalculateUKF)
+                    {
+                        for (int i = 0; i < n; i++)
+                        {
+                            Vector<double> _xHatU;
+                            Matrix<double> _PHatU;
+                            UKF.Step(Phi1, Psi, DW, DNu, t, y[i], xHatU[i], PHatU[i], out _xHatU, out _PHatU);
+                            xHatU[i] = _xHatU;
+                            PHatU[i] = _PHatU;
+                        }
+
+                        mErrorU[m,t] = (x.Subtract(xHatU)).Average();
+                        DErrorU[m,t] = Exts.Cov(x.Subtract(xHatU), x.Subtract(xHatU));
+
+                        mxHatU[m,t] = xHatU.Average();
+                        mPHatU[m,t] = PHatU.Average();
+                    }
+                }
+            }
+            for (int k = 0; k < dimX; k++)
+            {
+                using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString())))
+                {
+                    outputfile.Close();
+                }
+            }
+
+            for (int t = 0; t < T; t++)
+            {
+                for (int k = 0; k < dimX; k++)
+                {
+                    using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString()), true))
+                    {
+                        outputfile.Write(string.Format(provider, "{0} {1} {2} {3} {4} {5} {6}",
+                            t, mx.Average(axis:1)[t][k], Dx.Average(axis: 1)[t][k, k], mxHat.Average(axis: 1)[t][k], mError.Average(axis: 1)[t][k], DError.Average(axis: 1)[t][k, k], CMNF.KHat[t][k, k]
+                            ));
+
+                        outputfile.Write(string.Format(provider, " {0} {1} {2} {3}",
+                            mxHatU.Average(axis: 1)[t][k], mErrorU.Average(axis: 1)[t][k], DErrorU.Average(axis: 1)[t][k, k], mPHatU.Average(axis: 1)[t][k, k]
+                            ));
+                        outputfile.WriteLine();
+                        outputfile.Close();
+                    }
+                }
+            }
+        }
+
 
         public void ProcessResults(string dataFolder, string scriptsFolder, string outputFolder)
         {

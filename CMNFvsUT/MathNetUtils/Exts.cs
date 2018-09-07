@@ -9,6 +9,40 @@ namespace MathNetExtensions
 {
     public static class Exts
     {
+        public static T[] GetRow<T>(this T[,] x, int row)
+        {
+            var width = x.GetLength(0);
+            var height = x.GetLength(1);
+
+            if (row >= height)
+                throw new IndexOutOfRangeException("Row Index Out of Range");
+            // Ensures the row requested is within the range of the 2-d array
+
+
+            var returnRow = new T[width];
+            for (var i = 0; i < width; i++)
+                returnRow[i] = x[i, row];
+
+            return returnRow;
+        }
+        public static T[] GetCol<T>(this T[,] x, int col)
+        {
+            var width = x.GetLength(0);
+            var height = x.GetLength(1);
+
+            if (col >= width)
+                throw new IndexOutOfRangeException("Column Index Out of Range");
+            // Ensures the column requested is within the range of the 2-d array
+
+
+            var returnCol = new T[height];
+            for (var j = 0; j < height; j++)
+                returnCol[j] = x[col, j];
+
+            return returnCol;
+        }
+
+
         public static string ToLine(this Vector<double> x)
         {
             NumberFormatInfo provider = new NumberFormatInfo()
@@ -28,6 +62,91 @@ namespace MathNetExtensions
             mx = mx / x.Length;
             return mx;
         }
+
+        public static Matrix<double>[] Average(this Matrix<double>[,] x, int axis=0)
+        {
+            var width = x.GetLength(0);
+            var height = x.GetLength(1);
+
+            Matrix<double>[] mx = new Matrix<double>[x.GetLength(axis)];
+
+            if (axis == 0)
+            {
+                mx = x.GetRow(0);
+                for (int i = 1; i < height; i++)
+                {
+                    Matrix<double>[] r = x.GetRow(i);
+                    for (int j = 1; j < width; j++)
+                    {
+                        mx[j] = mx[j] + r[j];
+                    }
+                }
+                for (int j = 1; j < width; j++)
+                {
+                    mx[j] = mx[j] / height;
+                }
+            }
+            else
+            {
+                mx = x.GetCol(0);
+                for (int j = 1; j < width; j++)
+                {
+                    Matrix<double>[] c = x.GetCol(j);
+                    for (int i = 1; i < height; i++)
+                    {
+                        mx[i] = mx[i] + c[i];
+                    }
+                }
+                for (int i = 1; i < height; i++)
+                {
+                    mx[i] = mx[i] / width;
+                }
+            }
+            return mx;
+        }
+
+        public static Vector<double>[] Average(this Vector<double>[,] x, int axis = 0) // the same code for Matrix and Vector - NOT COOL!!!
+        {
+            var width = x.GetLength(0);
+            var height = x.GetLength(1);
+
+            Vector<double>[] mx = new Vector<double>[x.GetLength(axis)];
+
+            if (axis == 0)
+            {
+                mx = x.GetRow(0);
+                for (int i = 1; i < height; i++)
+                {
+                    Vector<double>[] r = x.GetRow(i);
+                    for (int j = 1; j < width; j++)
+                    {
+                        mx[j] = mx[j] + r[j];
+                    }
+                }
+                for (int j = 1; j < width; j++)
+                {
+                    mx[j] = mx[j] / height;
+                }
+            }
+            else
+            {
+                mx = x.GetCol(0);
+                for (int j = 1; j < width; j++)
+                {
+                    Vector<double>[] c = x.GetCol(j);
+                    for (int i = 1; i < height; i++)
+                    {
+                        mx[i] = mx[i] + c[i];
+                    }
+                }
+                for (int i = 1; i < height; i++)
+                {
+                    mx[i] = mx[i] / width;
+                }
+            }
+            return mx;
+        }
+
 
         public static Matrix<double> Average(this Matrix<double>[] x)
         {

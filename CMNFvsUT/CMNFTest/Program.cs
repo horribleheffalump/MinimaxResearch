@@ -36,13 +36,16 @@ namespace CMNFTest
             [Option('e', "test-count", Required = false, HelpText = "Number of trajectoris in the test set for dynamic models")]
             public int TestCount { get; set; }
 
-            [Option('U', "UKF", Required = false, Default = true, HelpText = "Do calculate Unscented Kalman Filter")]
+            [Option('E', "bundle-count", Required = false, Default = 1, HelpText = "Number of bundles of trajectoris in the test set for dynamic models")]
+            public int BundleCount { get; set; }
+
+            [Option('U', "UKF", Required = false, Default = false, HelpText = "Do calculate Unscented Kalman Filter")]
             public bool UKF { get; set; }
 
             [Option('b', "bound", Required = false, HelpText = "Upper bound for the state")]
             public double Bound { get; set; }
 
-            [Option('W', "DW", Required = false, Default = 1.0,  HelpText = "State noise variation")]
+            [Option('W', "DW", Required = false, Default = 1.0, HelpText = "State noise variation")]
             public double DW { get; set; }
 
             [Option('N', "DNu", Required = false, Default = 1.0, HelpText = "Observations noise variation")]
@@ -221,108 +224,46 @@ namespace CMNFTest
             }
             #endregion
 
-            #region cubic sensor
+            TestEnvironmentVector testEnv = new TestEnvironmentVector();
+
             if (o.Model == "cubic")
             {
-                TestCubicSensorScalar testCubicSensor = new TestCubicSensorScalar();
-                if (o.Bulk)
-                    testCubicSensor.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
-                else
-                {
-                    testCubicSensor.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
-                    testCubicSensor.GenerateBundle(o.TestCount, o.OutputFolder);
-                    testCubicSensor.GenerateOne(o.OutputFolder);
-                    testCubicSensor.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
-                    testCubicSensor.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
-                }
+                testEnv = new TestCubicSensorScalar();
             }
-            #endregion
-
-            #region inverse proportion good
             if (o.Model == "invprop-good")
             {
-                TestInverseProportionGoodScalar testInverseProportion = new TestInverseProportionGoodScalar();
-                if (o.Bulk)
-                    testInverseProportion.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
-                else
-                {
-                    testInverseProportion.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
-                    testInverseProportion.GenerateBundle(o.TestCount, o.OutputFolder);
-                    testInverseProportion.GenerateOne(o.OutputFolder);
-                    testInverseProportion.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
-                    testInverseProportion.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
-                }
+                testEnv = new TestInverseProportionGoodScalar();
             }
-            #endregion
-
-            #region inverse proportion bad
             if (o.Model == "invprop-bad")
             {
-                TestInverseProportionBadScalar testInverseProportion = new TestInverseProportionBadScalar(o.Bound);
-                if (o.Bulk)
-                    testInverseProportion.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
-                else
-                {
-                    testInverseProportion.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
-                    testInverseProportion.GenerateBundle(o.TestCount, o.OutputFolder);
-                    testInverseProportion.GenerateOne(o.OutputFolder);
-                    testInverseProportion.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
-                    testInverseProportion.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
-                }
+                testEnv = new TestInverseProportionBadScalar(o.Bound);
             }
-            #endregion
-
-            #region logistic regression
             if (o.Model == "logreg-simple")
             {
-                TestLogisticModelScalar testLogisticModel = new TestLogisticModelScalar(o.Bound, o.DW, o.DNu);
-                if (o.Bulk)
-                    testLogisticModel.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
-                else
-                {
-                    testLogisticModel.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
-                    testLogisticModel.GenerateBundle(o.TestCount, o.OutputFolder, o.UKF);
-                    testLogisticModel.GenerateOne(o.OutputFolder, o.UKF);
-                    testLogisticModel.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
-                    testLogisticModel.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
-                }
+                testEnv = new TestLogisticModelScalar(o.Bound, o.DW, o.DNu);
             }
-            #endregion
-
-            #region logistic regression zero
             if (o.Model == "logreg-zero")
             {
-                TestLogisticModelZeroScalar testLogisticZeroModel = new TestLogisticModelZeroScalar(o.Bound, o.DW, o.DNu);
-                if (o.Bulk)
-                    testLogisticZeroModel.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
-                else
-                {
-                    testLogisticZeroModel.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
-                    testLogisticZeroModel.GenerateBundle(o.TestCount, o.OutputFolder, o.UKF);
-                    testLogisticZeroModel.GenerateOne(o.OutputFolder, o.UKF);
-                    testLogisticZeroModel.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
-                    testLogisticZeroModel.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
-                }
+                testEnv = new TestLogisticModelZeroScalar(o.Bound, o.DW, o.DNu);
             }
-            #endregion
-
-            #region logistic regression uniform noise
             if (o.Model == "logreg-uniform")
             {
-                TestLogisticModelUniformNoiseScalar testLogisticUniformNoiseModel = new TestLogisticModelUniformNoiseScalar();
-                if (o.Bulk)
-                    testLogisticUniformNoiseModel.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
-                else
-                {
-                    testLogisticUniformNoiseModel.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
-                    testLogisticUniformNoiseModel.GenerateBundle(o.TestCount, o.OutputFolder, o.UKF);
-                    testLogisticUniformNoiseModel.GenerateOne(o.OutputFolder, o.UKF);
-                    testLogisticUniformNoiseModel.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
-                    testLogisticUniformNoiseModel.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
-                    #endregion
-                }
+                testEnv = new TestLogisticModelUniformNoiseScalar();
             }
 
+            if (o.Bulk)
+                testEnv.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
+            else
+            {
+                testEnv.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
+                if (o.BundleCount > 1)
+                    testEnv.GenerateBundles(o.BundleCount, o.TestCount, o.OutputFolder, o.UKF);
+                else
+                    testEnv.GenerateBundle(o.TestCount, o.OutputFolder, o.UKF);
+                testEnv.GenerateOne(o.OutputFolder);
+                testEnv.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
+                testEnv.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
+            }
         }
     }
 }
