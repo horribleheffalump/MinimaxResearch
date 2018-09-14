@@ -49,17 +49,17 @@ namespace UKF
     public static class UnscentedTransform
     {
         /// <summary>
-        /// The unscented transform
+        /// The unscented transform for y = Phi(x) + nu
         /// </summary>
         /// <param name="Phi">Transformation: a nonlinear function which determines the transformation of the random vector variable: y = Phi(x) + nu</param>
         /// <param name="mX">Mean of the transformed random variable</param>
         /// <param name="dX">Cov of the transformed random variable</param>
-        /// <param name="dY">Cov of the additive random variable</param>
+        /// <param name="dNu">Cov of the additive random variable</param>
         /// <param name="p">Parameters of the unscented transform</param>
         /// <param name="y">Returns: approximated mean of the transformed variable</param>
         /// <param name="Kxy">Returns: approximated cross-covariance of the initial and the transformed variable</param>
         /// <param name="Kyy">Returns: approximated covariance of the transormed variable</param>
-        public static void Transform(Func<Vector<double>, Vector<double>> Phi, Vector<double> mX, Matrix<double> dX, Matrix<double> dY, UTParams p, out Vector<double> y, out Matrix<double> Kxy, out Matrix<double> Kyy)
+        public static void Transform(Func<Vector<double>, Vector<double>> Phi, Vector<double> mX, Matrix<double> dX, Matrix<double> dNu, UTParams p, out Vector<double> y, out Matrix<double> Kxy, out Matrix<double> Kyy)
         {
             int L = mX.Count;
 
@@ -90,7 +90,7 @@ namespace UKF
                 Kxy = Kxy + p.Wc[i] * (Xi.Column(i) - mX).ToColumnMatrix() * (Upsilon.Column(i) - y).ToRowMatrix();
                 Kyy = Kyy + p.Wc[i] * (Upsilon.Column(i) - y).ToColumnMatrix() * (Upsilon.Column(i) - y).ToRowMatrix();
             }
-            Kyy = Kyy + dY;
+            Kyy = Kyy + dNu;
             //Py = Py + R;
             //return PFull;
         }
@@ -185,17 +185,17 @@ namespace UKF
             Wc = Vector<double>.Build.Dense(2 * L + 1, wi);
             Wc[0] = wc0;
         }
-        
+
         /// <summary>
         /// Get unscented transformation paramters as array
         /// </summary>
         public double[] Params
         {
-            get 
+            get
             {
                 return new double[4] { Lambda, Wm[0], Wc[0], Wm[1] };
             }
-            
+
         }
     }
 

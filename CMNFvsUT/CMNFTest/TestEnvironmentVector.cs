@@ -28,11 +28,13 @@ namespace CMNFTest
 
         public Func<int, Vector<double>, Vector<double>> Phi1;
         public Func<int, Vector<double>, Matrix<double>> Phi2;
-        public Func<int, Vector<double>, Vector<double>> Psi;
+        public Func<int, Vector<double>, Vector<double>> Psi1;
+        public Func<int, Vector<double>, Matrix<double>> Psi2;
 
         public string[] Phi1_latex;
         public string[][] Phi2_latex;
-        public string[] Psi_latex;
+        public string[] Psi1_latex;
+        public string[][] Psi2_latex;
 
         public string P_W;
         public string P_Nu;
@@ -41,7 +43,10 @@ namespace CMNFTest
 
         public Func<int, Vector<double>> W;
         public Func<int, Vector<double>> Nu;
+
+        public Vector<double> MW;
         public Matrix<double> DW;
+        public Vector<double> MNu;
         public Matrix<double> DNu;
         public Func<Vector<double>> X0;
         public Vector<double> X0Hat;
@@ -55,6 +60,8 @@ namespace CMNFTest
         public CMNFilter CMNF;
         public UKFilter UKF;
 
+        private bool useSimpleModel = true;
+
         /// <summary>
         /// Initializes the test environment by calculating the statistics for CMN and UT filters
         /// </summary>
@@ -67,13 +74,34 @@ namespace CMNFTest
             provider = new NumberFormatInfo();
             provider.NumberDecimalSeparator = ".";
 
+
+            if (Phi2 == null)
+                Phi2 = new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0));
+            else
+                useSimpleModel = false;
+
+            if (Psi2 == null)
+                Psi2 = new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0));
+            else
+                useSimpleModel = false;
+
+            if (MW == null)
+                MW = W(0) * 0.0;
+            else
+                useSimpleModel = false;
+
+            if (MNu == null)
+                MNu = Nu(0) * 0.0;
+            else
+                useSimpleModel = false;
+
             T = t;
 
             DiscreteVectorModel[] models = new DiscreteVectorModel[n];
             for (int i = 0; i < n; i++)
             {
                 Console.WriteLine($"model {i}");
-                models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi, new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0)), W, Nu, X0(), true);
+                models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
                 for (int s = 0; s < T; s++)
                 {
                     models[i].Step();
@@ -85,9 +113,16 @@ namespace CMNFTest
             CMNF.EstimateParameters(models, X0Hat, T);
 
             UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.NelderMeed);
+            //UKF.EstimateParameters(Phi1, Psi1, DW, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
+
 
             if (doCalculateUKF)
-                UKF.EstimateParameters(Phi1, Psi, DW, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
+            {
+                if (useSimpleModel)
+                    UKF.EstimateParameters(Phi1, Psi1, DW, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
+                else
+                    UKF.EstimateParameters(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
+            }
         }
 
         public TestEnvironmentVector()
@@ -111,7 +146,7 @@ namespace CMNFTest
             for (int i = 0; i < n; i++)
             {
                 Console.WriteLine($"model {i}");
-                models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi, new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0)), W, Nu, X0(), true);
+                models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
                 for (int s = 0; s < T; s++)
                 {
                     models[i].Step();
@@ -157,7 +192,7 @@ namespace CMNFTest
             string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOne));
             int dimX = X0().Count;
 
-            DiscreteVectorModel modelEst = new DiscreteVectorModel(Phi1, Phi2, Psi, new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0)), W, Nu, X0(), true);
+            DiscreteVectorModel modelEst = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
             for (int s = 0; s < T; s++)
             {
                 modelEst.Step();
@@ -185,9 +220,18 @@ namespace CMNFTest
 
                 if (doCalculateUKF)
                 {
-                    UKF.Step(Phi1, Psi, DW, DNu, t, y, xHatU, PHatU, out Vector<double> _xHatU, out Matrix<double> _PHatU);
-                    xHatU = _xHatU;
-                    PHatU = _PHatU;
+                    if (useSimpleModel)
+                    {
+                        UKF.Step(Phi1, Psi1, DW, DNu, t, y, xHatU, PHatU, out Vector<double> _xHatU, out Matrix<double> _PHatU);
+                        xHatU = _xHatU;
+                        PHatU = _PHatU;
+                    }
+                    else
+                    {
+                        UKF.Step(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, t, y, xHatU, PHatU, out Vector<double> _xHatU, out Matrix<double> _PHatU);
+                        xHatU = _xHatU;
+                        PHatU = _PHatU;
+                    }
                 }
                 Vector<double> mErrorU = x - xHatU;
 
@@ -223,7 +267,7 @@ namespace CMNFTest
             {
                 if (i % 1000 == 0) // inform every 1000-th trajectory
                     Console.WriteLine($"model {i}");
-                modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi, new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0)), W, Nu, X0(), true);
+                modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
                 for (int s = 0; s < T; s++)
                 {
                     modelsEst[i].Step();
@@ -276,11 +320,18 @@ namespace CMNFTest
                 {
                     for (int i = 0; i < n; i++)
                     {
-                        Vector<double> _xHatU;
-                        Matrix<double> _PHatU;
-                        UKF.Step(Phi1, Psi, DW, DNu, t, y[i], xHatU[i], PHatU[i], out _xHatU, out _PHatU);
-                        xHatU[i] = _xHatU;
-                        PHatU[i] = _PHatU;
+                        if (useSimpleModel)
+                        {
+                            UKF.Step(Phi1, Psi1, DW, DNu, t, y[i], xHatU[i], PHatU[i], out Vector<double> _xHatU, out Matrix<double> _PHatU);
+                            xHatU[i] = _xHatU;
+                            PHatU[i] = _PHatU;
+                        }
+                        else
+                        {
+                            UKF.Step(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, t, y[i], xHatU[i], PHatU[i], out Vector<double> _xHatU, out Matrix<double> _PHatU);
+                            xHatU[i] = _xHatU;
+                            PHatU[i] = _PHatU;
+                        }
                     }
 
                     mErrorU = (x.Subtract(xHatU)).Average();
@@ -345,13 +396,13 @@ namespace CMNFTest
             {
                 Console.WriteLine($"GenerateBundle {m}");
                 DiscreteVectorModel[] modelsEst = new DiscreteVectorModel[n];
-       
+
 
                 for (int i = 0; i < n; i++)
                 {
                     if (i % 1000 == 0) // inform every 1000-th trajectory
                         Console.WriteLine($"model {i}");
-                    modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi, new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0)), W, Nu, X0(), true);
+                    modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
                     for (int s = 0; s < T; s++)
                     {
                         modelsEst[i].Step();
@@ -362,6 +413,9 @@ namespace CMNFTest
 
                 Vector<double>[] xHatU = Enumerable.Repeat(X0Hat, n).ToArray();
                 Matrix<double>[] PHatU = Enumerable.Repeat(DX0Hat, n).ToArray();
+
+                Vector<double>[] xHatU2 = Enumerable.Repeat(X0Hat, n).ToArray();
+                Matrix<double>[] PHatU2 = Enumerable.Repeat(DX0Hat, n).ToArray();
 
                 Console.WriteLine($"calculate estimates");
                 for (int t = 0; t < T; t++)
@@ -377,38 +431,45 @@ namespace CMNFTest
                         xHat[i] = CMNF.Step(t, y[i], xHat[i]);
                     }
 
-                    mx[m,t] = x.Average();
-                    Dx[m,t] = Exts.Cov(x, x);
+                    mx[m, t] = x.Average();
+                    Dx[m, t] = Exts.Cov(x, x);
 
-                    mxHat[m,t] = xHat.Average();
+                    mxHat[m, t] = xHat.Average();
 
-                    mError[m,t] = (x.Subtract(xHat)).Average();
-                    DError[m,t] = Exts.Cov(x.Subtract(xHat), x.Subtract(xHat));
+                    mError[m, t] = (x.Subtract(xHat)).Average();
+                    DError[m, t] = Exts.Cov(x.Subtract(xHat), x.Subtract(xHat));
 
 
-                    mErrorU[m,t] = Vector<double>.Build.Dense(dimX, 0);
-                    DErrorU[m,t] = Matrix<double>.Build.Dense(dimX, dimX, 0);
+                    mErrorU[m, t] = Vector<double>.Build.Dense(dimX, 0);
+                    DErrorU[m, t] = Matrix<double>.Build.Dense(dimX, dimX, 0);
 
-                    mxHatU[m,t] = Vector<double>.Build.Dense(dimX, 0);
-                    mPHatU[m,t] = Matrix<double>.Build.Dense(dimX, dimX, 0);
+                    mxHatU[m, t] = Vector<double>.Build.Dense(dimX, 0);
+                    mPHatU[m, t] = Matrix<double>.Build.Dense(dimX, dimX, 0);
 
 
                     if (doCalculateUKF)
                     {
                         for (int i = 0; i < n; i++)
                         {
-                            Vector<double> _xHatU;
-                            Matrix<double> _PHatU;
-                            UKF.Step(Phi1, Psi, DW, DNu, t, y[i], xHatU[i], PHatU[i], out _xHatU, out _PHatU);
-                            xHatU[i] = _xHatU;
-                            PHatU[i] = _PHatU;
+                            if (useSimpleModel)
+                            {
+                                UKF.Step(Phi1, Psi1, DW, DNu, t, y[i], xHatU[i], PHatU[i], out Vector<double> _xHatU, out Matrix<double> _PHatU);
+                                xHatU[i] = _xHatU;
+                                PHatU[i] = _PHatU;
+                            }
+                            else
+                            {
+                                UKF.Step(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, t, y[i], xHatU[i], PHatU[i], out Vector<double> _xHatU, out Matrix<double> _PHatU);
+                                xHatU[i] = _xHatU;
+                                PHatU[i] = _PHatU;
+                            }
                         }
 
-                        mErrorU[m,t] = (x.Subtract(xHatU)).Average();
-                        DErrorU[m,t] = Exts.Cov(x.Subtract(xHatU), x.Subtract(xHatU));
+                        mErrorU[m, t] = (x.Subtract(xHatU)).Average();
+                        DErrorU[m, t] = Exts.Cov(x.Subtract(xHatU), x.Subtract(xHatU));
 
-                        mxHatU[m,t] = xHatU.Average();
-                        mPHatU[m,t] = PHatU.Average();
+                        mxHatU[m, t] = xHatU.Average();
+                        mPHatU[m, t] = PHatU.Average();
                     }
                 }
             }
@@ -427,7 +488,7 @@ namespace CMNFTest
                     using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString()), true))
                     {
                         outputfile.Write(string.Format(provider, "{0} {1} {2} {3} {4} {5} {6}",
-                            t, mx.Average(axis:1)[t][k], Dx.Average(axis: 1)[t][k, k], mxHat.Average(axis: 1)[t][k], mError.Average(axis: 1)[t][k], DError.Average(axis: 1)[t][k, k], CMNF.KHat[t][k, k]
+                            t, mx.Average(axis: 1)[t][k], Dx.Average(axis: 1)[t][k, k], mxHat.Average(axis: 1)[t][k], mError.Average(axis: 1)[t][k], DError.Average(axis: 1)[t][k, k], CMNF.KHat[t][k, k]
                             ));
 
                         outputfile.Write(string.Format(provider, " {0} {1} {2} {3}",
@@ -443,6 +504,8 @@ namespace CMNFTest
 
         public void ProcessResults(string dataFolder, string scriptsFolder, string outputFolder)
         {
+            Console.WriteLine("Running scripts");
+
             string[] scriptNamesOne = new string[] { "process_sample", "estimate_sample" };
             string[] scriptNamesMany = new string[] { "process_statistics", "estimate_statistics" };
 
@@ -453,6 +516,7 @@ namespace CMNFTest
 
             foreach (string s in scriptNamesOne)
             {
+                Console.WriteLine($"Running {s}");
                 RunScript(
                         Path.Combine(scriptsFolder, s + ".py"),
                         new string[] {
@@ -462,6 +526,7 @@ namespace CMNFTest
             }
             foreach (string s in scriptNamesMany)
             {
+                Console.WriteLine($"Running {s}");
                 RunScript(
                         Path.Combine(scriptsFolder, s + ".py"),
                         new string[] {
@@ -507,9 +572,10 @@ namespace CMNFTest
         {
             Dictionary<string, string> replacements = new Dictionary<string, string>();
             replacements.Add("%Title%", TestName);
-            replacements.Add("%phi1%", Phi1_latex.ToLatex());
-            replacements.Add("%phi2%", Phi2_latex.ToLatex());
-            replacements.Add("%psi%", Psi_latex.ToLatex());
+            replacements.Add("%phi1%", Phi1_latex == null ? "" : Phi1_latex.ToLatex());
+            replacements.Add("%phi2%", Phi2_latex == null ? "" : Phi2_latex.ToLatex());
+            replacements.Add("%psi1%", Psi1_latex == null ? "" : Psi1_latex.ToLatex());
+            replacements.Add("%psi2%", Psi2_latex == null ? "" : Psi2_latex.ToLatex());
             replacements.Add("%P_w%", P_W);
             replacements.Add("%P_nu%", P_Nu);
             replacements.Add("%P_eta%", P_Eta);
