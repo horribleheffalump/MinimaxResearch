@@ -106,13 +106,14 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="TestCubicSensor.cs" />
+    <Compile Include="TestEnvs\TestCubicSensor.cs" />
     <Compile Include="TestEnvironmentScalar.cs" />
     <Compile Include="TestEnvironmentStatic.cs" />
     <Compile Include="TestEnvironmentVector.cs" />
-    <Compile Include="TestInverseProportion.cs" />
-    <Compile Include="TestLogisticModel.cs" />
-    <Compile Include="TestPolar.cs" />
+    <Compile Include="TestEnvs\TestInverseProportion.cs" />
+    <Compile Include="TestEnvs\TestLogisticModel.cs" />
+    <Compile Include="TestEnvs\TestPolar.cs" />
+    <Compile Include="TestEnvs\TestSampledRegression.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CMNF\CMNF.csproj">

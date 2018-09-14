@@ -21,7 +21,7 @@ namespace CMNFTest
     {
         public class Options
         {
-            [Option('m', "model", Required = true, HelpText = "Model name, one of: sphere, polar, cubic, invprop-good, invprop-bad, logreg-simple, logreg-zero, logreg-uniform")]
+            [Option('m', "model", Required = true, HelpText = "Model name, one of: sphere, polar, cubic, invprop-good, invprop-bad, logreg-simple, logreg-zero, logreg-uniform, samplereg")]
             public string Model { get; set; }
 
             [Option('n', "samples", Required = false, HelpText = "Number of samples for static models (sphere and polar)")]
@@ -250,6 +250,10 @@ namespace CMNFTest
             {
                 testEnv = new TestLogisticModelUniformNoiseScalar();
             }
+            if (o.Model == "samplereg")
+            {
+                testEnv = new TestSampledRegression();
+            }
 
             if (o.Bulk)
                 testEnv.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
@@ -260,7 +264,7 @@ namespace CMNFTest
                     testEnv.GenerateBundles(o.BundleCount, o.TestCount, o.OutputFolder, o.UKF);
                 else
                     testEnv.GenerateBundle(o.TestCount, o.OutputFolder, o.UKF);
-                testEnv.GenerateOne(o.OutputFolder);
+                testEnv.GenerateOne(o.OutputFolder, o.UKF);
                 testEnv.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
                 testEnv.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
             }

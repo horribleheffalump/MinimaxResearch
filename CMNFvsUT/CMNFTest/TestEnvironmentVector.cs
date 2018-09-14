@@ -62,19 +62,8 @@ namespace CMNFTest
 
         private bool useSimpleModel = true;
 
-        /// <summary>
-        /// Initializes the test environment by calculating the statistics for CMN and UT filters
-        /// </summary>
-        /// <param name="doCalculateUKF"></param>
-        /// <param name="t">time interval right margin (number of steps)</param>
-        /// <param name="n">number of trajectories</param>
-        public void Initialize(int t, int n, bool doCalculateUKF, string outputFolder)
+        private void HandleNulls()
         {
-            Console.WriteLine("Init");
-            provider = new NumberFormatInfo();
-            provider.NumberDecimalSeparator = ".";
-
-
             if (Phi2 == null)
                 Phi2 = new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0));
             else
@@ -94,6 +83,21 @@ namespace CMNFTest
                 MNu = Nu(0) * 0.0;
             else
                 useSimpleModel = false;
+        }
+
+        /// <summary>
+        /// Initializes the test environment by calculating the statistics for CMN and UT filters
+        /// </summary>
+        /// <param name="doCalculateUKF"></param>
+        /// <param name="t">time interval right margin (number of steps)</param>
+        /// <param name="n">number of trajectories</param>
+        public void Initialize(int t, int n, bool doCalculateUKF, string outputFolder)
+        {
+            Console.WriteLine("Init");
+            provider = new NumberFormatInfo();
+            provider.NumberDecimalSeparator = ".";
+
+            HandleNulls();
 
             T = t;
 
@@ -137,6 +141,8 @@ namespace CMNFTest
         /// <param name="n">number of trajectories</param>
         public void GenerateBundleSamples(int t, int n, string outputFolder)
         {
+            HandleNulls();
+
             provider = new NumberFormatInfo();
             provider.NumberDecimalSeparator = ".";
 
