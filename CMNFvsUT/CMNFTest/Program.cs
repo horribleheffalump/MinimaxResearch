@@ -252,7 +252,7 @@ namespace CMNFTest
             }
             if (o.Model == "samplereg")
             {
-                testEnv = new TestSampledRegression();
+                testEnv = new TestSampledRegression(o.DNu);
             }
 
             if (o.Bulk)

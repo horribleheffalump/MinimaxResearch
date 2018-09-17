@@ -193,6 +193,25 @@ TODO: all methods are duplicated. NOT COOL.
 
 
 ---
+#### Method UKFilter.Step(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}@,MathNet.Numerics.LinearAlgebra.Matrix{System.Double}@)
+
+ For the model x_{t+1} = Phi(x_t) + W_t y_t = Psi(x_t) + Nu_t Performs a step of Unscented Kalman Filter with fixed transformation parameters for forecast and correction phases (utParamsForecast and utParamsCorrection must be initialized) 
+
+|Name | Description |
+|-----|------|
+|Phi: |State transformation: a nonlinear function which determines the dynamics: x_{t+1} = Phi(x_t) + W_t|
+|Psi: |Observations transformation: a nonlinear function which determines the relation between the state and the observations: y[t] = Psi(x_t) + Nu_t|
+|Rw: |Covariance matrix of the state disturbances|
+|Rnu: |Convariance matrix of the observation noise|
+|t: |Current step time instant|
+|y: |Observations on the current step|
+|xHat_: |Estimate on the previous step|
+|P_: |Approximated previous step error covariance|
+|xHat: |Returns: current step estimate|
+|P: |Returns: approximated current step error covariance|
+
+
+---
 #### Method UKFilter.Step(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},UKF.UTParams,UKF.UTParams,System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}@,MathNet.Numerics.LinearAlgebra.Matrix{System.Double}@)
 
  For the model x_{t+1} = Phi_1(x_t) + Phi_2(x_t) W_t y_t = Psi_1(x_t) + Psi_2(x_t) Nu_t Performs a step of Unscented Kalman Filter given the particular unscented transform parameters for forecast and correction phases 
@@ -220,7 +239,7 @@ TODO: all methods are duplicated. NOT COOL.
 ---
 #### Method UKFilter.Step(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}@,MathNet.Numerics.LinearAlgebra.Matrix{System.Double}@)
 
- For the model x_{t+1} = Phi(x_t) + W_t y_t = Psi(x_t) + Nu_t Performs a step of Unscented Kalman Filter with fixed transformation parameters for forecast and correction phases (utParamsForecast and utParamsCorrection must be initialized) 
+ For the model x_{t+1} = Phi_1(x_t) + Phi_2(x_t) W_t y_t = Psi_1(x_t) + Psi_2(x_t) Nu_t Performs a step of Unscented Kalman Filter with fixed transformation parameters for forecast and correction phases (utParamsForecast and utParamsCorrection must be initialized) 
 
 |Name | Description |
 |-----|------|
@@ -231,25 +250,6 @@ TODO: all methods are duplicated. NOT COOL.
 |Mw: |Mean of the noise in the dynamics equation |
 |Rw: |Covariance matrix of the state disturbances|
 |Mnu: |Mean of the noise in the obseration equation |
-|Rnu: |Convariance matrix of the observation noise|
-|t: |Current step time instant|
-|y: |Observations on the current step|
-|xHat_: |Estimate on the previous step|
-|P_: |Approximated previous step error covariance|
-|xHat: |Returns: current step estimate|
-|P: |Returns: approximated current step error covariance|
-
-
----
-#### Method UKFilter.Step(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}@,MathNet.Numerics.LinearAlgebra.Matrix{System.Double}@)
-
- For the model x_{t+1} = Phi_1(x_t) + Phi_2(x_t) W_t y_t = Psi_1(x_t) + Psi_2(x_t) Nu_t Performs a step of Unscented Kalman Filter with fixed transformation parameters for forecast and correction phases (utParamsForecast and utParamsCorrection must be initialized) 
-
-|Name | Description |
-|-----|------|
-|Phi: |State transformation: a nonlinear function which determines the dynamics: x_{t+1} = Phi(x_t) + W_t|
-|Psi: |Observations transformation: a nonlinear function which determines the relation between the state and the observations: y[t] = Psi(x_t) + Nu_t|
-|Rw: |Covariance matrix of the state disturbances|
 |Rnu: |Convariance matrix of the observation noise|
 |t: |Current step time instant|
 |y: |Observations on the current step|
