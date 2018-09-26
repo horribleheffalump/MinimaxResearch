@@ -42,6 +42,9 @@ namespace CMNFTest
             [Option('U', "UKF", Required = false, Default = false, HelpText = "Do calculate Unscented Kalman Filter")]
             public bool UKF { get; set; }
 
+            [Option('S', "UKF-stepwise", Required = false, Default = false, HelpText = "Do calculate Unscented Kalman Filter with stepwise parameter estimation")]
+            public bool UKFStepwise { get; set; }
+
             [Option('b', "bound", Required = false, HelpText = "Upper bound for the state")]
             public double Bound { get; set; }
 
@@ -259,7 +262,7 @@ namespace CMNFTest
                 testEnv.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
             else
             {
-                testEnv.Initialize(o.T, o.TrainCount, o.UKF, o.OutputFolder);
+                testEnv.Initialize(o.T, o.TrainCount, o.UKF, o.UKFStepwise, o.OutputFolder);
                 if (o.BundleCount > 1)
                     testEnv.GenerateBundles(o.BundleCount, o.TestCount, o.OutputFolder, o.UKF);
                 else

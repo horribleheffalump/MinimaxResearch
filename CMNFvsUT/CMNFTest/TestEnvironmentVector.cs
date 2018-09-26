@@ -88,10 +88,12 @@ namespace CMNFTest
         /// <summary>
         /// Initializes the test environment by calculating the statistics for CMN and UT filters
         /// </summary>
-        /// <param name="doCalculateUKF"></param>
         /// <param name="t">time interval right margin (number of steps)</param>
         /// <param name="n">number of trajectories</param>
-        public void Initialize(int t, int n, bool doCalculateUKF, string outputFolder)
+        /// <param name="doCalculateUKF"></param>
+        /// <param name="doCalculateUKFStepwise"></param>
+        /// <param name="outputFolder"></param>
+        public void Initialize(int t, int n, bool doCalculateUKF, bool doCalculateUKFStepwise, string outputFolder)
         {
             Console.WriteLine("Init");
             provider = new NumberFormatInfo();
@@ -120,12 +122,21 @@ namespace CMNFTest
             //UKF.EstimateParameters(Phi1, Psi1, DW, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
 
 
-            if (doCalculateUKF)
+            if (doCalculateUKFStepwise)
             {
-                if (useSimpleModel)
-                    UKF.EstimateParameters(Phi1, Psi1, DW, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
-                else
-                    UKF.EstimateParameters(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
+                Console.WriteLine($"UKF estimate parameters stepwise");
+                UKF.EstimateParametersStepwise(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
+            }
+            else
+            {
+                Console.WriteLine($"UKF estimate parameters");
+                if (doCalculateUKF)
+                {
+                    if (useSimpleModel)
+                        UKF.EstimateParameters(Phi1, Psi1, DW, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
+                    else
+                        UKF.EstimateParameters(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
+                }
             }
         }
 
