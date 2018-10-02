@@ -12,14 +12,15 @@ namespace CMNFTest
 {
     public class TestCubicSensor : TestEnvironmentVector
     {
-        public TestCubicSensor()
+        public TestCubicSensor(double _dw, double _dnu)
         {
             TestName = "Кубический сенсор";
             TestFileName = "CubicSensor";
 
-            Vector<double> mW = Exts.Vector(0, 0); Matrix<double> dW = Exts.Diag(1, 1);
-            Vector<double> mNu = Exts.Vector(0, 0); Matrix<double> dNu = Exts.Diag(1, 1);
-            Vector<double> mEta = Exts.Vector(100, 100); Matrix<double> dEta = Exts.Diag(100, 100);
+            Vector<double> mW = Exts.Vector(0, 0); Matrix<double> dW = Exts.Diag(_dw, _dw);
+            Vector<double> mNu = Exts.Vector(0, 0); Matrix<double> dNu = Exts.Diag(_dnu, _dnu);
+            //Vector<double> mEta = Exts.Vector(100, 100); Matrix<double> dEta = Exts.Diag(100, 100);
+            Vector<double> mEta = Exts.Vector(0, 0); Matrix<double> dEta = Exts.Diag(1, 1);
             Func<int, Vector<double>, Vector<double>> phi = (s, x) => Exts.Vector(x[0] / (1 + x[0] * x[0]), x[1] / (1 + x[1] * x[1]));
             Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(Math.Pow(x[0], 3) + Math.Pow(x[0], 1), Math.Pow(x[1], 3) + Math.Pow(x[1], 1));
             Func<int, Vector<double>, Matrix<double>> psi_test = (s, x) => Matrix<double>.Build.Dense(1, 1, 1.0);
@@ -49,18 +50,22 @@ namespace CMNFTest
             X0 = () => Exts.Vector(NormalEta[0].Sample(), NormalEta[1].Sample());
             X0Hat = mEta;
             DX0Hat = dEta;
+
+            useSimpleModel = false;
+
         }
     }
     public class TestCubicSensorScalar : TestEnvironmentVector
     {
-        public TestCubicSensorScalar()
+        public TestCubicSensorScalar(double _dw, double _dnu)
         {
             TestName = "Кубический сенсор";
             TestFileName = "CubicSensor";
 
-            Vector<double> mW = Exts.Vector(0); Matrix<double> dW = Exts.Diag(1);
-            Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(1);
-            Vector<double> mEta = Exts.Vector(100); Matrix<double> dEta = Exts.Diag(100);
+            Vector<double> mW = Exts.Vector(0); Matrix<double> dW = Exts.Diag(_dw);
+            Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(_dnu);
+            //Vector<double> mEta = Exts.Vector(100); Matrix<double> dEta = Exts.Diag(100);
+            Vector<double> mEta = Exts.Vector(0.1); Matrix<double> dEta = Exts.Diag(1);
             Func<int, Vector<double>, Vector<double>> phi = (s, x) => Exts.Vector(x[0] / (1 + x[0] * x[0]));
             Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(Math.Pow(x[0], 3) + Math.Pow(x[0], 1));
             Func<int, Vector<double>, Matrix<double>> dpsi = (s, x) => Exts.Matrix(3.0 * Math.Pow(x[0], 2) + 1.0);
@@ -92,6 +97,8 @@ namespace CMNFTest
             X0 = () => Exts.Vector(NormalEta[0].Sample());
             X0Hat = mEta;
             DX0Hat = dEta;
+
+            useSimpleModel = false;
         }
 
     }

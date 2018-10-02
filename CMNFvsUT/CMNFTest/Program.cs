@@ -45,6 +45,9 @@ namespace CMNFTest
             [Option('S', "UKF-stepwise", Required = false, Default = false, HelpText = "Do calculate Unscented Kalman Filter with stepwise parameter estimation")]
             public bool UKFStepwise { get; set; }
 
+            [Option('R', "UKF-randomshoot", Required = false, Default = false, HelpText = "Do optimize Unscented Kalman Filter parameters with random shoot method")]
+            public bool UKFRandomShoot { get; set; }
+
             [Option('b', "bound", Required = false, HelpText = "Upper bound for the state")]
             public double Bound { get; set; }
 
@@ -231,15 +234,15 @@ namespace CMNFTest
 
             if (o.Model == "cubic")
             {
-                testEnv = new TestCubicSensorScalar();
+                testEnv = new TestCubicSensorScalar(o.DW, o.DNu);
             }
             if (o.Model == "invprop-good")
             {
-                testEnv = new TestInverseProportionGoodScalar();
+                testEnv = new TestInverseProportionGoodScalar(o.Bound, o.DW, o.DNu);
             }
             if (o.Model == "invprop-bad")
             {
-                testEnv = new TestInverseProportionBadScalar(o.Bound);
+                testEnv = new TestInverseProportionBadScalar(o.Bound, o.DW, o.DNu);
             }
             if (o.Model == "logreg-simple")
             {
@@ -262,7 +265,7 @@ namespace CMNFTest
                 testEnv.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
             else
             {
-                testEnv.Initialize(o.T, o.TrainCount, o.UKF, o.UKFStepwise, o.OutputFolder);
+                testEnv.Initialize(o.T, o.TrainCount, o.UKF, o.UKFStepwise, o.UKFRandomShoot, o.OutputFolder);
                 if (o.BundleCount > 1)
                     testEnv.GenerateBundles(o.BundleCount, o.TestCount, o.OutputFolder, o.UKF);
                 else

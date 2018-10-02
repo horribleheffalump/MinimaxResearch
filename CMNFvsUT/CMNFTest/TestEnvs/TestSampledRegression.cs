@@ -19,8 +19,7 @@ namespace CMNFTest
                 Vector<double> c = Exts.Vector(0.9, 1.5, 2.5);
                 Vector<double> d = Exts.Vector(0.33, 0.37, 0.3);
                 Vector<double> m = Exts.Vector(b[0] / (1 - a[0]), b[1] / (1 - a[1]), b[2] / (1 - a[2]));
-                //Vector<double> S = Exts.Vector(c[0] / Math.Sqrt(1 - a[0] * a[0]), c[1] / Math.Sqrt(1 - a[1] * a[1]), c[2] / Math.Sqrt(1 - a[2] * a[2]));
-                Vector<double> S = Exts.Vector(c[0] / (1 - a[0]), c[1] / (1 - a[1]), c[2] / (1 - a[2]));
+                Vector<double> S = Exts.Vector(c[0] / Math.Sqrt(1 - a[0] * a[0]), c[1] / Math.Sqrt(1 - a[1] * a[1]), c[2] / Math.Sqrt(1 - a[2] * a[2]));
 
                 Func<double, int> I = x =>
                 {
@@ -53,18 +52,18 @@ namespace CMNFTest
                 Phi1 = phi1;
                 Phi2 = phi2;
                 Psi1 = psi;
-                //Xi = (s, x) => phi1(s, x) + phi2(s, x) * mW;
-                Xi = (s, x) =>
-                {
-                    double num = 0;
-                    double den = 0;
-                    for (int i = 0; i < a.Count; i++)
-                    {
-                        num += d[i] * Normal.PDF(m[i], S[i], x[0]) * (a[i] * x[0] + b[i]);
-                        den += d[i] * Normal.PDF(m[i], S[i], x[0]);
-                    }
-                    return Exts.Vector(num / den);
-                };
+                Xi = (s, x) => phi1(s, x) + phi2(s, x) * mW;
+                //Xi = (s, x) =>
+                //{
+                //    double num = 0;
+                //    double den = 0;
+                //    for (int i = 0; i < a.Count; i++)
+                //    {
+                //        num += d[i] * Normal.PDF(m[i], S[i], x[0]) * (a[i] * x[0] + b[i]);
+                //        den += d[i] * Normal.PDF(m[i], S[i], x[0]);
+                //    }
+                //    return Exts.Vector(num / den);
+                //};
                 Zeta = (s, x, y, k) => y - psi(s, x) - mNu;
                 W = (s) => Exts.Vector(NormalW[0].Sample());
                 Nu = (s) => Exts.Vector(NormalNu[0].Sample());
@@ -73,6 +72,8 @@ namespace CMNFTest
                 X0 = () => Exts.Vector(NormalEta[0].Sample());
                 X0Hat = mEta;
                 DX0Hat = dEta;
+
+                useSimpleModel = false;
             }
         }
     }

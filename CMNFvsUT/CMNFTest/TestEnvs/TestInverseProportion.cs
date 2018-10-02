@@ -12,15 +12,22 @@ namespace CMNFTest
 {
     class TestInverseProportionGoodScalar : TestEnvironmentVector
     {
-        public TestInverseProportionGoodScalar()
+        public TestInverseProportionGoodScalar(double bound, double _dw, double _dnu)
         {
             TestName = "Обратнопропорциональная зависимость (уст)";
             TestFileName = "InverseProportionGood";
 
-            Vector<double> mW = Exts.Vector(0); Matrix<double> dW = Exts.Diag(10);
-            Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(1);
-            Vector<double> mEta = Exts.Vector(3.0); Matrix<double> dEta = Exts.Diag(1.0 + 1e-6); // small values are for regularization
-            Func<int, Vector<double>, Vector<double>> phi = (s, x) => Exts.Vector(1.0 / (Math.Sign(x[0]) * Math.Pow(Math.Abs(x[0]), 1.0 / 3.0)));
+            Vector<double> mW = Exts.Vector(0); Matrix<double> dW = Exts.Diag(_dw);
+            Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(_dnu);
+            Vector<double> mEta = Exts.Vector(3.01); Matrix<double> dEta = Exts.Diag(1.0 + 1e-6); // small values are for regularization
+            Func<int, Vector<double>, Vector<double>> phi = (s, x) =>
+            {
+                var res = Math.Min(bound, 1.0 / (Math.Sign(x[0]) * Math.Pow(Math.Abs(x[0]), 1.0 / 3.0)));
+                if (double.IsNaN(res) || double.IsInfinity(res))
+                    return Exts.Vector(bound);
+                else
+                    return Exts.Vector(res);
+            };
             Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(x[0]);
 
             Phi1_latex = new string[] { @"\frac{1}{\sqrt[3]{x_t}}" };
@@ -47,20 +54,29 @@ namespace CMNFTest
             X0 = () => Exts.Vector(NormalEta[0].Sample());
             X0Hat = mEta;
             DX0Hat = dEta;
+
+            useSimpleModel = false;
         }
     }
 
     class TestInverseProportionBadScalar : TestEnvironmentVector
     {
-        public TestInverseProportionBadScalar(double bound)
+        public TestInverseProportionBadScalar(double bound, double _dw, double _dnu)
         {
             TestName = "Обратнопропорциональная зависимость (неуст)";
             TestFileName = "InverseProportionBad";
 
-            Vector<double> mW = Exts.Vector(0); Matrix<double> dW = Exts.Diag(10);
-            Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(1);
-            Vector<double> mEta = Exts.Vector(3.0); Matrix<double> dEta = Exts.Diag(1.0); // small values are for regularization
-            Func<int, Vector<double>, Vector<double>> phi = (s, x) => Exts.Vector(Math.Min(bound, 1.0 / Math.Pow(Math.Abs(x[0]), 2.0)));
+            Vector<double> mW = Exts.Vector(0); Matrix<double> dW = Exts.Diag(_dw);
+            Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(_dnu);
+            Vector<double> mEta = Exts.Vector(3.01); Matrix<double> dEta = Exts.Diag(1.0 + 1e-6); // small values are for regularization
+            Func<int, Vector<double>, Vector<double>> phi = (s, x) =>
+            {
+                var res = Math.Min(bound, 1.0 / Math.Pow(Math.Abs(x[0]), 2.0));
+                if (double.IsNaN(res) || double.IsInfinity(res))
+                    return Exts.Vector(bound);
+                else
+                    return Exts.Vector(res);
+            };
             Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(x[0]);
 
             Phi1_latex = new string[] { @"min(" + bound.ToString() + @",\frac{1}{x_t^2})" };
@@ -87,6 +103,8 @@ namespace CMNFTest
             X0 = () => Exts.Vector(NormalEta[0].Sample());
             X0Hat = mEta;
             DX0Hat = dEta;
+
+            useSimpleModel = false;
         }
     }
 }

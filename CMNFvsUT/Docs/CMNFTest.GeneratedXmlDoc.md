@@ -70,7 +70,7 @@
 
 
 ---
-#### Method TestEnvironmentVector.Initialize(System.Int32,System.Int32,System.Boolean,System.Boolean,System.String)
+#### Method TestEnvironmentVector.Initialize(System.Int32,System.Int32,System.Boolean,System.Boolean,System.Boolean,System.String)
 
  Initializes the test environment by calculating the statistics for CMN and UT filters 
 

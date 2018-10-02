@@ -191,8 +191,8 @@ namespace UKF
                     n = 3;
                     lowerBound = Exts.Vector(0, 0, 0);
                     upperBound = Exts.Vector(5, 5, 5);
-                    //initialGuess = Exts.Vector(1, 2, 1);
-                    initialGuess = Exts.Vector(3, 2, 1);
+                    initialGuess = Exts.Vector(1, 2, 1);
+                    //initialGuess = Exts.Vector(3, 2, 1);
                     filename = filename.Replace("{type}", "ImplicitABK"); break;
                 case UTDefinitionType.Explicit:
                     n = 4;
@@ -891,15 +891,23 @@ namespace UKF
                                 out Vector<double> xHat,
                                 out Matrix<double> PHat)
         {
-            UnscentedTransform.Transform(x => Phi1(t, x) + Phi2(t, x) * Mw, xHat_, P_, Phi2(t, xHat_) * Rw * Phi2(t, xHat_).Transpose(), p1, out Vector<double> Xtilde, out _, out Matrix<double> Ptilde);
-            //UnscentedTransform.Transform(x => Phi1(t, x), xHat_, P_, Rw, p1, out Vector<double> Xtilde2, out _, out Matrix<double> Ptilde2);
-            UnscentedTransform.Transform(x => Psi1(t, x) + Psi2(t, x) * Mnu, Xtilde, Ptilde, Psi2(t, Xtilde) * Rnu * Psi2(t, Xtilde).Transpose(), p2, out Vector<double> Ytilde, out Matrix<double> PXY, out Matrix<double> PYtilde);
-            //UnscentedTransform.Transform(x => Psi1(t, x), Xtilde, Ptilde, Rnu, p2, out Vector<double> Ytilde2, out Matrix<double> PXY2, out Matrix<double> PYtilde2);
+            try
+            {
+                UnscentedTransform.Transform(x => Phi1(t, x) + Phi2(t, x) * Mw, xHat_, P_, Phi2(t, xHat_) * Rw * Phi2(t, xHat_).Transpose(), p1, out Vector<double> Xtilde, out _, out Matrix<double> Ptilde);
+                //UnscentedTransform.Transform(x => Phi1(t, x), xHat_, P_, Rw, p1, out Vector<double> Xtilde2, out _, out Matrix<double> Ptilde2);
+                UnscentedTransform.Transform(x => Psi1(t, x) + Psi2(t, x) * Mnu, Xtilde, Ptilde, Psi2(t, Xtilde) * Rnu * Psi2(t, Xtilde).Transpose(), p2, out Vector<double> Ytilde, out Matrix<double> PXY, out Matrix<double> PYtilde);
+                //UnscentedTransform.Transform(x => Psi1(t, x), Xtilde, Ptilde, Rnu, p2, out Vector<double> Ytilde2, out Matrix<double> PXY2, out Matrix<double> PYtilde2);
 
-            Matrix<double> K = PXY * PYtilde.Inverse();
-            xHat = Xtilde + K * (y - Ytilde);
-            PHat = Ptilde - K * PYtilde * K.Transpose();
-
+                Matrix<double> K = PXY * PYtilde.Inverse();
+                xHat = Xtilde + K * (y - Ytilde);
+                PHat = Ptilde - K * PYtilde * K.Transpose();
+            }
+            catch (Exception e)
+            {
+                xHat = xHat_;
+                PHat = P_;
+                Console.WriteLine(e.Message);
+            }
             //Matrix<double> K2 = PXY2 * PYtilde2.Inverse();
             //Vector<double> xHat2 = Xtilde2 + K2 * (y - Ytilde2);
             //Matrix<double> PHat2 = Ptilde2 - K2 * PYtilde2 * K2.Transpose();

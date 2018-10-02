@@ -60,7 +60,7 @@ namespace CMNFTest
         public CMNFilter CMNF;
         public UKFilter UKF;
 
-        private bool useSimpleModel = true;
+        public bool useSimpleModel = true;
 
         private void HandleNulls()
         {
@@ -93,7 +93,7 @@ namespace CMNFTest
         /// <param name="doCalculateUKF"></param>
         /// <param name="doCalculateUKFStepwise"></param>
         /// <param name="outputFolder"></param>
-        public void Initialize(int t, int n, bool doCalculateUKF, bool doCalculateUKFStepwise, string outputFolder)
+        public void Initialize(int t, int n, bool doCalculateUKF, bool doCalculateUKFStepwise, bool doOptimizeWithRandomShoot, string outputFolder)
         {
             Console.WriteLine("Init");
             provider = new NumberFormatInfo();
@@ -118,9 +118,11 @@ namespace CMNFTest
             CMNF = new CMNFilter(Xi, Zeta);
             CMNF.EstimateParameters(models, X0Hat, T);
 
-            UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.NelderMeed);
-            //UKF.EstimateParameters(Phi1, Psi1, DW, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
-
+            if (doOptimizeWithRandomShoot)
+                UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.RandomShoot);
+            else
+                UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.NelderMeed);
+    
 
             if (doCalculateUKFStepwise)
             {
