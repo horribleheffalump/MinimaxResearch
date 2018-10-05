@@ -206,9 +206,13 @@ namespace CMNFTest
 
         }
 
-        public void GenerateOne(string folderName, bool doCalculateUKF = true)
+        public void GenerateOne(string folderName, bool doCalculateUKF = true, int? n = null)
         {
-            string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOne));
+            string fileName = "";
+            if (n == null)
+                fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOne));
+            else
+                fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOne + "_" + n.ToString()));
             int dimX = X0().Count;
 
             DiscreteVectorModel modelEst = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);

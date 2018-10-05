@@ -72,6 +72,10 @@ namespace CMNFTest
             [Option('B', "bulk", Required = false, Default = false, HelpText = "Bulk output of the state process trajectories bundle")]
             public bool Bulk { get; set; }
 
+            [Option('G', "generate-samples", Required = false, Default = 1, HelpText = "Number of single trajectories to generate")]
+            public int SamplesCount { get; set; }
+
+
 
 
         }
@@ -270,7 +274,15 @@ namespace CMNFTest
                     testEnv.GenerateBundles(o.BundleCount, o.TestCount, o.OutputFolder, o.UKF);
                 else
                     testEnv.GenerateBundle(o.TestCount, o.OutputFolder, o.UKF);
-                testEnv.GenerateOne(o.OutputFolder, o.UKF);
+                if (o.SamplesCount == 1)
+                    testEnv.GenerateOne(o.OutputFolder, o.UKF);
+                else
+                {
+                    for (int i = 0; i < o.SamplesCount; i++)
+                    {
+                        testEnv.GenerateOne(o.OutputFolder, o.UKF, i);
+                    }
+                }
                 testEnv.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
                 testEnv.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
             }

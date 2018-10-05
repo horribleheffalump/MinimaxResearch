@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>adc1803e-e8b1-4a29-92d1-d159bfc60216</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>test.py</StartupFile>
+    <StartupFile>pics\pic2_cubicsensor_hist.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -40,6 +40,12 @@
     <Compile Include="pics\pic11_logreg_estimate_sample.py" />
     <Compile Include="pics\pic11_logreg_process_sample.py" />
     <Compile Include="pics\pic11_logreg_estimate_statistics.py" />
+    <Compile Include="pics\pic8_invpropbad_estimate_sample.py" />
+    <Compile Include="pics\pic6_invpropgood_estimate_sample.py" />
+    <Compile Include="pics\pic8_invpropbad_process_sample.py" />
+    <Compile Include="pics\pic6_invpropgood_process_sample.py" />
+    <Compile Include="pics\pic9_invpropbad_estimate_statistics.py" />
+    <Compile Include="pics\pic7_invpropgood_estimate_statistics.py" />
     <Compile Include="pics\pic5_invpropbad_hist.py" />
     <Compile Include="pics\pic5_invpropgood_hist.py" />
     <Compile Include="pics\pic4_cubicsensor_estimate_statistics.py" />
