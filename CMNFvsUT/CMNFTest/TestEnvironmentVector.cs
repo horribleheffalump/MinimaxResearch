@@ -106,7 +106,9 @@ namespace CMNFTest
             DiscreteVectorModel[] models = new DiscreteVectorModel[n];
             for (int i = 0; i < n; i++)
             {
-                Console.WriteLine($"model {i}");
+                if (i % 1000 == 0) // inform every 1000-th trajectory
+                    Console.WriteLine($"model {i}");
+                //Console.WriteLine($"model {i}");
                 models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
                 for (int s = 0; s < T; s++)
                 {
@@ -164,7 +166,9 @@ namespace CMNFTest
             DiscreteVectorModel[] models = new DiscreteVectorModel[n];
             for (int i = 0; i < n; i++)
             {
-                Console.WriteLine($"model {i}");
+                if (i % 1000 == 0) // inform every 1000-th trajectory
+                    Console.WriteLine($"model {i}");
+                //Console.WriteLine($"model {i}");
                 models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
                 for (int s = 0; s < T; s++)
                 {

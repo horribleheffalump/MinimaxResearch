@@ -21,7 +21,7 @@ namespace CMNFTest
     {
         public class Options
         {
-            [Option('m', "model", Required = true, HelpText = "Model name, one of: sphere, polar, cubic, invprop-good, invprop-bad, logreg-simple, logreg-zero, logreg-uniform, samplereg")]
+            [Option('m', "model", Required = true, HelpText = "Model name, one of: sphere, polar, cubic, invprop-good, invprop-bad, logreg-simple, logreg-zero, logreg-uniform, samplereg, samplereg-obs")]
             public string Model { get; set; }
 
             [Option('n', "samples", Required = false, HelpText = "Number of samples for static models (sphere and polar)")]
@@ -263,6 +263,10 @@ namespace CMNFTest
             if (o.Model == "samplereg")
             {
                 testEnv = new TestSampledRegression(o.DNu);
+            }
+            if (o.Model == "samplereg-obs")
+            {
+                testEnv = new TestSampledRegressionObs(o.DNu);
             }
 
             if (o.Bulk)

@@ -16,7 +16,7 @@ n, bins, patches = plt.hist(data['49'].values[:], 40, density=1, facecolor='blac
 #min, max = np.min(data['49']), np.max(data['49'])
 #print(m,s, min, max)
 #x = np.arange(min, max, 0.1)
-#_ = plt.plot(x, norm.pdf(x), color = 'black')
+#_ = plt.plot(x, norm.pdf(x, m, s), color = 'black')
 
 #print(data['49'])
 #data[['49']].hist(bins=50)
