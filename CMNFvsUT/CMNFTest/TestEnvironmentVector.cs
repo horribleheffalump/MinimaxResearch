@@ -129,7 +129,8 @@ namespace CMNFTest
             if (doCalculateUKFStepwise)
             {
                 Console.WriteLine($"UKF estimate parameters stepwise");
-                UKF.EstimateParametersStepwise(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
+                //UKF.EstimateParametersStepwise(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
+                UKF.EstimateParametersStepwise(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x[0,0], T, models, X0Hat, DX0Hat, outputFolder);
             }
             else
             {
@@ -137,9 +138,11 @@ namespace CMNFTest
                 if (doCalculateUKF)
                 {
                     if (useSimpleModel)
-                        UKF.EstimateParameters(Phi1, Psi1, DW, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
+                        //UKF.EstimateParameters(Phi1, Psi1, DW, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
+                        UKF.EstimateParameters(Phi1, Psi1, DW, DNu, x => x[0,0], T, models, X0Hat, DX0Hat, outputFolder);
                     else
-                        UKF.EstimateParameters(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
+                        //UKF.EstimateParameters(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
+                        UKF.EstimateParameters(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x[0,0], T, models, X0Hat, DX0Hat, outputFolder);
                 }
             }
         }
@@ -266,8 +269,11 @@ namespace CMNFTest
                 {
                     using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString()), true))
                     {
-                        outputfile.Write(string.Format(provider, "{0} {1} {2} {3} {4}",
-                            t, x[k], y[k], mError[k], mErrorU[k]
+                        //outputfile.write(string.format(provider, "{0} {1} {2} {3} {4}",
+                        //    t, x[k], y[k], merror[k], merroru[k]
+                        //    ));
+                        outputfile.Write(string.Format(provider, "{0} {1} {2} {3}",
+                            t, x[k], mError[k], mErrorU[k]
                             ));
                         outputfile.WriteLine();
                         outputfile.Close();

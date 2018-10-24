@@ -12,7 +12,8 @@ import os
 inputfilename = sys.argv[1]
 outputfilename = sys.argv[2]
 
-t, err_umf, err_ut = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,3,4), unpack=True, dtype=float)
+#t, err_umf, err_ut = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,3,4), unpack=True, dtype=float)
+t, err_umf, err_ut = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,2,3), unpack=True, dtype=float)
 
 max_1 = max(sorted(err_umf)[0 : round(len(t) * 0.98)])
 min_1 = min(sorted(err_umf)[round(len(t) * 0.02) : len(t)])

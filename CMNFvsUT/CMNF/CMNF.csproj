@@ -48,6 +48,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MCMNVectorFilter.cs" />
     <Compile Include="CMNVectorFilter.cs" />
     <Compile Include="CMNScalarFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
