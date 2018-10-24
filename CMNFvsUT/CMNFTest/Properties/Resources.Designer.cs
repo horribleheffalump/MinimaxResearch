@@ -107,11 +107,20 @@ namespace CMNFTest.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to sample_obs.
+        /// </summary>
+        internal static string OutputTypeOneObs {
+            get {
+                return ResourceManager.GetString("OutputTypeOneObs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to sample.
         /// </summary>
-        internal static string OutputTypeOne {
+        internal static string OutputTypeOneState {
             get {
-                return ResourceManager.GetString("OutputTypeOne", resourceCulture);
+                return ResourceManager.GetString("OutputTypeOneState", resourceCulture);
             }
         }
     }

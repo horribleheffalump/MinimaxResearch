@@ -133,7 +133,10 @@
   <data name="OutputTypeMany" xml:space="preserve">
     <value>average</value>
   </data>
-  <data name="OutputTypeOne" xml:space="preserve">
+  <data name="OutputTypeOneObs" xml:space="preserve">
+    <value>sample_obs</value>
+  </data>
+  <data name="OutputTypeOneState" xml:space="preserve">
     <value>sample</value>
   </data>
 </root>

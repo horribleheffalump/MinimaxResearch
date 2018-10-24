@@ -215,12 +215,19 @@ namespace CMNFTest
 
         public void GenerateOne(string folderName, bool doCalculateUKF = true, int? n = null)
         {
-            string fileName = "";
+            string fileName_state = "";
             if (n == null)
-                fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOne));
+                fileName_state = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState));
             else
-                fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOne + "_" + n.ToString()));
-            int dimX = X0().Count;
+                fileName_state = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState + "_" + n.ToString()));
+
+            string fileName_obs = "";
+            if (n == null)
+                fileName_obs = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs));
+            else
+                fileName_obs = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs + "_" + n.ToString()));
+
+            //int dimX = X0().Count;
 
             DiscreteVectorModel modelEst = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
             for (int s = 0; s < T; s++)
@@ -228,13 +235,23 @@ namespace CMNFTest
                 modelEst.Step();
             }
 
+            int dimX = modelEst.Trajectory[0][0].Count;
+            int dimY = modelEst.Trajectory[0][1].Count;
+
             Vector<double> xHat = X0Hat;
             Vector<double> xHatU = X0Hat;
             Matrix<double> PHatU = DX0Hat;
 
             for (int k = 0; k < dimX; k++)
             {
-                using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString())))
+                using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName_state.Replace("{0}", k.ToString())))
+                {
+                    outputfile.Close();
+                }
+            }
+            for (int k = 0; k < dimY; k++)
+            {
+                using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName_obs.Replace("{0}", k.ToString())))
                 {
                     outputfile.Close();
                 }
@@ -267,13 +284,24 @@ namespace CMNFTest
 
                 for (int k = 0; k < dimX; k++)
                 {
-                    using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString()), true))
+                    using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName_state.Replace("{0}", k.ToString()), true))
                     {
                         //outputfile.write(string.format(provider, "{0} {1} {2} {3} {4}",
                         //    t, x[k], y[k], merror[k], merroru[k]
                         //    ));
                         outputfile.Write(string.Format(provider, "{0} {1} {2} {3}",
                             t, x[k], mError[k], mErrorU[k]
+                            ));
+                        outputfile.WriteLine();
+                        outputfile.Close();
+                    }
+                }
+                for (int k = 0; k < dimY; k++)
+                {
+                    using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName_obs.Replace("{0}", k.ToString()), true))
+                    {
+                        outputfile.Write(string.Format(provider, "{0} {1}",
+                            t, y[k]
                             ));
                         outputfile.WriteLine();
                         outputfile.Close();
@@ -542,7 +570,8 @@ namespace CMNFTest
             string[] scriptNamesOne = new string[] { "process_sample", "estimate_sample" };
             string[] scriptNamesMany = new string[] { "process_statistics", "estimate_statistics" };
 
-            string fileNameOne = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOne);
+            string fileNameOne_state = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState);
+            string fileNameOne_obs = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs);
             string fileNameMany = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany);
 
             string scriptOutputFileNameTemplate = Resources.OutputPictureNameTemplate.Replace("{name}", TestFileName);
@@ -553,7 +582,8 @@ namespace CMNFTest
                 RunScript(
                         Path.Combine(scriptsFolder, s + ".py"),
                         new string[] {
-                                                Path.Combine(dataFolder, fileNameOne),
+                                                Path.Combine(dataFolder, fileNameOne_state),
+                                                Path.Combine(dataFolder, fileNameOne_obs),
                                                 Path.Combine(outputFolder, scriptOutputFileNameTemplate.Replace("{script}", s))
                                     });
             }

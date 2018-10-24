@@ -56,7 +56,14 @@
 
 
 ---
-#### Property Properties.Resources.OutputTypeOne
+#### Property Properties.Resources.OutputTypeOneObs
+
+ Looks up a localized string similar to sample_obs. 
+
+
+
+---
+#### Property Properties.Resources.OutputTypeOneState
 
  Looks up a localized string similar to sample. 
 

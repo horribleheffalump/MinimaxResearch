@@ -10,7 +10,8 @@ import os
 #inputfilename = os.path.join(sys.argv[1], sys.argv[2])
 #outputfilename = os.path.join(sys.argv[1], sys.argv[3])
 inputfilename = sys.argv[1]
-outputfilename = sys.argv[2]
+stub = sys.argv[2]
+outputfilename = sys.argv[3]
 
 #t, err_umf, err_ut = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,3,4), unpack=True, dtype=float)
 t, err_umf, err_ut = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,2,3), unpack=True, dtype=float)

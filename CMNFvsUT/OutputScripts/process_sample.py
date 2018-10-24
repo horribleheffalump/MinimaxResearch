@@ -8,10 +8,12 @@ import os
 
 #inputfilename = os.path.join(sys.argv[1], sys.argv[2])
 #outputfilename = os.path.join(sys.argv[1], sys.argv[3])
-inputfilename = sys.argv[1]
-outputfilename = sys.argv[2]
+inputfilename_state = sys.argv[1]
+inputfilename_obs = sys.argv[2]
+outputfilename = sys.argv[3]
 
-t, x, y = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,1,2), unpack=True, dtype=float)
+t, x = np.loadtxt(inputfilename_state, delimiter = ' ', usecols=(0,1), unpack=True, dtype=float)
+y = np.loadtxt(inputfilename_obs, delimiter = ' ', usecols=(1), unpack=True, dtype=float)
 
 max_x = max(sorted(x)[0 : round(len(t) * 0.98)])
 min_x = min(sorted(x)[round(len(t) * 0.02) : len(t)])
