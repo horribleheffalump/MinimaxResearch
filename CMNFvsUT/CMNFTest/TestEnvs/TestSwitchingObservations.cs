@@ -90,8 +90,6 @@ namespace CMNFTest
                 X0 = () => Exts.Vector(NormalEta[0].Sample(), NormalEta[1].Sample());
                 X0Hat = mEta;
                 DX0Hat = dEta;
-
-                useSimpleModel = false;
             }
         }
     }

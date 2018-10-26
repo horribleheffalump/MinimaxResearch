@@ -236,7 +236,7 @@ namespace UKF
         /// <param name="xhat0">Initial condition</param>
         /// <param name="DX0Hat">Initial condition covariance</param>
         /// <param name="outputFolder">The results are saved to this folder in file "UT_optimization_{type}.txt"</param>
-        static (double, UTParams, UTParams) UTParmsOptimize(OptimizationMethod method, 
+        static (double, UTParams, UTParams) UTParmsOptimize(OptimizationMethod method,
                                              UTDefinitionType type,
                                              Func<int, Vector<double>, Vector<double>> Phi,
                                              Func<int, Vector<double>, Vector<double>> Psi,
@@ -279,7 +279,7 @@ namespace UKF
 
             }
             return (min, new UTParams(xhat0.Count, argmin.Take(n).ToArray()), new UTParams(xhat0.Count, argmin.Skip(n).Take(n).ToArray()));
-        }  
+        }
 
         /// <summary>
         /// For the model 
@@ -438,9 +438,7 @@ namespace UKF
                 pCorrect[t] = new UTParams(xhat0.Count, argmin.Skip(n).Take(n).ToArray());
                 for (int i = 0; i < models.Count(); i++)
                 {
-                    Step(Phi1, Phi2, Psi1, Psi2, Mw, Rw, Mnu, Rnu, pForecast[t], pCorrect[t], t, models[i].Trajectory[t][1], xHatU[i], PHatU[i], out Vector<double> xHatU_i, out Matrix<double> PHatU_i);
-                    xHatU[i] = xHatU_i;
-                    PHatU[i] = PHatU_i;
+                    (xHatU[i], PHatU[i]) = Step(Phi1, Phi2, Psi1, Psi2, Mw, Rw, Mnu, Rnu, pForecast[t], pCorrect[t], t, models[i].Trajectory[t][1], xHatU[i], PHatU[i]);
                 }
             }
             return (min, pForecast, pCorrect);
@@ -634,9 +632,7 @@ namespace UKF
                 {
                     for (int i = 0; i < N; i++)
                     {
-                        Step(Phi, Psi, Rw, Rnu, p1, p2, t, models[i].Trajectory[t][1], xHatU[i], PHatU[i], out Vector<double> xHatU_i, out Matrix<double> PHatU_i);
-                        xHatU[i] = xHatU_i;
-                        PHatU[i] = PHatU_i;
+                        (xHatU[i], PHatU[i]) = Step(Phi, Psi, Rw, Rnu, p1, p2, t, models[i].Trajectory[t][1], xHatU[i], PHatU[i]);
                     }
 
                     Vector<double>[] states = models.Select(x => (x.Trajectory[t][0])).ToArray();
@@ -704,9 +700,7 @@ namespace UKF
                 {
                     for (int i = 0; i < N; i++)
                     {
-                        Step(Phi1, Phi2, Psi1, Psi2, Mw, Rw, Mnu, Rnu, p1, p2, t, models[i].Trajectory[t][1], xHatU[i], PHatU[i], out Vector<double> xHatU_i, out Matrix<double> PHatU_i);
-                        xHatU[i] = xHatU_i;
-                        PHatU[i] = PHatU_i;
+                        (xHatU[i], PHatU[i]) = Step(Phi1, Phi2, Psi1, Psi2, Mw, Rw, Mnu, Rnu, p1, p2, t, models[i].Trajectory[t][1], xHatU[i], PHatU[i]);
                     }
 
                     Vector<double>[] states = models.Select(x => (x.Trajectory[t][0])).ToArray();
@@ -765,8 +759,7 @@ namespace UKF
                 Vector<double>[] xHatU = new Vector<double>[N];
                 for (int i = 0; i < N; i++)
                 {
-                    Step(Phi1, Phi2, Psi1, Psi2, Mw, Rw, Mnu, Rnu, p1, p2, t, models[i].Trajectory[t][1], xHat[i], PHat[i], out Vector<double>xHatU_i, out Matrix<double> PHatU_i);
-                    xHatU[i] = xHatU_i;
+                    (xHatU[i], _) = Step(Phi1, Phi2, Psi1, Psi2, Mw, Rw, Mnu, Rnu, p1, p2, t, models[i].Trajectory[t][1], xHat[i], PHat[i]);
                 }
 
                 Vector<double>[] states = models.Select(x => (x.Trajectory[t][0])).ToArray();
@@ -798,7 +791,7 @@ namespace UKF
         /// <param name="P_">Approximated previous step error covariance</param>        
         /// <param name="xHat">Returns: current step estimate</param>
         /// <param name="P">Returns: approximated current step error covariance</param>        
-        public static void Step(Func<int, Vector<double>, Vector<double>> Phi,
+        public static (Vector<double>, Matrix<double>) Step(Func<int, Vector<double>, Vector<double>> Phi,
                                 Func<int, Vector<double>, Vector<double>> Psi,
                                 Matrix<double> Rw,
                                 Matrix<double> Rnu,
@@ -807,15 +800,12 @@ namespace UKF
                                 int t,
                                 Vector<double> y,
                                 Vector<double> xHat_,
-                                Matrix<double> P_,
-                                out Vector<double> xHat,
-                                out Matrix<double> PHat)
+                                Matrix<double> P_)
         {
             UnscentedTransform.Transform(x => Phi(t, x), xHat_, P_, Rw, p1, out Vector<double> Xtilde, out _, out Matrix<double> Ptilde);
             UnscentedTransform.Transform(x => Psi(t, x), Xtilde, Ptilde, Rnu, p2, out Vector<double> Ytilde, out Matrix<double> PXY, out Matrix<double> PYtilde);
             Matrix<double> K = PXY * PYtilde.Inverse();
-            xHat = Xtilde + K * (y - Ytilde);
-            PHat = Ptilde - K * PYtilde * K.Transpose();
+            return (Xtilde + K * (y - Ytilde), Ptilde - K * PYtilde * K.Transpose());
         }
 
 
@@ -837,18 +827,16 @@ namespace UKF
         /// <param name="P_">Approximated previous step error covariance</param>        
         /// <param name="xHat">Returns: current step estimate</param>
         /// <param name="P">Returns: approximated current step error covariance</param>        
-        public void Step(Func<int, Vector<double>, Vector<double>> Phi,
+        public (Vector<double>, Matrix<double>) Step(Func<int, Vector<double>, Vector<double>> Phi,
                                 Func<int, Vector<double>, Vector<double>> Psi,
                                 Matrix<double> Rw,
                                 Matrix<double> Rnu,
                                 int t,
                                 Vector<double> y,
                                 Vector<double> xHat_,
-                                Matrix<double> P_,
-                                out Vector<double> xHat,
-                                out Matrix<double> PHat)
+                                Matrix<double> P_)
         {
-            Step(Phi, Psi, Rw, Rnu, utParamsForecast, utParamsCorrection, t, y, xHat_, P_, out xHat, out PHat);
+            return Step(Phi, Psi, Rw, Rnu, utParamsForecast, utParamsCorrection, t, y, xHat_, P_);
         }
 
         /// <summary>
@@ -874,7 +862,7 @@ namespace UKF
         /// <param name="P_">Approximated previous step error covariance</param>        
         /// <param name="xHat">Returns: current step estimate</param>
         /// <param name="P">Returns: approximated current step error covariance</param>        
-        public static void Step(Func<int, Vector<double>, Vector<double>> Phi1,
+        public static (Vector<double>, Matrix<double>) Step(Func<int, Vector<double>, Vector<double>> Phi1,
                                 Func<int, Vector<double>, Matrix<double>> Phi2,
                                 Func<int, Vector<double>, Vector<double>> Psi1,
                                 Func<int, Vector<double>, Matrix<double>> Psi2,
@@ -887,9 +875,7 @@ namespace UKF
                                 int t,
                                 Vector<double> y,
                                 Vector<double> xHat_,
-                                Matrix<double> P_,
-                                out Vector<double> xHat,
-                                out Matrix<double> PHat)
+                                Matrix<double> P_)
         {
             try
             {
@@ -899,14 +885,12 @@ namespace UKF
                 //UnscentedTransform.Transform(x => Psi1(t, x), Xtilde, Ptilde, Rnu, p2, out Vector<double> Ytilde2, out Matrix<double> PXY2, out Matrix<double> PYtilde2);
 
                 Matrix<double> K = PXY * PYtilde.Inverse();
-                xHat = Xtilde + K * (y - Ytilde);
-                PHat = Ptilde - K * PYtilde * K.Transpose();
+                return (Xtilde + K * (y - Ytilde), Ptilde - K * PYtilde * K.Transpose());
             }
             catch (Exception e)
             {
-                xHat = xHat_;
-                PHat = P_;
                 Console.WriteLine(e.Message);
+                return (xHat_, P_);
             }
             //Matrix<double> K2 = PXY2 * PYtilde2.Inverse();
             //Vector<double> xHat2 = Xtilde2 + K2 * (y - Ytilde2);
@@ -939,7 +923,7 @@ namespace UKF
         /// <param name="P_">Approximated previous step error covariance</param>        
         /// <param name="xHat">Returns: current step estimate</param>
         /// <param name="P">Returns: approximated current step error covariance</param>        
-        public void Step(Func<int, Vector<double>, Vector<double>> Phi1,
+        public (Vector<double>, Matrix<double>) Step(Func<int, Vector<double>, Vector<double>> Phi1,
                                 Func<int, Vector<double>, Matrix<double>> Phi2,
                                 Func<int, Vector<double>, Vector<double>> Psi1,
                                 Func<int, Vector<double>, Matrix<double>> Psi2,
@@ -950,14 +934,12 @@ namespace UKF
                                 int t,
                                 Vector<double> y,
                                 Vector<double> xHat_,
-                                Matrix<double> P_,
-                                out Vector<double> xHat,
-                                out Matrix<double> PHat)
+                                Matrix<double> P_)
         {
             if (utParamsForecastStepwise != null && utParamsCorrectionStepwise != null)
-                Step(Phi1, Phi2, Psi1, Psi2, Mw, Rw, Mnu, Rnu, utParamsForecastStepwise[t], utParamsCorrectionStepwise[t], t, y, xHat_, P_, out xHat, out PHat);
+                return Step(Phi1, Phi2, Psi1, Psi2, Mw, Rw, Mnu, Rnu, utParamsForecastStepwise[t], utParamsCorrectionStepwise[t], t, y, xHat_, P_);
             else
-                Step(Phi1, Phi2, Psi1, Psi2, Mw, Rw, Mnu, Rnu, utParamsForecast, utParamsCorrection, t, y, xHat_, P_, out xHat, out PHat);
+                return Step(Phi1, Phi2, Psi1, Psi2, Mw, Rw, Mnu, Rnu, utParamsForecast, utParamsCorrection, t, y, xHat_, P_);
         }
     }
 }

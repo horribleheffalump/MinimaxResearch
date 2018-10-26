@@ -61,29 +61,16 @@ namespace CMNFTest
         public ModifiedCMNFilter MCMNF;
         public UKFilter UKF;
 
-        public bool useSimpleModel = true;
-
         private void HandleNulls()
         {
             if (Phi2 == null)
                 Phi2 = new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0));
-            else
-                useSimpleModel = false;
-
             if (Psi2 == null)
                 Psi2 = new Func<int, Vector<double>, Matrix<double>>((s, x) => Matrix<double>.Build.Dense(1, 1, 1.0));
-            else
-                useSimpleModel = false;
-
             if (MW == null)
                 MW = W(0) * 0.0;
-            else
-                useSimpleModel = false;
-
             if (MNu == null)
                 MNu = Nu(0) * 0.0;
-            else
-                useSimpleModel = false;
         }
 
         /// <summary>
@@ -127,25 +114,21 @@ namespace CMNFTest
                 UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.RandomShoot);
             else
                 UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.NelderMeed);
-    
+
 
             if (doCalculateUKFStepwise)
             {
                 Console.WriteLine($"UKF estimate parameters stepwise");
                 //UKF.EstimateParametersStepwise(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
-                UKF.EstimateParametersStepwise(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x[0,0], T, models, X0Hat, DX0Hat, outputFolder);
+                UKF.EstimateParametersStepwise(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x[0, 0], T, models, X0Hat, DX0Hat, outputFolder);
             }
             else
             {
                 Console.WriteLine($"UKF estimate parameters");
                 if (doCalculateUKF)
                 {
-                    if (useSimpleModel)
-                        //UKF.EstimateParameters(Phi1, Psi1, DW, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
-                        UKF.EstimateParameters(Phi1, Psi1, DW, DNu, x => x[0,0], T, models, X0Hat, DX0Hat, outputFolder);
-                    else
-                        //UKF.EstimateParameters(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
-                        UKF.EstimateParameters(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x[0,0], T, models, X0Hat, DX0Hat, outputFolder);
+                    //UKF.EstimateParameters(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
+                    UKF.EstimateParameters(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x[0, 0], T, models, X0Hat, DX0Hat, outputFolder);
                 }
             }
         }
@@ -270,18 +253,7 @@ namespace CMNFTest
 
                 if (doCalculateUKF)
                 {
-                    if (useSimpleModel)
-                    {
-                        UKF.Step(Phi1, Psi1, DW, DNu, t, y, xHatU, PHatU, out Vector<double> _xHatU, out Matrix<double> _PHatU);
-                        xHatU = _xHatU;
-                        PHatU = _PHatU;
-                    }
-                    else
-                    {
-                        UKF.Step(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, t, y, xHatU, PHatU, out Vector<double> _xHatU, out Matrix<double> _PHatU);
-                        xHatU = _xHatU;
-                        PHatU = _PHatU;
-                    }
+                    (xHatU, PHatU) = UKF.Step(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, t, y, xHatU, PHatU);
                 }
                 Vector<double> mErrorU = x - xHatU;
 
@@ -384,18 +356,7 @@ namespace CMNFTest
                 {
                     for (int i = 0; i < n; i++)
                     {
-                        if (useSimpleModel)
-                        {
-                            UKF.Step(Phi1, Psi1, DW, DNu, t, y[i], xHatU[i], PHatU[i], out Vector<double> _xHatU, out Matrix<double> _PHatU);
-                            xHatU[i] = _xHatU;
-                            PHatU[i] = _PHatU;
-                        }
-                        else
-                        {
-                            UKF.Step(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, t, y[i], xHatU[i], PHatU[i], out Vector<double> _xHatU, out Matrix<double> _PHatU);
-                            xHatU[i] = _xHatU;
-                            PHatU[i] = _PHatU;
-                        }
+                        (xHatU[i], PHatU[i]) = UKF.Step(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, t, y[i], xHatU[i], PHatU[i]);
                     }
 
                     mErrorU = (x.Subtract(xHatU)).Average();
@@ -514,29 +475,18 @@ namespace CMNFTest
                     DErrorM[m, t] = Exts.Cov(x.Subtract(xHatM), x.Subtract(xHatM));
 
 
-                    mErrorU[m, t] = Vector<double>.Build.Dense(dimX, 0);
-                    DErrorU[m, t] = Matrix<double>.Build.Dense(dimX, dimX, 0);
+                    //mErrorU[m, t] = Vector<double>.Build.Dense(dimX, 0);
+                    //DErrorU[m, t] = Matrix<double>.Build.Dense(dimX, dimX, 0);
 
-                    mxHatU[m, t] = Vector<double>.Build.Dense(dimX, 0);
-                    mPHatU[m, t] = Matrix<double>.Build.Dense(dimX, dimX, 0);
+                    //mxHatU[m, t] = Vector<double>.Build.Dense(dimX, 0);
+                    //mPHatU[m, t] = Matrix<double>.Build.Dense(dimX, dimX, 0);
 
 
                     if (doCalculateUKF)
                     {
                         for (int i = 0; i < n; i++)
                         {
-                            if (useSimpleModel)
-                            {
-                                UKF.Step(Phi1, Psi1, DW, DNu, t, y[i], xHatU[i], PHatU[i], out Vector<double> _xHatU, out Matrix<double> _PHatU);
-                                xHatU[i] = _xHatU;
-                                PHatU[i] = _PHatU;
-                            }
-                            else
-                            {
-                                UKF.Step(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, t, y[i], xHatU[i], PHatU[i], out Vector<double> _xHatU, out Matrix<double> _PHatU);
-                                xHatU[i] = _xHatU;
-                                PHatU[i] = _PHatU;
-                            }
+                            (xHatU[i], PHatU[i]) = UKF.Step(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, t, y[i], xHatU[i], PHatU[i]);
                         }
 
                         mErrorU[m, t] = (x.Subtract(xHatU)).Average();

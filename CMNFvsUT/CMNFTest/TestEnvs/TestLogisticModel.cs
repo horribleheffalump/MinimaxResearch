@@ -43,8 +43,6 @@ namespace CMNFTest
             X0 = () => Exts.Vector(NormalEta[0].Sample());
             X0Hat = mEta;
             DX0Hat = dEta;
-
-            useSimpleModel = false;
         }
     }
 
@@ -93,8 +91,6 @@ namespace CMNFTest
             X0 = () => Exts.Vector(NormalEta[0].Sample());
             X0Hat = mEta;
             DX0Hat = dEta;
-
-            useSimpleModel = false;
         }
     }
 
