@@ -58,6 +58,7 @@ namespace CMNFTest
         private NumberFormatInfo provider;
 
         public CMNFilter CMNF;
+        public ModifiedCMNFilter MCMNF;
         public UKFilter UKF;
 
         public bool useSimpleModel = true;
@@ -119,6 +120,8 @@ namespace CMNFTest
 
             CMNF = new CMNFilter(Xi, Zeta);
             CMNF.EstimateParameters(models, X0Hat, T);
+
+            MCMNF = new ModifiedCMNFilter(Xi, Zeta, Phi1, Phi2, Psi1, Psi2, W, Nu, DX0Hat);
 
             if (doOptimizeWithRandomShoot)
                 UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.RandomShoot);
@@ -440,16 +443,19 @@ namespace CMNFTest
             Matrix<double>[,] Dx = new Matrix<double>[N, T];
 
             Vector<double>[,] mxHat = new Vector<double>[N, T];
-
             Vector<double>[,] mError = new Vector<double>[N, T];
             Matrix<double>[,] DError = new Matrix<double>[N, T];
 
-
-            Vector<double>[,] mErrorU = new Vector<double>[N, T];
-            Matrix<double>[,] DErrorU = new Matrix<double>[N, T];
+            Vector<double>[,] mxHatM = new Vector<double>[N, T];
+            Matrix<double>[,] mPHatM = new Matrix<double>[N, T];
+            Vector<double>[,] mErrorM = new Vector<double>[N, T];
+            Matrix<double>[,] DErrorM = new Matrix<double>[N, T];
 
             Vector<double>[,] mxHatU = new Vector<double>[N, T];
             Matrix<double>[,] mPHatU = new Matrix<double>[N, T];
+            Vector<double>[,] mErrorU = new Vector<double>[N, T];
+            Matrix<double>[,] DErrorU = new Matrix<double>[N, T];
+
 
             int dimX = X0().Count;
 
@@ -471,12 +477,14 @@ namespace CMNFTest
                 }
 
                 Vector<double>[] xHat = Enumerable.Repeat(X0Hat, n).ToArray();
+                Vector<double>[] xHatM = Enumerable.Repeat(X0Hat, n).ToArray();
+                Matrix<double>[] PHatM = Enumerable.Repeat(DX0Hat, n).ToArray();
 
                 Vector<double>[] xHatU = Enumerable.Repeat(X0Hat, n).ToArray();
                 Matrix<double>[] PHatU = Enumerable.Repeat(DX0Hat, n).ToArray();
 
-                Vector<double>[] xHatU2 = Enumerable.Repeat(X0Hat, n).ToArray();
-                Matrix<double>[] PHatU2 = Enumerable.Repeat(DX0Hat, n).ToArray();
+                //Vector<double>[] xHatU2 = Enumerable.Repeat(X0Hat, n).ToArray();
+                //Matrix<double>[] PHatU2 = Enumerable.Repeat(DX0Hat, n).ToArray();
 
                 Console.WriteLine($"calculate estimates");
                 for (int t = 0; t < T; t++)
@@ -490,15 +498,20 @@ namespace CMNFTest
                         x[i] = modelsEst[i].Trajectory[t][0];
                         y[i] = modelsEst[i].Trajectory[t][1];
                         xHat[i] = CMNF.Step(t, y[i], xHat[i]);
+                        (xHatM[i], PHatM[i]) = MCMNF.Step(t, y[i], xHatM[i], PHatM[i]);
                     }
 
                     mx[m, t] = x.Average();
                     Dx[m, t] = Exts.Cov(x, x);
 
                     mxHat[m, t] = xHat.Average();
-
                     mError[m, t] = (x.Subtract(xHat)).Average();
                     DError[m, t] = Exts.Cov(x.Subtract(xHat), x.Subtract(xHat));
+
+                    mxHatM[m, t] = xHatM.Average();
+                    mPHatM[m, t] = PHatM.Average();
+                    mErrorM[m, t] = (x.Subtract(xHatM)).Average();
+                    DErrorM[m, t] = Exts.Cov(x.Subtract(xHatM), x.Subtract(xHatM));
 
 
                     mErrorU[m, t] = Vector<double>.Build.Dense(dimX, 0);
@@ -551,7 +564,9 @@ namespace CMNFTest
                         outputfile.Write(string.Format(provider, "{0} {1} {2} {3} {4} {5} {6}",
                             t, mx.Average(axis: 1)[t][k], Dx.Average(axis: 1)[t][k, k], mxHat.Average(axis: 1)[t][k], mError.Average(axis: 1)[t][k], DError.Average(axis: 1)[t][k, k], CMNF.KHat[t][k, k]
                             ));
-
+                        outputfile.Write(string.Format(provider, " {0} {1} {2} {3}",
+                            mxHatM.Average(axis: 1)[t][k], mErrorM.Average(axis: 1)[t][k], DErrorM.Average(axis: 1)[t][k, k], mPHatM.Average(axis: 1)[t][k, k]
+                            ));
                         outputfile.Write(string.Format(provider, " {0} {1} {2} {3}",
                             mxHatU.Average(axis: 1)[t][k], mErrorU.Average(axis: 1)[t][k], DErrorU.Average(axis: 1)[t][k, k], mPHatU.Average(axis: 1)[t][k, k]
                             ));
