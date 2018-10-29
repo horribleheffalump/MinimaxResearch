@@ -94,6 +94,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Filters\BasicFilter.cs" />
+    <Compile Include="Filters\CMNFWrapper.cs" />
+    <Compile Include="Filters\MCMNFWrapper.cs" />
+    <Compile Include="Filters\UKFWrapper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

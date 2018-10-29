@@ -105,7 +105,7 @@ namespace MathNetExtensions
             return mx;
         }
 
-        public static Vector<double>[] Average(this Vector<double>[,] x, int axis = 0) // the same code for Matrix and Vector - NOT COOL!!!
+        public static Vector<double>[] Average(this Vector<double>[,] x, int axis = 0) // TODO: the same code for Matrix and Vector - NOT COOL!!!
         {
             var width = x.GetLength(0);
             var height = x.GetLength(1);
@@ -165,6 +165,16 @@ namespace MathNetExtensions
             for (int i = 0; i < v1.Length; i++)
             {
                 result[i] = v1[i] - v2[i];
+            }
+            return result;
+        }
+
+        public static Vector<double>[] Subtract(this Vector<double>[] v1, Vector<double> v2)
+        {
+            Vector<double>[] result = new Vector<double>[v1.Length];
+            for (int i = 0; i < v1.Length; i++)
+            {
+                result[i] = v1[i] - v2;
             }
             return result;
         }

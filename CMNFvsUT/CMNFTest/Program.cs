@@ -48,6 +48,15 @@ namespace CMNFTest
             [Option('R', "UKF-randomshoot", Required = false, Default = false, HelpText = "Do optimize Unscented Kalman Filter parameters with random shoot method")]
             public bool UKFRandomShoot { get; set; }
 
+            [Option('C', "CMNF", Required = false, Default = false, HelpText = "Do calculate conditionally minimax nonlinear filter")]
+            public bool CMNF { get; set; }
+
+            [Option('M', "MCMNF", Required = false, Default = false, HelpText = "Do calculate modified conditionally minimax nonlinear filter")]
+            public bool MCMNF { get; set; }
+
+            [Option('l', "MCMNF-train-count", Required = false, Default = 0, HelpText = "Number of test set points for MCMNF wtepwise parameters fitting")]
+            public int MCMNFTrainCount { get; set; }
+
             [Option('b', "bound", Required = false, HelpText = "Upper bound for the state")]
             public double Bound { get; set; }
 
@@ -269,26 +278,43 @@ namespace CMNFTest
                 testEnv = new TestSwitchingObservations(o.DNu);
             }
 
+            List<FilterType> filters = new List<FilterType>();
+            if (o.CMNF) filters.Add(FilterType.CMNF);
+            if (o.MCMNF) filters.Add(FilterType.MCMNF);
+            if (o.UKF)
+            {
+                if (o.UKFStepwise)
+                {
+                    if (o.UKFRandomShoot) filters.Add(FilterType.UKFStepwiseRandomShoot);
+                    else filters.Add(FilterType.UKFStepwise);
+                }
+                else
+                {
+                    if (o.UKFRandomShoot) filters.Add(FilterType.UKFIntegralRandomShoot);
+                    else filters.Add(FilterType.UKFIntegral);
+                }
+            }
+
             if (o.Bulk)
                 testEnv.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
             else
             {
-                testEnv.Initialize(o.T, o.TrainCount, o.UKF, o.UKFStepwise, o.UKFRandomShoot, o.OutputFolder);
+                testEnv.Initialize(o.T, o.TrainCount, o.MCMNFTrainCount, o.OutputFolder, filters);
                 if (o.BundleCount > 1)
-                    testEnv.GenerateBundles(o.BundleCount, o.TestCount, o.OutputFolder, o.UKF);
+                    testEnv.GenerateBundles(o.BundleCount, o.TestCount, o.OutputFolder);
                 else
-                    testEnv.GenerateBundle(o.TestCount, o.OutputFolder, o.UKF);
+                    testEnv.GenerateBundle(o.TestCount, o.OutputFolder);
                 if (o.SamplesCount == 1)
-                    testEnv.GenerateOne(o.OutputFolder, o.UKF);
+                    testEnv.GenerateOne(o.OutputFolder);
                 else
                 {
                     for (int i = 0; i < o.SamplesCount; i++)
                     {
-                        testEnv.GenerateOne(o.OutputFolder, o.UKF, i);
+                        testEnv.GenerateOne(o.OutputFolder, i);
                     }
                 }
                 testEnv.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
-                testEnv.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
+                //testEnv.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
             }
         }
     }

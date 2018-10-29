@@ -413,9 +413,9 @@ namespace UKF
             Matrix<double>[] PHatU = models.Select(x => DX0Hat).ToArray();
 
             double min = double.MaxValue;
+            Console.WriteLine($"UKF estimate parameters start");
             for (int t = 0; t < T; t++)
             {
-                Console.WriteLine($"UKF estimate parameters: t={t}");
                 min = double.MaxValue;
                 Vector<double> argmin = initialGuess;
 
@@ -440,7 +440,9 @@ namespace UKF
                 {
                     (xHatU[i], PHatU[i]) = Step(Phi1, Phi2, Psi1, Psi2, Mw, Rw, Mnu, Rnu, pForecast[t], pCorrect[t], t, models[i].Trajectory[t][1], xHatU[i], PHatU[i]);
                 }
+                Console.WriteLine($"UKF estimate parameters: t={t}");
             }
+            Console.WriteLine($"UKF estimate parameters finish");
             return (min, pForecast, pCorrect);
         }
 

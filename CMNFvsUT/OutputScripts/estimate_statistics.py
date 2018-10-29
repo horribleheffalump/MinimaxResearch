@@ -7,12 +7,23 @@ import pylab
 import sys
 import os
 
-#inputfilename = os.path.join(sys.argv[1], sys.argv[2])
-#outputfilename = os.path.join(sys.argv[1], sys.argv[3])
 inputfilename = sys.argv[1] 
-#inputfilename = "D:/results/logreg-zero/LogisticModelZero_average_0.txt"
-#"D:/results/invprop_bad/InverseProportionBad_average_0.txt"
 outputfilename = sys.argv[2]
+
+#inputfilename = "D:/results/cubic_mcmnf/CubicSensor_average_0.txt"
+#outputfilename = "D:/results/cubic_mcmnf/CubicSensor_estimate_statistics_0.pdf"
+
+#inputfilename = "D:/results/logreg-zero_mcmnf/LogisticModelZero_average_0.txt"
+#outputfilename = "D:/results/logreg-zero_mcmnf/LogisticModelZero_estimate_statistics_0.pdf"
+
+#inputfilename = "D:/results/invprop_bad_mcmnf/InverseProportionBad_average_0.txt"
+#outputfilename = "D:/results/invprop_bad_mcmnf/InverseProportionBad_estimate_statistics_0.pdf"
+
+#inputfilename = "D:/results/invprop_good_mcmnf/InverseProportionGood_average_0.txt"
+#outputfilename = "D:/results/invprop_good_mcmnf/InverseProportionGood_estimate_statistics_0.pdf"
+
+
+
 
 t, x, Dx, xhat_UMF, mErr_UMF, DErr_UMF, DErrTheor_UMF, xhat_UT, mErr_UT, DErr_UT, DErrTheor_UT = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,1,2,3,4,5,6,7,8,9,10), unpack=True, dtype=float)
 

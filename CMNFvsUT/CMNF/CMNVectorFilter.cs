@@ -91,11 +91,11 @@ namespace CMNF
 
         }
 
-        public Vector<double> Step(int t, Vector<double> y, Vector<double> xHat_)
+        public (Vector<double>, Matrix<double>) Step(int t, Vector<double> y, Vector<double> xHat_)
         {
             Vector<double> xTilde = FHat[t] * Xi(t, xHat_) + fHat[t];
             Vector<double> xHat = xTilde + HHat[t] * Zeta(t, xTilde, y, KTilde[t]) + hHat[t];
-            return xHat;
+            return (xHat, KHat[t]);
         }
 
         //private double cov(Vector<double> x, Vector<double> y)

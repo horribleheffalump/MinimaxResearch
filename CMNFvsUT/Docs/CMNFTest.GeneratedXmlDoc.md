@@ -77,7 +77,7 @@
 
 
 ---
-#### Method TestEnvironmentVector.Initialize(System.Int32,System.Int32,System.Boolean,System.Boolean,System.Boolean,System.String)
+#### Method TestEnvironmentVector.Initialize(System.Int32,System.Int32,System.Int32,System.String,System.Collections.Generic.List{CMNFTest.FilterType})
 
  Initializes the test environment by calculating the statistics for CMN and UT filters 
 
@@ -102,7 +102,7 @@
 
 
 ---
-#### Method TestEnvironmentVector.GenerateBundle(System.Int32,System.String,System.Boolean)
+#### Method TestEnvironmentVector.GenerateBundle(System.Int32,System.String)
 
  Generates a bundle of trajectories, applies the CMN and UK filters, calculates statistics for estimate errors and saves it to files 
 
@@ -114,7 +114,7 @@
 
 
 ---
-#### Method TestEnvironmentVector.GenerateBundles(System.Int32,System.Int32,System.String,System.Boolean)
+#### Method TestEnvironmentVector.GenerateBundles(System.Int32,System.Int32,System.String)
 
  Generates N bundles of trajectories, applies the CMN and UK filters. The statistics for estimate errors are calculated by taking average on each bundle, and then on the whole set of bundles. Same as GenerateBundle but for larger numbers of trajectories. 
 

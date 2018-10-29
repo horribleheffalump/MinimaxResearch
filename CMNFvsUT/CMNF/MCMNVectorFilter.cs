@@ -6,6 +6,7 @@ using MathNet.Numerics.LinearAlgebra;
 using NonlinearSystem;
 using MathNetExtensions;
 using MathNet.Numerics.Distributions;
+using System.Threading.Tasks;
 
 namespace CMNF
 {
@@ -29,8 +30,7 @@ namespace CMNF
                                     Func<int, Vector<double>, Vector<double>> psi1,
                                     Func<int, Vector<double>, Matrix<double>> psi2,
                                     Func<int, Vector<double>> w,
-                                    Func<int, Vector<double>> nu,
-                                    Matrix<double> DX0Hat)
+                                    Func<int, Vector<double>> nu)
         {
             Xi = xi;
             Zeta = zeta;
@@ -42,14 +42,11 @@ namespace CMNF
             Nu = nu;
         }
 
-        public (Vector<double>, Matrix<double>) Step(int t, Vector<double> y, Vector<double> xHat_, Matrix<double> kHat_)
+        public (Vector<double>, Matrix<double>) Step(int t, Vector<double> y, Vector<double> xHat_, Matrix<double> kHat_, int n)
         {
-            int n = 1000; // TODO: make parameter
             Vector<double>[] x_mod = new Vector<double>[n];
             Vector<double>[] y_mod = new Vector<double>[n];
-            Vector<double>[] xiHat = new Vector<double>[n];
-            Vector<double>[] xHat = Enumerable.Repeat(xHat_, n).ToArray();
-            for (int i = 0; i < n; i++)
+            Parallel.For(0, n, new ParallelOptions() {MaxDegreeOfParallelism = System.Environment.ProcessorCount }, i =>
             {
                 double[] x_arr = new double[xHat_.Count];
                 for (int j = 0; j < xHat_.Count; j++)
@@ -63,29 +60,23 @@ namespace CMNF
                     x_mod[i] = Phi1(t, x_mod[i]) + Phi2(t, x_mod[i]) * W(t);
                 }
                 y_mod[i] = Psi1(t, x_mod[i]) + Psi2(t, x_mod[i]) * Nu(t);
-                xiHat[i] = Xi(t, xHat[i]);
-            }
+            });
 
-            //Matrix<double> F = Exts.Cov(x_mod, xiHat) * (Exts.Cov(xiHat, xiHat).PseudoInverse());
-            Vector<double> f = x_mod.Average(); //- F * xiHat.Average();
-            Matrix<double> kTilde = Exts.Cov(x_mod, x_mod);// - Exts.Cov(x_mod, xiHat) * F.Transpose();
+            Vector<double> f = x_mod.Average(); 
+            Matrix<double> kTilde = Exts.Cov(x_mod, x_mod);
 
-            Vector<double>[] xTilde = new Vector<double>[n];
             Vector<double>[] zetaTilde = new Vector<double>[n];
             for (int i = 0; i < n; i++)
             {
-                xTilde[i] = f;//F * xiHat[i] + f;
-                zetaTilde[i] = Zeta(t, xTilde[i], y_mod[i], kTilde);
+                zetaTilde[i] = Zeta(t, f, y_mod[i], kTilde);
             }
 
-            Matrix<double> H = Exts.Cov(x_mod.Subtract(xTilde), zetaTilde) * (Exts.Cov(zetaTilde, zetaTilde).PseudoInverse());
+            Matrix<double> H = Exts.Cov(x_mod.Subtract(f), zetaTilde) * (Exts.Cov(zetaTilde, zetaTilde).PseudoInverse());
             Vector<double> h = -H * zetaTilde.Average();
 
-            Matrix<double> kHat = kTilde - Exts.Cov(x_mod.Subtract(xTilde), zetaTilde) * H.Transpose();
+            Matrix<double> kHat = kTilde - Exts.Cov(x_mod.Subtract(f), zetaTilde) * H.Transpose();
 
-
-            Vector<double> xTilde__ = f; // F * Xi(t, xHat_) + f;
-            Vector<double> xHat__ = xTilde__ + H * Zeta(t, xTilde__, y, kTilde) + h;
+            Vector<double> xHat__ = f + H * Zeta(t, f, y, kTilde) + h;
             
             return (xHat__, kHat);
         }

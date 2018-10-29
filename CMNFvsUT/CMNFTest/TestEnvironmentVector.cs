@@ -14,6 +14,7 @@ using PythonInteract;
 using CMNFTest.Properties;
 using MathNetExtensions;
 
+
 namespace CMNFTest
 {
     /// <summary>
@@ -57,9 +58,7 @@ namespace CMNFTest
 
         private NumberFormatInfo provider;
 
-        public CMNFilter CMNF;
-        public ModifiedCMNFilter MCMNF;
-        public UKFilter UKF;
+        public BasicFilter[] Filters;
 
         private void HandleNulls()
         {
@@ -81,7 +80,8 @@ namespace CMNFTest
         /// <param name="doCalculateUKF"></param>
         /// <param name="doCalculateUKFStepwise"></param>
         /// <param name="outputFolder"></param>
-        public void Initialize(int t, int n, bool doCalculateUKF, bool doCalculateUKFStepwise, bool doOptimizeWithRandomShoot, string outputFolder)
+        //public void Initialize(int t, int n, bool doCalculateUKF, bool doCalculateUKFStepwise, bool doOptimizeWithRandomShoot, string outputFolder)
+        public void Initialize(int t, int n, int nMCMNF, string outputFolder, List<FilterType> filters)
         {
             Console.WriteLine("Init");
             provider = new NumberFormatInfo();
@@ -91,12 +91,12 @@ namespace CMNFTest
 
             T = t;
 
+            // generate models for filters parameters fitting/optimization
             DiscreteVectorModel[] models = new DiscreteVectorModel[n];
             for (int i = 0; i < n; i++)
             {
                 if (i % 1000 == 0) // inform every 1000-th trajectory
                     Console.WriteLine($"model {i}");
-                //Console.WriteLine($"model {i}");
                 models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
                 for (int s = 0; s < T; s++)
                 {
@@ -104,32 +104,84 @@ namespace CMNFTest
                 }
             }
 
-
-            CMNF = new CMNFilter(Xi, Zeta);
-            CMNF.EstimateParameters(models, X0Hat, T);
-
-            MCMNF = new ModifiedCMNFilter(Xi, Zeta, Phi1, Phi2, Psi1, Psi2, W, Nu, DX0Hat);
-
-            if (doOptimizeWithRandomShoot)
-                UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.RandomShoot);
-            else
-                UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.NelderMeed);
-
-
-            if (doCalculateUKFStepwise)
+            Filters = new BasicFilter[filters.Count()];
+            for (int j = 0; j < filters.Count(); j++)
             {
-                Console.WriteLine($"UKF estimate parameters stepwise");
-                //UKF.EstimateParametersStepwise(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
-                UKF.EstimateParametersStepwise(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x[0, 0], T, models, X0Hat, DX0Hat, outputFolder);
-            }
-            else
-            {
-                Console.WriteLine($"UKF estimate parameters");
-                if (doCalculateUKF)
+                if (filters[j] == FilterType.CMNF)
                 {
-                    //UKF.EstimateParameters(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x.Trace(), T, models, X0Hat, DX0Hat, outputFolder);
-                    UKF.EstimateParameters(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, x => x[0, 0], T, models, X0Hat, DX0Hat, outputFolder);
+                    CMNFWrapper CMNF = new CMNFWrapper
+                    {
+                        T = T,
+                        X0Hat = X0Hat,
+                        Models = models,
+                        Xi = Xi,
+                        Zeta = Zeta
+                    };
+                    Filters[j] = CMNF;
                 }
+                if (filters[j] == FilterType.MCMNF)
+                {
+                    int nTrain = nMCMNF;
+                    if (nTrain == 0)
+                    {
+                        Console.WriteLine($"MCMNF stepwise train set size is not provided, using the integral train set size of {n} instead");
+                        nTrain = n;
+                    }
+                    MCMNFWrapper MCMNF = new MCMNFWrapper
+                    {
+                        T = T,
+                        N = nTrain,
+                        X0Hat = X0Hat,
+                        Models = models,
+                        Xi = Xi,
+                        Zeta = Zeta,
+                        Phi1 = Phi1,
+                        Phi2 = Phi2,
+                        Psi1 = Psi1,
+                        Psi2 = Psi2,
+                        W = W,
+                        Nu = Nu
+                    };
+                    Filters[j] = MCMNF;
+                }
+                if (new[] { FilterType.UKFIntegral, FilterType.UKFIntegralRandomShoot, FilterType.UKFStepwise, FilterType.UKFStepwiseRandomShoot }.Contains(filters[j]))
+                {
+                    UKFWrapper UKF = new UKFWrapper
+                    {
+                        T = T,
+                        X0Hat = X0Hat,
+                        Models = models,
+                        Phi1 = Phi1,
+                        Phi2 = Phi2,
+                        Psi1 = Psi1,
+                        Psi2 = Psi2,
+                        MW = MW,
+                        DW = DW,
+                        MNu = MNu,
+                        DNu = DNu,
+                        Crit = x => x[0, 0],
+                        DX0Hat = DX0Hat,
+                        outputFolder = outputFolder
+                    };
+
+                    if (new[] { FilterType.UKFIntegralRandomShoot, FilterType.UKFStepwiseRandomShoot }.Contains(filters[j]))
+                        UKF.doOptimizeWithRandomShoot = true;
+                    else
+                        UKF.doOptimizeWithRandomShoot = false;
+
+                    if (new[] { FilterType.UKFStepwise, FilterType.UKFStepwiseRandomShoot }.Contains(filters[j]))
+                        UKF.doCalculateUKFStepwise = true;
+                    else
+                        UKF.doCalculateUKFStepwise = false;
+
+                    Filters[j] = UKF;
+                }
+            }
+
+
+            foreach (var f in Filters)
+            {
+                f.Initialize();
             }
         }
 
@@ -199,21 +251,20 @@ namespace CMNFTest
 
         }
 
-        public void GenerateOne(string folderName, bool doCalculateUKF = true, int? n = null)
+        public void GenerateOne(string folderName, int? n = null)
         {
             string fileName_state = "";
-            if (n == null)
-                fileName_state = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState));
-            else
-                fileName_state = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState + "_" + n.ToString()));
-
             string fileName_obs = "";
             if (n == null)
+            {
+                fileName_state = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState));
                 fileName_obs = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs));
+            }
             else
+            {
+                fileName_state = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState + "_" + n.ToString()));
                 fileName_obs = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs + "_" + n.ToString()));
-
-            //int dimX = X0().Count;
+            }
 
             DiscreteVectorModel modelEst = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
             for (int s = 0; s < T; s++)
@@ -223,10 +274,6 @@ namespace CMNFTest
 
             int dimX = modelEst.Trajectory[0][0].Count;
             int dimY = modelEst.Trajectory[0][1].Count;
-
-            Vector<double> xHat = X0Hat;
-            Vector<double> xHatU = X0Hat;
-            Matrix<double> PHatU = DX0Hat;
 
             for (int k = 0; k < dimX; k++)
             {
@@ -243,30 +290,39 @@ namespace CMNFTest
                 }
             }
 
+            Vector<double>[] xHat = new Vector<double>[Filters.Count()];
+            Matrix<double>[] KHat = new Matrix<double>[Filters.Count()];
+            Vector<double>[] mError = new Vector<double>[Filters.Count()];
+            for (int j = 0; j < Filters.Count(); j++)
+            {
+                xHat[j] = X0Hat;
+                KHat[j] = DX0Hat;
+            }
+
             for (int t = 0; t < T; t++)
             {
                 var x = modelEst.Trajectory[t][0];
                 var y = modelEst.Trajectory[t][1];
-                xHat = CMNF.Step(t, y, xHat);
 
-                Vector<double> mError = x - xHat;
-
-                if (doCalculateUKF)
+                for (int j = 0; j < Filters.Count(); j++)
                 {
-                    (xHatU, PHatU) = UKF.Step(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, t, y, xHatU, PHatU);
+                    (xHat[j], KHat[j]) = Filters[j].Step(t, y, xHat[j], KHat[j]);
+                    mError[j] = x - xHat[j];
                 }
-                Vector<double> mErrorU = x - xHatU;
 
                 for (int k = 0; k < dimX; k++)
                 {
                     using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName_state.Replace("{0}", k.ToString()), true))
                     {
-                        //outputfile.write(string.format(provider, "{0} {1} {2} {3} {4}",
-                        //    t, x[k], y[k], merror[k], merroru[k]
-                        //    ));
-                        outputfile.Write(string.Format(provider, "{0} {1} {2} {3}",
-                            t, x[k], mError[k], mErrorU[k]
+                        outputfile.Write(string.Format(provider, "{0} {1}",
+                            t, x[k]
                             ));
+                        for (int j = 0; j < Filters.Count(); j++)
+                        {
+                            outputfile.Write(string.Format(provider, " {0}",
+                                mError[j][k]
+                                ));
+                        }
                         outputfile.WriteLine();
                         outputfile.Close();
                     }
@@ -291,7 +347,7 @@ namespace CMNFTest
         /// <param name="n">Number of trajectories</param>
         /// <param name="folderName">Output folder name</param>
         /// <param name="doCalculateUKF">(optional, default = true) if true, UKF and CMNF estimates are calculated, if false - only CMNF </param>
-        public void GenerateBundle(int n, string folderName, bool doCalculateUKF = true)
+        public void GenerateBundle(int n, string folderName)
         {
             Console.WriteLine($"GenerateBundle");
             string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
@@ -310,11 +366,6 @@ namespace CMNFTest
                 }
             }
 
-            Vector<double>[] xHat = Enumerable.Repeat(X0Hat, n).ToArray();
-
-            Vector<double>[] xHatU = Enumerable.Repeat(X0Hat, n).ToArray();
-            Matrix<double>[] PHatU = Enumerable.Repeat(DX0Hat, n).ToArray();
-
             for (int k = 0; k < dimX; k++)
             {
                 using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString())))
@@ -323,6 +374,17 @@ namespace CMNFTest
                 }
             }
 
+            Vector<double>[][] xHat = new Vector<double>[Filters.Count()][];
+            Matrix<double>[][] KHat = new Matrix<double>[Filters.Count()][];
+            Vector<double>[] mxHat = new Vector<double>[Filters.Count()];
+            Matrix<double>[] mKHat = new Matrix<double>[Filters.Count()];
+            Vector<double>[] mError = new Vector<double>[Filters.Count()];
+            Matrix<double>[] DError = new Matrix<double>[Filters.Count()];
+            for (int j = 0; j < Filters.Count(); j++)
+            {
+                xHat[j] = Enumerable.Repeat(X0Hat, n).ToArray();
+                KHat[j] = Enumerable.Repeat(DX0Hat, n).ToArray();
+            }
             Console.WriteLine($"calculate estimates");
             for (int t = 0; t < T; t++)
             {
@@ -330,55 +392,38 @@ namespace CMNFTest
                 Vector<double>[] x = new Vector<double>[n];
                 Vector<double>[] y = new Vector<double>[n];
 
-                for (int i = 0; i < n; i++)
+                for (int j = 0; j < Filters.Count(); j++)
                 {
-                    x[i] = modelsEst[i].Trajectory[t][0];
-                    y[i] = modelsEst[i].Trajectory[t][1];
-                    xHat[i] = CMNF.Step(t, y[i], xHat[i]);
+                    for (int i = 0; i < n; i++)
+                    {
+                        x[i] = modelsEst[i].Trajectory[t][0];
+                        y[i] = modelsEst[i].Trajectory[t][1];
+                        (xHat[j][i], KHat[j][i]) = Filters[j].Step(t, y[i], xHat[j][i], KHat[j][i]);
+
+                    }
+                    mxHat[j] = xHat[j].Average();
+                    mKHat[j] = KHat[j].Average();
+                    mError[j] = (x.Subtract(xHat[j])).Average();
+                    DError[j] = Exts.Cov(x.Subtract(xHat[j]), x.Subtract(xHat[j]));
                 }
 
                 Vector<double> mx = x.Average();
                 Matrix<double> Dx = Exts.Cov(x, x);
-
-                Vector<double> mxHat = xHat.Average();
-
-                Vector<double> mError = (x.Subtract(xHat)).Average();
-                Matrix<double> DError = Exts.Cov(x.Subtract(xHat), x.Subtract(xHat));
-
-
-                Vector<double> mErrorU = Vector<double>.Build.Dense(dimX, 0);
-                Matrix<double> DErrorU = Matrix<double>.Build.Dense(dimX, dimX, 0);
-
-                Vector<double> mxHatU = Vector<double>.Build.Dense(dimX, 0);
-                Matrix<double> mPHatU = Matrix<double>.Build.Dense(dimX, dimX, 0);
-
-                if (doCalculateUKF)
-                {
-                    for (int i = 0; i < n; i++)
-                    {
-                        (xHatU[i], PHatU[i]) = UKF.Step(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, t, y[i], xHatU[i], PHatU[i]);
-                    }
-
-                    mErrorU = (x.Subtract(xHatU)).Average();
-                    DErrorU = Exts.Cov(x.Subtract(xHatU), x.Subtract(xHatU));
-
-                    mxHatU = xHatU.Average();
-                    mPHatU = PHatU.Average();
-                }
-
 
 
                 for (int k = 0; k < dimX; k++)
                 {
                     using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString()), true))
                     {
-                        outputfile.Write(string.Format(provider, "{0} {1} {2} {3} {4} {5} {6}",
-                            t, mx[k], Dx[k, k], mxHat[k], mError[k], DError[k, k], CMNF.KHat[t][k, k]
+                        outputfile.Write(string.Format(provider, "{0} {1} {2}",
+                            t, mx[k], Dx[k, k]
                             ));
-
-                        outputfile.Write(string.Format(provider, " {0} {1} {2} {3}",
-                            mxHatU[k], mErrorU[k], DErrorU[k, k], mPHatU[k, k]
+                        for (int j = 0; j < Filters.Count(); j++)
+                        {
+                            outputfile.Write(string.Format(provider, " {0} {1} {2} {3}",
+                            mxHat[j][k], mError[j][k], DError[j][k, k], mKHat[j][k, k]
                             ));
+                        }
                         outputfile.WriteLine();
                         outputfile.Close();
                     }
@@ -395,7 +440,7 @@ namespace CMNFTest
         /// <param name="n">Number of trajectories</param>
         /// <param name="folderName">Output folder name</param>
         /// <param name="doCalculateUKF">(optional, default = true) if true, UKF and CMNF estimates are calculated, if false - only CMNF </param>
-        public void GenerateBundles(int N, int n, string folderName, bool doCalculateUKF = true)
+        public void GenerateBundles(int N, int n, string folderName)
         {
             Console.WriteLine($"GenerateBundles");
             string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
@@ -403,20 +448,18 @@ namespace CMNFTest
             Vector<double>[,] mx = new Vector<double>[N, T];
             Matrix<double>[,] Dx = new Matrix<double>[N, T];
 
-            Vector<double>[,] mxHat = new Vector<double>[N, T];
-            Vector<double>[,] mError = new Vector<double>[N, T];
-            Matrix<double>[,] DError = new Matrix<double>[N, T];
+            Vector<double>[][,] mxHat = new Vector<double>[Filters.Count()][,];
+            Matrix<double>[][,] mKHat = new Matrix<double>[Filters.Count()][,];
+            Vector<double>[][,] mError = new Vector<double>[Filters.Count()][,];
+            Matrix<double>[][,] DError = new Matrix<double>[Filters.Count()][,];
 
-            Vector<double>[,] mxHatM = new Vector<double>[N, T];
-            Matrix<double>[,] mPHatM = new Matrix<double>[N, T];
-            Vector<double>[,] mErrorM = new Vector<double>[N, T];
-            Matrix<double>[,] DErrorM = new Matrix<double>[N, T];
-
-            Vector<double>[,] mxHatU = new Vector<double>[N, T];
-            Matrix<double>[,] mPHatU = new Matrix<double>[N, T];
-            Vector<double>[,] mErrorU = new Vector<double>[N, T];
-            Matrix<double>[,] DErrorU = new Matrix<double>[N, T];
-
+            for (int j = 0; j < Filters.Count(); j++)
+            {
+                mxHat[j] = new Vector<double>[N, T];
+                mKHat[j] = new Matrix<double>[N, T];
+                mError[j] = new Vector<double>[N, T];
+                DError[j] = new Matrix<double>[N, T];
+            }
 
             int dimX = X0().Count;
 
@@ -437,64 +480,34 @@ namespace CMNFTest
                     }
                 }
 
-                Vector<double>[] xHat = Enumerable.Repeat(X0Hat, n).ToArray();
-                Vector<double>[] xHatM = Enumerable.Repeat(X0Hat, n).ToArray();
-                Matrix<double>[] PHatM = Enumerable.Repeat(DX0Hat, n).ToArray();
-
-                Vector<double>[] xHatU = Enumerable.Repeat(X0Hat, n).ToArray();
-                Matrix<double>[] PHatU = Enumerable.Repeat(DX0Hat, n).ToArray();
-
-                //Vector<double>[] xHatU2 = Enumerable.Repeat(X0Hat, n).ToArray();
-                //Matrix<double>[] PHatU2 = Enumerable.Repeat(DX0Hat, n).ToArray();
-
+                Vector<double>[][] xHat = new Vector<double>[Filters.Count()][];
+                Matrix<double>[][] KHat = new Matrix<double>[Filters.Count()][];
+                for (int j = 0; j < Filters.Count(); j++)
+                {
+                    xHat[j] = Enumerable.Repeat(X0Hat, n).ToArray();
+                    KHat[j] = Enumerable.Repeat(DX0Hat, n).ToArray();
+                }
                 Console.WriteLine($"calculate estimates");
                 for (int t = 0; t < T; t++)
                 {
                     Console.WriteLine($"t={t}");
                     Vector<double>[] x = new Vector<double>[n];
                     Vector<double>[] y = new Vector<double>[n];
-
-                    for (int i = 0; i < n; i++)
-                    {
-                        x[i] = modelsEst[i].Trajectory[t][0];
-                        y[i] = modelsEst[i].Trajectory[t][1];
-                        xHat[i] = CMNF.Step(t, y[i], xHat[i]);
-                        (xHatM[i], PHatM[i]) = MCMNF.Step(t, y[i], xHatM[i], PHatM[i]);
-                    }
-
-                    mx[m, t] = x.Average();
-                    Dx[m, t] = Exts.Cov(x, x);
-
-                    mxHat[m, t] = xHat.Average();
-                    mError[m, t] = (x.Subtract(xHat)).Average();
-                    DError[m, t] = Exts.Cov(x.Subtract(xHat), x.Subtract(xHat));
-
-                    mxHatM[m, t] = xHatM.Average();
-                    mPHatM[m, t] = PHatM.Average();
-                    mErrorM[m, t] = (x.Subtract(xHatM)).Average();
-                    DErrorM[m, t] = Exts.Cov(x.Subtract(xHatM), x.Subtract(xHatM));
-
-
-                    //mErrorU[m, t] = Vector<double>.Build.Dense(dimX, 0);
-                    //DErrorU[m, t] = Matrix<double>.Build.Dense(dimX, dimX, 0);
-
-                    //mxHatU[m, t] = Vector<double>.Build.Dense(dimX, 0);
-                    //mPHatU[m, t] = Matrix<double>.Build.Dense(dimX, dimX, 0);
-
-
-                    if (doCalculateUKF)
+                    for (int j = 0; j < Filters.Count(); j++)
                     {
                         for (int i = 0; i < n; i++)
                         {
-                            (xHatU[i], PHatU[i]) = UKF.Step(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, t, y[i], xHatU[i], PHatU[i]);
+                            x[i] = modelsEst[i].Trajectory[t][0];
+                            y[i] = modelsEst[i].Trajectory[t][1];
+                            (xHat[j][i], KHat[j][i]) = Filters[j].Step(t, y[i], xHat[j][i], KHat[j][i]);
                         }
-
-                        mErrorU[m, t] = (x.Subtract(xHatU)).Average();
-                        DErrorU[m, t] = Exts.Cov(x.Subtract(xHatU), x.Subtract(xHatU));
-
-                        mxHatU[m, t] = xHatU.Average();
-                        mPHatU[m, t] = PHatU.Average();
+                        mxHat[j][m, t] = xHat[j].Average();
+                        mKHat[j][m, t] = KHat[j].Average();
+                        mError[j][m, t] = (x.Subtract(xHat[j])).Average();
+                        DError[j][m, t] = Exts.Cov(x.Subtract(xHat[j]), x.Subtract(xHat[j]));
                     }
+                    mx[m, t] = x.Average();
+                    Dx[m, t] = Exts.Cov(x, x);
                 }
             }
             for (int k = 0; k < dimX; k++)
@@ -511,15 +524,15 @@ namespace CMNFTest
                 {
                     using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString()), true))
                     {
-                        outputfile.Write(string.Format(provider, "{0} {1} {2} {3} {4} {5} {6}",
-                            t, mx.Average(axis: 1)[t][k], Dx.Average(axis: 1)[t][k, k], mxHat.Average(axis: 1)[t][k], mError.Average(axis: 1)[t][k], DError.Average(axis: 1)[t][k, k], CMNF.KHat[t][k, k]
+                        outputfile.Write(string.Format(provider, "{0} {1} {2}",
+                            t, mx.Average(axis: 1)[t][k], Dx.Average(axis: 1)[t][k, k]
                             ));
-                        outputfile.Write(string.Format(provider, " {0} {1} {2} {3}",
-                            mxHatM.Average(axis: 1)[t][k], mErrorM.Average(axis: 1)[t][k], DErrorM.Average(axis: 1)[t][k, k], mPHatM.Average(axis: 1)[t][k, k]
+                        for (int j = 0; j < Filters.Count(); j++)
+                        {
+                            outputfile.Write(string.Format(provider, " {0} {1} {2} {3}",
+                            mxHat[j].Average(axis: 1)[t][k], mError[j].Average(axis: 1)[t][k], DError[j].Average(axis: 1)[t][k, k], mKHat[j].Average(axis: 1)[t][k, k] //, CMNF.KHat[t][k, k]
                             ));
-                        outputfile.Write(string.Format(provider, " {0} {1} {2} {3}",
-                            mxHatU.Average(axis: 1)[t][k], mErrorU.Average(axis: 1)[t][k], DErrorU.Average(axis: 1)[t][k, k], mPHatU.Average(axis: 1)[t][k, k]
-                            ));
+                        }
                         outputfile.WriteLine();
                         outputfile.Close();
                     }
@@ -533,7 +546,7 @@ namespace CMNFTest
             Console.WriteLine("Running scripts");
 
             string[] scriptNamesOne = new string[] { "process_sample", "estimate_sample" };
-            string[] scriptNamesMany = new string[] { "process_statistics", "estimate_statistics" };
+            string[] scriptNamesMany = new string[] { "process_statistics", "estimate_statistics", "estimate_statistics_single"};
 
             string fileNameOne_state = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState);
             string fileNameOne_obs = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs);
@@ -627,4 +640,6 @@ namespace CMNFTest
 
 
     }
+
+    public enum FilterType { CMNF, MCMNF, UKFIntegral, UKFIntegralRandomShoot, UKFStepwise, UKFStepwiseRandomShoot };
 }
