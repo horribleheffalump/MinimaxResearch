@@ -13,7 +13,7 @@ using UKF;
 using PythonInteract;
 using CMNFTest.Properties;
 using MathNetExtensions;
-
+using System.Threading.Tasks;
 
 namespace CMNFTest
 {
@@ -183,6 +183,8 @@ namespace CMNFTest
             {
                 f.Initialize();
             }
+            models = null;
+            GC.Collect();
         }
 
         public TestEnvironmentVector()
@@ -440,7 +442,7 @@ namespace CMNFTest
         /// <param name="n">Number of trajectories</param>
         /// <param name="folderName">Output folder name</param>
         /// <param name="doCalculateUKF">(optional, default = true) if true, UKF and CMNF estimates are calculated, if false - only CMNF </param>
-        public void GenerateBundles(int N, int n, string folderName)
+        public void GenerateBundles(int N, int n, string folderName, bool parallel = false)
         {
             Console.WriteLine($"GenerateBundles");
             string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
@@ -463,51 +465,20 @@ namespace CMNFTest
 
             int dimX = X0().Count;
 
-            for (int m = 0; m < N; m++)
+            
+            if (parallel)
             {
-                Console.WriteLine($"GenerateBundle {m}");
-                DiscreteVectorModel[] modelsEst = new DiscreteVectorModel[n];
-
-
-                for (int i = 0; i < n; i++)
+                Parallel.For(0, N, m =>
                 {
-                    if (i % 1000 == 0) // inform every 1000-th trajectory
-                        Console.WriteLine($"model {i}");
-                    modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-                    for (int s = 0; s < T; s++)
-                    {
-                        modelsEst[i].Step();
-                    }
-                }
-
-                Vector<double>[][] xHat = new Vector<double>[Filters.Count()][];
-                Matrix<double>[][] KHat = new Matrix<double>[Filters.Count()][];
-                for (int j = 0; j < Filters.Count(); j++)
-                {
-                    xHat[j] = Enumerable.Repeat(X0Hat, n).ToArray();
-                    KHat[j] = Enumerable.Repeat(DX0Hat, n).ToArray();
-                }
-                Console.WriteLine($"calculate estimates");
-                for (int t = 0; t < T; t++)
-                {
-                    Console.WriteLine($"t={t}");
-                    Vector<double>[] x = new Vector<double>[n];
-                    Vector<double>[] y = new Vector<double>[n];
-                    for (int j = 0; j < Filters.Count(); j++)
-                    {
-                        for (int i = 0; i < n; i++)
-                        {
-                            x[i] = modelsEst[i].Trajectory[t][0];
-                            y[i] = modelsEst[i].Trajectory[t][1];
-                            (xHat[j][i], KHat[j][i]) = Filters[j].Step(t, y[i], xHat[j][i], KHat[j][i]);
-                        }
-                        mxHat[j][m, t] = xHat[j].Average();
-                        mKHat[j][m, t] = KHat[j].Average();
-                        mError[j][m, t] = (x.Subtract(xHat[j])).Average();
-                        DError[j][m, t] = Exts.Cov(x.Subtract(xHat[j]), x.Subtract(xHat[j]));
-                    }
-                    mx[m, t] = x.Average();
-                    Dx[m, t] = Exts.Cov(x, x);
+                    CalculateBundle(n, m, mx, Dx, mxHat, mKHat, mError, DError);
+                    //}
+                });
+            }
+            else
+            {
+                for (int m = 0; m < N; m++)
+                { 
+                    CalculateBundle(n, m, mx, Dx, mxHat, mKHat, mError, DError);
                 }
             }
             for (int k = 0; k < dimX; k++)
@@ -540,6 +511,52 @@ namespace CMNFTest
             }
         }
 
+        private void CalculateBundle(int n, int m, Vector<double>[,] mx, Matrix<double>[,] Dx, Vector<double>[][,] mxHat, Matrix<double>[][,] mKHat, Vector<double>[][,] mError, Matrix<double>[][,] DError)
+        {
+            Console.WriteLine($"GenerateBundle {m}");
+            DiscreteVectorModel[] modelsEst = new DiscreteVectorModel[n];
+            for (int i = 0; i < n; i++)
+            {
+                if (i % 1000 == 0) // inform every 1000-th trajectory
+                    Console.WriteLine($"model {i}");
+                modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
+                for (int s = 0; s < T; s++)
+                {
+                    modelsEst[i].Step();
+                }
+            }
+
+            Vector<double>[][] xHat = new Vector<double>[Filters.Count()][];
+            Matrix<double>[][] KHat = new Matrix<double>[Filters.Count()][];
+            for (int j = 0; j < Filters.Count(); j++)
+            {
+                xHat[j] = Enumerable.Repeat(X0Hat, n).ToArray();
+                KHat[j] = Enumerable.Repeat(DX0Hat, n).ToArray();
+            }
+            Console.WriteLine($"calculate estimates");
+            for (int t = 0; t < T; t++)
+            {
+                Console.WriteLine($"t={t}");
+                Vector<double>[] x = new Vector<double>[n];
+                Vector<double>[] y = new Vector<double>[n];
+                for (int j = 0; j < Filters.Count(); j++)
+                {
+                    for (int i = 0; i < n; i++)
+                    {
+                        x[i] = modelsEst[i].Trajectory[t][0];
+                        y[i] = modelsEst[i].Trajectory[t][1];
+                        (xHat[j][i], KHat[j][i]) = Filters[j].Step(t, y[i], xHat[j][i], KHat[j][i]);
+                    }
+                    mxHat[j][m, t] = xHat[j].Average();
+                    mKHat[j][m, t] = KHat[j].Average();
+                    mError[j][m, t] = (x.Subtract(xHat[j])).Average();
+                    DError[j][m, t] = Exts.Cov(x.Subtract(xHat[j]), x.Subtract(xHat[j]));
+                }
+                mx[m, t] = x.Average();
+                Dx[m, t] = Exts.Cov(x, x);
+            }
+
+        }
 
         public void ProcessResults(string dataFolder, string scriptsFolder, string outputFolder)
         {

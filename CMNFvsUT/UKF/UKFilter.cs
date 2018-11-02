@@ -9,6 +9,7 @@ using NonlinearSystem;
 using MathNetExtensions;
 using System.IO;
 using MathNet.Numerics.Optimization;
+using System.Threading.Tasks;
 
 namespace UKF
 {
@@ -414,8 +415,12 @@ namespace UKF
 
             double min = double.MaxValue;
             Console.WriteLine($"UKF estimate parameters start");
+            DateTime start = DateTime.Now;
+
             for (int t = 0; t < T; t++)
+            //Parallel.For(0, T, new ParallelOptions() { MaxDegreeOfParallelism = System.Environment.ProcessorCount }, t =>
             {
+                DateTime startiteration = DateTime.Now;
                 min = double.MaxValue;
                 Vector<double> argmin = initialGuess;
 
@@ -440,9 +445,11 @@ namespace UKF
                 {
                     (xHatU[i], PHatU[i]) = Step(Phi1, Phi2, Psi1, Psi2, Mw, Rw, Mnu, Rnu, pForecast[t], pCorrect[t], t, models[i].Trajectory[t][1], xHatU[i], PHatU[i]);
                 }
-                Console.WriteLine($"UKF estimate parameters: t={t}");
+                Console.WriteLine($"UKF estimate parameters for t={t}, done in {(DateTime.Now - startiteration).ToString(@"hh\:mm\:ss\.fff")}");
             }
-            Console.WriteLine($"UKF estimate parameters finish");
+                //    });
+            DateTime finish = DateTime.Now;
+            Console.WriteLine($"UKF estimate parameters finished in {(finish - start).ToString(@"hh\:mm\:ss\.fff")}");
             return (min, pForecast, pCorrect);
         }
 

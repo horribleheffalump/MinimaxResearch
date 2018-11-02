@@ -46,7 +46,9 @@ namespace CMNF
         {
             Vector<double>[] x_mod = new Vector<double>[n];
             Vector<double>[] y_mod = new Vector<double>[n];
-            Parallel.For(0, n, new ParallelOptions() {MaxDegreeOfParallelism = System.Environment.ProcessorCount }, i =>
+
+            //Parallel.For(0, n, new ParallelOptions() {MaxDegreeOfParallelism = System.Environment.ProcessorCount }, i =>
+            for (int i = 0; i < n; i++)
             {
                 double[] x_arr = new double[xHat_.Count];
                 for (int j = 0; j < xHat_.Count; j++)
@@ -60,9 +62,10 @@ namespace CMNF
                     x_mod[i] = Phi1(t, x_mod[i]) + Phi2(t, x_mod[i]) * W(t);
                 }
                 y_mod[i] = Psi1(t, x_mod[i]) + Psi2(t, x_mod[i]) * Nu(t);
-            });
+            }
+            //});
 
-            Vector<double> f = x_mod.Average(); 
+            Vector<double> f = x_mod.Average();
             Matrix<double> kTilde = Exts.Cov(x_mod, x_mod);
 
             Vector<double>[] zetaTilde = new Vector<double>[n];
@@ -77,7 +80,7 @@ namespace CMNF
             Matrix<double> kHat = kTilde - Exts.Cov(x_mod.Subtract(f), zetaTilde) * H.Transpose();
 
             Vector<double> xHat__ = f + H * Zeta(t, f, y, kTilde) + h;
-            
+
             return (xHat__, kHat);
         }
     }

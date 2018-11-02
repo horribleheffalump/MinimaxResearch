@@ -5,6 +5,7 @@ using System.Text;
 using MathNet.Numerics.LinearAlgebra;
 using NonlinearSystem;
 using MathNetExtensions;
+using System.Threading.Tasks;
 
 namespace CMNF
 {
@@ -38,10 +39,12 @@ namespace CMNF
             int n = models.Count();
 
             Vector<double>[] xHat = Enumerable.Repeat(xhat0, n).ToArray();
-
-            for (int t = 0; t < T; t++)
+            Console.WriteLine($"CMNF estimate parameters start");
+            DateTime start = DateTime.Now;
+            //for (int t = 0; t < T; t++)
+            Parallel.For(0, T, t =>
             {
-                Console.WriteLine($"CMNF estimate parameters: t={t}");
+                DateTime startiteration = DateTime.Now;
                 Vector<double>[] x = new Vector<double>[n];
                 Vector<double>[] y = new Vector<double>[n];
                 Vector<double>[] xiHat = new Vector<double>[n];
@@ -86,8 +89,14 @@ namespace CMNF
                 KHat.Add(t, kHat);
                 //KHat.Add(t, Exts.Cov(x, x) - Exts.Cov(x, xiHat) * F - Exts.Cov(x.Subtract(xTilde), zetaTilde) * H);
                 // KHat.Add(t, cov(x, x) - cov(x, xiHat) * F - cov(x - xTilde, zetaTilde) * H);
+                Console.WriteLine($"CMNF estimate parameters for t={t}, done in {(DateTime.Now - startiteration).ToString(@"hh\:mm\:ss\.fff")}");
+                x = null;
+                y = null;
+                xiHat = null;
+            });
+            DateTime finish = DateTime.Now;
+            Console.WriteLine($"CMNF estimate parameters finished in {(finish - start).ToString(@"hh\:mm\:ss\.fff")}");
 
-            }
 
         }
 

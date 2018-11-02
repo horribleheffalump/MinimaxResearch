@@ -8,6 +8,13 @@ import sys
 import os
 from multiplypoints import *
 
+def cm2inch(*tupl):
+    inch = 2.54
+    if isinstance(tupl[0], tuple):
+        return tuple(i/inch for i in tupl[0])
+    else:
+        return tuple(i/inch for i in tupl)
+
 #inputfilename = os.path.join(sys.argv[1], sys.argv[2])
 #outputfilename = os.path.join(sys.argv[1], sys.argv[3])
 inputfilename = "D:/results/invprop_good/InverseProportionGood_average_0.txt"
@@ -18,7 +25,7 @@ t, Dx, mErr_UMF, DErr_UMF, DErrTheor_UMF, mErr_UT, DErr_UT, DErrTheor_UT = multx
 
 from pylab import *
 
-f = plt.figure(num=None, figsize=(5,5), dpi=200)
+f = plt.figure(num=None, figsize=cm2inch((12,9)), dpi=200)
 plt.subplots_adjust(left=0.06, bottom=0.07, right=0.98, top=0.95, wspace=0.1)
 ax = plt.subplot(111)
 
@@ -39,18 +46,18 @@ params_UMF = {
             'linewidth' : 2.5,
             }
 
-#ax.plot(t, mErr_UT, **params_UT, linestyle=ls_m)
-#ax.plot(t, DErr_UT, **params_UT, linestyle=ls_D)
-#ax.plot(t, DErrTheor_UT, **params_UT, linestyle =ls_Dth)
+ax.plot(t, mErr_UT, **params_UT, linestyle=ls_m, label='$E[x_t - \hat{x}_t]$, $E[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(mErr_UT[49]) + '$')
+ax.plot(t, DErr_UT, **params_UT, linestyle=ls_D, label='$D[x_t - \hat{x}_t]$, $D[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(DErr_UT[49]) + '$')
+ax.plot(t, DErrTheor_UT, **params_UT, linestyle =ls_Dth, label='$\hat{K}_t$, $\hat{K}_T = ' + "{:.2f}".format(DErrTheor_UT[49]) + '$')
 
-ax.plot(t, mErr_UMF, **params_UMF, linestyle=ls_m)
-ax.plot(t, DErr_UMF, **params_UMF, linestyle=ls_D)
-ax.plot(t, DErrTheor_UMF, color = 'black', alpha = alpha_UMF, linewidth = 1.5, linestyle = ls_Dth)
+#ax.plot(t, mErr_UMF, **params_UMF, linestyle=ls_m, label='$E[x_t - \hat{x}_t]$, $E[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(mErr_UMF[49]) + '$')
+#ax.plot(t, DErr_UMF, **params_UMF, linestyle=ls_D, label='$D[x_t - \hat{x}_t]$, $D[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(DErr_UMF[49]) + '$')
+#ax.plot(t, DErrTheor_UMF, color = 'black', alpha = alpha_UMF, linewidth = 1.5, linestyle = ls_Dth, label='$\hat{K}_t$, $\hat{K}_T = ' + "{:.2f}".format(DErrTheor_UMF[49]) + '$')
 
-ax.fill_between(t, np.zeros_like(Dx), Dx, color='black', alpha = 0.2, linewidth=0.0);
+ax.fill_between(t, np.zeros_like(Dx), Dx, color='black', alpha = 0.2, linewidth=0.0, label='$D[x_t]$, $D[x_T] = ' + "{:.2f}".format(Dx[49]) + '$')
 
 #ax.set_ylim(-0.1, 1.2)
-
+ax.legend()
 plt.tight_layout()
 plt.show()
 

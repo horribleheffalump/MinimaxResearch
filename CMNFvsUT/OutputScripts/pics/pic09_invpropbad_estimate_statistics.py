@@ -7,20 +7,22 @@ import pylab
 import sys
 import os
 from multiplypoints import *
+
 def cm2inch(*tupl):
     inch = 2.54
     if isinstance(tupl[0], tuple):
         return tuple(i/inch for i in tupl[0])
     else:
         return tuple(i/inch for i in tupl)
-
 #inputfilename = os.path.join(sys.argv[1], sys.argv[2])
 #outputfilename = os.path.join(sys.argv[1], sys.argv[3])
-#inputfilename = "D:/results/logreg-zero/LogisticModelZero_average_0.txt"
-inputfilename = "D:/results/logreg-zero_all_but_CMNF/LogisticModelZero_average_0.txt"
-t, x, Dx, xhat_UT, mErr_UT, DErr_UT, DErrTheor_UT = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,1,2,11,12,13,14), unpack=True, dtype=float)
-inputfilename = "D:/results/logreg-zero_CMNF/LogisticModelZero_average_0.txt"
+
+inputfilename = "D:/results/invprop_bad_take_cmnf/InverseProportionBad_average_0.txt"
 t, x, Dx, xhat_UMF, mErr_UMF, DErr_UMF, DErrTheor_UMF = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,1,2,3,4,5,6), unpack=True, dtype=float)
+
+inputfilename = "D:/results/invprop_bad_take_ukf/InverseProportionBad_average_0.txt"
+t, x, Dx, xhat_UT, mErr_UT, DErr_UT, DErrTheor_UT = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,1,2,7,8,9,10), unpack=True, dtype=float)
+
 
 t, Dx, mErr_UMF, DErr_UMF, DErrTheor_UMF, mErr_UT, DErr_UT, DErrTheor_UT = multx(t), multy(Dx), multy(mErr_UMF), multy(DErr_UMF), multy(DErrTheor_UMF), multy(mErr_UT), multy(DErr_UT), multy(DErrTheor_UT)
 
@@ -57,8 +59,7 @@ ax.plot(t, DErrTheor_UT, **params_UT, linestyle =ls_Dth, label='$\hat{K}_t$, $\h
 
 ax.fill_between(t, np.zeros_like(Dx), Dx, color='black', alpha = 0.2, linewidth=0.0, label='$D[x_t]$, $D[x_T] = ' + "{:.2f}".format(Dx[49]) + '$')
 
-#ax.set_ylim(-10, 20000)
-ax.set_ylim(-10, max(Dx))
+#ax.set_ylim(-0.1, 1.2)
 ax.legend()
 plt.tight_layout()
 plt.show()

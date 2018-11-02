@@ -16,6 +16,7 @@ outputfilename = sys.argv[2]
 #inputfilename = "D:/results/logreg-zero_mcmnf/LogisticModelZero_average_0.txt"
 #outputfilename = "D:/results/logreg-zero_mcmnf/LogisticModelZero_estimate_statistics_0.pdf"
 
+
 #inputfilename = "D:/results/invprop_bad_mcmnf/InverseProportionBad_average_0.txt"
 #outputfilename = "D:/results/invprop_bad_mcmnf/InverseProportionBad_estimate_statistics_0.pdf"
 

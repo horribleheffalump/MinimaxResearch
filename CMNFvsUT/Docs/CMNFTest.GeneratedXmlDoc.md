@@ -114,7 +114,7 @@
 
 
 ---
-#### Method TestEnvironmentVector.GenerateBundles(System.Int32,System.Int32,System.String)
+#### Method TestEnvironmentVector.GenerateBundles(System.Int32,System.Int32,System.String,System.Boolean)
 
  Generates N bundles of trajectories, applies the CMN and UK filters. The statistics for estimate errors are calculated by taking average on each bundle, and then on the whole set of bundles. Same as GenerateBundle but for larger numbers of trajectories. 
 

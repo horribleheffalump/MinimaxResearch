@@ -2,18 +2,31 @@
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-matplotlib.rc('text', usetex = True)
 import pylab
 import sys
 import os
 from multiplypoints import *
-inputfilename = "D:/results/invprop_bad/InverseProportionBad_sample_262_0.txt"
+from matplotlib import rc
+rc('font',**{'family':'serif'})
+rc('text', usetex=True)
+rc('text.latex',unicode=True)
+rc('text.latex',preamble=r'\usepackage[T2A]{fontenc}')
+rc('text.latex',preamble=r'\usepackage[utf8]{inputenc}')
+rc('text.latex',preamble=r'\usepackage[russian]{babel}')
+def cm2inch(*tupl):
+    inch = 2.54
+    if isinstance(tupl[0], tuple):
+        return tuple(i/inch for i in tupl[0])
+    else:
+        return tuple(i/inch for i in tupl)
+
+inputfilename = "D:/results/invprop_bad/InverseProportionBad_sample_429_0.txt"
 
 t, x, err_umf, err_ut = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,1,3,4), unpack=True, dtype=float)
 t, err_umf, err_ut = multx(t), multy(err_umf), multy(err_ut)
 from pylab import *
 
-f = plt.figure(num=None, figsize=(5,5), dpi=200)
+f = plt.figure(num=None, figsize=cm2inch((12,9)), dpi=200)
 plt.subplots_adjust(left=0.06, bottom=0.07, right=0.98, top=0.95, wspace=0.1)
 ax1 = plt.subplot(111)
 
@@ -31,11 +44,11 @@ params_UMF = {
             'alpha' : alpha_UMF,
             'linewidth' : 2.5,
              }
-ax1.plot(t, err_umf, **params_UMF, linestyle=ls_x)
-ax1.plot(t, err_ut, **params_UT, linestyle=ls_x)
+ax1.plot(t, err_umf, **params_UMF, linestyle=ls_x, label='$\hat{x}_t-x_t$ УМНФ')
+ax1.plot(t, err_ut, **params_UT, linestyle=ls_x, label='$\hat{x}_t-x_t$ CT-фильтр')
 
 #ax1.set_ylim(-5.0, 5.0)
-
+ax1.legend()
 plt.tight_layout()
 plt.show()
 

@@ -68,20 +68,20 @@ namespace CMNFTest
                 Psi1 = psi1;
                 Psi2 = psi2;
                 Xi = (s, x) => phi1(s, x) + phi2(s, x) * mW;
-                Zeta = (s, x, y, k) => y - psi1(s, x) - psi2(s, x) * mNu;
+                //Zeta = (s, x, y, k) => y - psi1(s, x) - psi2(s, x) * mNu;
 
-                //Zeta = (s, x, y, k) =>
-                //{
-                //    double num = 0;
-                //    double den = 0;
-                //    for (int i = 0; i < d.Count; i++)
-                //    {
-                //        double xi = k[0, 0] * d[i] / (d[i] * d[i] * k[0, 0] + sig[i] * sig[i]) * (y[0] - d[i] * x[0]);
-                //        num += f[i] * Normal.PDF(d[i] * x[0], Math.Sqrt(d[i] * d[i] * k[0, 0] + sig[i] * sig[i]), y[0]) * xi;
-                //        den += f[i] * Normal.PDF(d[i] * x[0], Math.Sqrt(d[i] * d[i] * k[0, 0] + sig[i] * sig[i]), y[0]);
-                //    }
-                //    return Exts.Vector(num / den);
-                //};
+                Zeta = (s, x, y, k) =>
+                {
+                    double num = 0;
+                    double den = 0;
+                    for (int i = 0; i < d.Count; i++)
+                    {
+                        double xi = k[0, 0] * d[i] / (d[i] * d[i] * k[0, 0] + sig[i] * sig[i]) * (y[0] - d[i] * x[0]);
+                        num += f[i] * Normal.PDF(d[i] * x[0], Math.Sqrt(d[i] * d[i] * k[0, 0] + sig[i] * sig[i]), y[0]) * xi;
+                        den += f[i] * Normal.PDF(d[i] * x[0], Math.Sqrt(d[i] * d[i] * k[0, 0] + sig[i] * sig[i]), y[0]);
+                    }
+                    return Exts.Vector(num / den);
+                };
 
                 W = (s) => Exts.Vector(NormalW[0].Sample(), NormalW[1].Sample());
                 Nu = (s) => Exts.Vector(NormalNu[0].Sample());

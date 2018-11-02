@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>adc1803e-e8b1-4a29-92d1-d159bfc60216</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>pics\pic2_cubicsensor_hist.py</StartupFile>
+    <StartupFile>pics\pic02b_cubicsensor_hist.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -38,29 +38,34 @@
     <Compile Include="findspike.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="pics\pic11_logreg_estimate_sample.py" />
-    <Compile Include="pics\pic11_logreg_process_sample.py" />
+    <Compile Include="pics\pic13a_switchingobs_process_sample.py" />
+    <Compile Include="pics\pic13b_switchingobs_estimate_sample.py" />
+    <Compile Include="pics\pic15_switchingobs_estimate_statistics_MCMNF.py" />
+    <Compile Include="pics\pic14_switchingobs_estimate_statistics.py" />
+    <Compile Include="pics\pic12_switchingobs_hist.py" />
+    <Compile Include="pics\pic10b_logreg_estimate_sample.py" />
+    <Compile Include="pics\pic10a_logreg_process_sample.py" />
     <Compile Include="pics\pic11_logreg_estimate_statistics.py" />
-    <Compile Include="pics\pic8_invpropbad_estimate_sample.py" />
-    <Compile Include="pics\pic6_invpropgood_estimate_sample.py" />
-    <Compile Include="pics\pic8_invpropbad_process_sample.py" />
-    <Compile Include="pics\pic6_invpropgood_process_sample.py" />
-    <Compile Include="pics\pic9_invpropbad_estimate_statistics.py" />
-    <Compile Include="pics\pic7_invpropgood_estimate_statistics.py" />
-    <Compile Include="pics\pic5_invpropbad_hist.py" />
-    <Compile Include="pics\pic5_invpropgood_hist.py" />
-    <Compile Include="pics\pic4_cubicsensor_estimate_statistics.py" />
+    <Compile Include="pics\pic08b_invpropbad_estimate_sample.py" />
+    <Compile Include="pics\pic06b_invpropgood_estimate_sample.py" />
+    <Compile Include="pics\pic08a_invpropbad_process_sample.py" />
+    <Compile Include="pics\pic06a_invpropgood_process_sample.py" />
+    <Compile Include="pics\pic09_invpropbad_estimate_statistics.py" />
+    <Compile Include="pics\pic07_invpropgood_estimate_statistics.py" />
+    <Compile Include="pics\pic05b_invpropbad_hist.py" />
+    <Compile Include="pics\pic05a_invpropgood_hist.py" />
+    <Compile Include="pics\pic04_cubicsensor_estimate_statistics.py" />
     <Compile Include="pics\multiplypoints.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="pics\pic3_cubicsensor_estimate_sample.py" />
-    <Compile Include="pics\pic2_cubicsensor_hist.py">
+    <Compile Include="pics\pic03b_cubicsensor_estimate_sample.py" />
+    <Compile Include="pics\pic02b_cubicsensor_hist.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="pics\pic2_cubicsensor_func.py">
+    <Compile Include="pics\pic02a_cubicsensor_func.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="pics\pic3_cubicsensor_process_sample.py" />
+    <Compile Include="pics\pic03a_cubicsensor_process_sample.py" />
     <Compile Include="polar.py">
       <SubType>Code</SubType>
     </Compile>
@@ -74,7 +79,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="State.py" />
-    <Compile Include="pics\pic1_surface.py">
+    <Compile Include="pics\pic01_surface.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="test.py">

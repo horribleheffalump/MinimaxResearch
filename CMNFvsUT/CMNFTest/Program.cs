@@ -84,17 +84,19 @@ namespace CMNFTest
             [Option('G', "generate-samples", Required = false, Default = 1, HelpText = "Number of single trajectories to generate")]
             public int SamplesCount { get; set; }
 
+            [Option('P', "parallel", Required = false, Default = false, HelpText = "Parallel bundles calculation (on to save time, off to save memory in case of multiple large bundles)")]
+            public bool Parallel { get; set; }
 
 
 
         }
 
         static void Main(string[] args)
-        {
-            CommandLine.Parser.Default.ParseArguments<Options>(args).WithParsed<Options>(opts => Run(opts));
+        {           
+            CommandLine.Parser.Default.ParseArguments<Options>(args).WithParsed<Options>(opts => Run(opts, args));
         }
 
-        static void Run(Options o)
+        static void Run(Options o, string[] args)
         {
             if (string.IsNullOrWhiteSpace(o.OutputFolder))
                 o.OutputFolder = Settings.Default.OutputFolder;
@@ -295,13 +297,19 @@ namespace CMNFTest
                 }
             }
 
+            using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(Path.Combine(o.OutputFolder, "parameters.txt"), true))
+            {
+                outputfile.WriteLine($"{DateTime.Now}\t{string.Join(" ", args)}");
+                outputfile.Close();
+            }
+
             if (o.Bulk)
                 testEnv.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
             else
             {
                 testEnv.Initialize(o.T, o.TrainCount, o.MCMNFTrainCount, o.OutputFolder, filters);
                 if (o.BundleCount > 1)
-                    testEnv.GenerateBundles(o.BundleCount, o.TestCount, o.OutputFolder);
+                    testEnv.GenerateBundles(o.BundleCount, o.TestCount, o.OutputFolder, o.Parallel);
                 else
                     testEnv.GenerateBundle(o.TestCount, o.OutputFolder);
                 if (o.SamplesCount == 1)
