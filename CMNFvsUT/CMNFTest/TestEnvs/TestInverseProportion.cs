@@ -66,7 +66,8 @@ namespace CMNFTest
 
             Vector<double> mW = Exts.Vector(0); Matrix<double> dW = Exts.Diag(_dw);
             Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(_dnu);
-            Vector<double> mEta = Exts.Vector(3.01); Matrix<double> dEta = Exts.Diag(1.0 + 1e-6); // small values are for regularization
+            Vector<double> mEta = Exts.Vector(3.01); Matrix<double> dEta = Exts.Diag(1.0 + 1e-6); // FOR AIT (small values are for regularization)
+            //Vector<double> mEta = Exts.Vector(1.0); Matrix<double> dEta = Exts.Diag(5.0 * 1e5); // FOR IEOPR (no transit)
             Func<int, Vector<double>, Vector<double>> phi = (s, x) =>
             {
                 var res = Math.Min(bound, 1.0 / Math.Pow(Math.Abs(x[0]), 2.0));

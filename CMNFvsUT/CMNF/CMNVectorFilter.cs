@@ -41,8 +41,7 @@ namespace CMNF
             Vector<double>[] xHat = Enumerable.Repeat(xhat0, n).ToArray();
             Console.WriteLine($"CMNF estimate parameters start");
             DateTime start = DateTime.Now;
-            //for (int t = 0; t < T; t++)
-            Parallel.For(0, T, t =>
+            for (int t = 0; t < T; t++)
             {
                 DateTime startiteration = DateTime.Now;
                 Vector<double>[] x = new Vector<double>[n];
@@ -58,7 +57,19 @@ namespace CMNF
                     xiHat[i] = Xi(t, xHat[i]);
                 }
 
-                Matrix<double> F = Exts.Cov(x, xiHat) * (Exts.Cov(xiHat, xiHat).PseudoInverse());
+                Matrix<double> CovXiHat = Exts.Cov(xiHat, xiHat);
+                Matrix<double> InvCovXiHat = Matrix<double>.Build.Dense(CovXiHat.RowCount, CovXiHat.ColumnCount, 0.0);
+                try
+                {
+                    InvCovXiHat = CovXiHat.PseudoInverse();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Can't inverse XiHat");
+                    Console.WriteLine(CovXiHat.ToString());
+                    Console.WriteLine(e.Message);
+                }
+                Matrix<double> F = Exts.Cov(x, xiHat) * InvCovXiHat;
                 Vector<double> f = x.Average() - F * xiHat.Average();
                 Matrix<double> kTilde = Exts.Cov(x, x) - Exts.Cov(x, xiHat) * F.Transpose();
 
@@ -70,7 +81,20 @@ namespace CMNF
                     zetaTilde[i] = Zeta(t, xTilde[i], y[i], kTilde);
                 }
 
-                Matrix<double> H = Exts.Cov(x.Subtract(xTilde), zetaTilde) * (Exts.Cov(zetaTilde, zetaTilde).PseudoInverse());
+
+                Matrix<double> CovZetaTilde = Exts.Cov(zetaTilde, zetaTilde);
+                Matrix<double> InvCovZetaTilde = Matrix<double>.Build.Dense(CovZetaTilde.RowCount, CovZetaTilde.ColumnCount, 0.0);
+                try
+                {
+                    InvCovZetaTilde = CovZetaTilde.PseudoInverse();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Can't inverse ZetaTilde");
+                    Console.WriteLine(CovZetaTilde.ToString());
+                    Console.WriteLine(e.Message);
+                }
+                Matrix<double> H = Exts.Cov(x.Subtract(xTilde), zetaTilde) * InvCovZetaTilde;
                 Vector<double> h = -H * zetaTilde.Average();
 
                 Matrix<double> kHat = kTilde - Exts.Cov(x.Subtract(xTilde), zetaTilde) * H.Transpose();
@@ -93,7 +117,7 @@ namespace CMNF
                 x = null;
                 y = null;
                 xiHat = null;
-            });
+            }
             DateTime finish = DateTime.Now;
             Console.WriteLine($"CMNF estimate parameters finished in {(finish - start).ToString(@"hh\:mm\:ss\.fff")}");
 

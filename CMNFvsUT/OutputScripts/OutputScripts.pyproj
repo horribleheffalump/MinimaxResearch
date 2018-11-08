@@ -38,6 +38,7 @@
     <Compile Include="findspike.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="multiplypoints.py" />
     <Compile Include="pics\pic13a_switchingobs_process_sample.py" />
     <Compile Include="pics\pic13b_switchingobs_estimate_sample.py" />
     <Compile Include="pics\pic15_switchingobs_estimate_statistics_MCMNF.py" />
@@ -50,7 +51,7 @@
     <Compile Include="pics\pic06b_invpropgood_estimate_sample.py" />
     <Compile Include="pics\pic08a_invpropbad_process_sample.py" />
     <Compile Include="pics\pic06a_invpropgood_process_sample.py" />
-    <Compile Include="pics\pic09_invpropbad_estimate_statistics.py" />
+    <Compile Include="pic09_invpropbad_estimate_statistics.py" />
     <Compile Include="pics\pic07_invpropgood_estimate_statistics.py" />
     <Compile Include="pics\pic05b_invpropbad_hist.py" />
     <Compile Include="pics\pic05a_invpropgood_hist.py" />
@@ -90,7 +91,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="pics\" />
+    <Folder Include="pics_AiT\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

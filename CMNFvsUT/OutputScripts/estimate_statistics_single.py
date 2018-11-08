@@ -11,6 +11,9 @@ import pandas as pd
 inputfilename = sys.argv[1] 
 outputfilename = sys.argv[2]
 
+#inputfilename = "D:/results/sampled/SampledRegression_average_0.txt"
+#outputfilename = "D:/results/sampled/SampledRegression_estimate_statistics_single_0.pdf"
+
 
 #inputfilename = "D:/results/logreg-zero/LogisticModelZero_average_0.txt"
 #outputfilename = "D:/results/logreg-zero/LogisticModelZero_estimate_statistics_single_0.pdf"
@@ -45,9 +48,9 @@ for j in range(n):
     ax.plot(data[[0]], data[[3+j*4+2]], linestyle=ls_D, color=colors[j], linewidth=2.5, alpha=0.7)
     #ax.plot(data[[0]], data[[3+j*4+3]], linestyle=ls_Dth, color=colors[j], linewidth=2.5, alpha=0.7)
 
-ax.fill_between(data[0], np.zeros_like(data[2]), data[2], color='black', alpha = 0.2, linewidth=0.0);
+#ax.fill_between(data[0], np.zeros_like(data[2]), data[2], color='black', alpha = 0.2, linewidth=0.0);
 
-ax.set_ylim(0, max(data[2]))
+#ax.set_ylim(0, max(data[2]))
 
 plt.savefig(outputfilename)
 

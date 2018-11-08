@@ -42,7 +42,8 @@ namespace CMNFTest
 
                 Vector<double> mW = Exts.Vector(0,0.0); Matrix<double> dW = Exts.Diag(1.0, 1.0);
                 Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(_dnu);
-                Vector<double> mEta = Exts.Vector(0, 0.0); Matrix<double> dEta = Exts.Diag(1.0, 1.0);
+                Vector<double> mEta = Exts.Vector(0, 0.0); Matrix<double> dEta = Exts.Diag(1.0, 1.0); // FOR AIT
+                //Vector<double> mEta = Exts.Vector(1.0, 0.0); Matrix<double> dEta = Exts.Diag(100.0, 1.0); // FOR IEOPR (no transit)
                 Func<int, Vector<double>, Vector<double>> phi1 = (s, x) => Exts.Vector(a * x[0] + b, 0);
                 Func<int, Vector<double>, Matrix<double>> phi2 = (s, x) => Exts.Diag(c, 1.0);
                 Func<int, Vector<double>, Vector<double>> psi1 = (s, x) => Exts.Vector(d[I(x[1])] * x[0]);
