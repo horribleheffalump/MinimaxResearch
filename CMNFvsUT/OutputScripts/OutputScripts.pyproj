@@ -67,6 +67,29 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="pics\pic03a_cubicsensor_process_sample.py" />
+    <Compile Include="pics_AiT\multiplypoints.py" />
+    <Compile Include="pics_AiT\pic01_surface.py" />
+    <Compile Include="pics_AiT\pic02a_cubicsensor_func.py" />
+    <Compile Include="pics_AiT\pic02b_cubicsensor_hist.py" />
+    <Compile Include="pics_AiT\pic03a_cubicsensor_process_sample.py" />
+    <Compile Include="pics_AiT\pic03b_cubicsensor_estimate_sample.py" />
+    <Compile Include="pics_AiT\pic04_cubicsensor_estimate_statistics.py" />
+    <Compile Include="pics_AiT\pic05a_invpropgood_hist.py" />
+    <Compile Include="pics_AiT\pic05b_invpropbad_hist.py" />
+    <Compile Include="pics_AiT\pic06a_invpropgood_process_sample.py" />
+    <Compile Include="pics_AiT\pic06b_invpropgood_estimate_sample.py" />
+    <Compile Include="pics_AiT\pic07_invpropgood_estimate_statistics.py" />
+    <Compile Include="pics_AiT\pic08a_invpropbad_process_sample.py" />
+    <Compile Include="pics_AiT\pic08b_invpropbad_estimate_sample.py" />
+    <Compile Include="pics_AiT\pic09_invpropbad_estimate_statistics.py" />
+    <Compile Include="pics_AiT\pic10a_logreg_process_sample.py" />
+    <Compile Include="pics_AiT\pic10b_logreg_estimate_sample.py" />
+    <Compile Include="pics_AiT\pic11_logreg_estimate_statistics.py" />
+    <Compile Include="pics_AiT\pic12_switchingobs_hist.py" />
+    <Compile Include="pics_AiT\pic13a_switchingobs_process_sample.py" />
+    <Compile Include="pics_AiT\pic13b_switchingobs_estimate_sample.py" />
+    <Compile Include="pics_AiT\pic14_switchingobs_estimate_statistics.py" />
+    <Compile Include="pics_AiT\pic15_switchingobs_estimate_statistics_MCMNF.py" />
     <Compile Include="polar.py">
       <SubType>Code</SubType>
     </Compile>
@@ -91,7 +114,12 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="pics\" />
     <Folder Include="pics_AiT\" />
+    <Folder Include="pics_AiT\__pycache__\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="pics_AiT\__pycache__\multiplypoints.cpython-36.pyc" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

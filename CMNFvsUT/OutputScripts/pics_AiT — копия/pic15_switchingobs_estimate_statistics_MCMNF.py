@@ -23,7 +23,8 @@ def cm2inch(*tupl):
 #inputfilename = os.path.join(sys.argv[1], sys.argv[2])
 #outputfilename = os.path.join(sys.argv[1], sys.argv[3])
 
-inputfilename = "D:/results/switchingobs_common_mcmnf_revised_better_CMNF/SwitchingObservations_average_0.txt"
+#inputfilename = "D:/results/switchingobs_common_mcmnf_revised_better_CMNF/SwitchingObservations_average_0.txt"
+inputfilename = "D:/results/switchingobs_common_mcmnf_revised/SwitchingObservations_average_0.txt"
 t, x, Dx, xhat_UMF, mErr_UMF, DErr_UMF, DErrTheor_UMF = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,1,2,3,4,5,6), unpack=True, dtype=float)
 
 inputfilename = "D:/results/switchingobs_common_mcmnf_revised/SwitchingObservations_average_0.txt"
@@ -63,7 +64,7 @@ ax.plot(t, DErr_UT, **params_UT, linestyle=ls_D, label='$D[x_t - \hat{x}_t]$, $D
 ax.plot(t, DErr_UMF, **params_UMF, linestyle=ls_D, label='$D[x_t - \hat{x}_t]$, $D[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(DErr_UMF[49]) + '$ УМНФ')
 #ax.plot(t, DErrTheor_UMF, color = 'black', alpha = alpha_UMF, linewidth = 1.5, linestyle = ls_Dth, label='$\hat{K}_t$, $\hat{K}_T = ' + "{:.2f}".format(DErrTheor_UMF[49]) + '$')
 
-#ax.fill_between(t, np.zeros_like(Dx), Dx, color='black', alpha = 0.2, linewidth=0.0, label='$D[x_t]$, $D[x_T] = ' + "{:.2f}".format(Dx[49]) + '$')
+ax.fill_between(t, np.zeros_like(Dx), Dx, color='black', alpha = 0.2, linewidth=0.0, label='$D[x_t]$, $D[x_T] = ' + "{:.2f}".format(Dx[49]) + '$')
 
 #ax.set_ylim(-0.1, 120)
 ax.legend()
