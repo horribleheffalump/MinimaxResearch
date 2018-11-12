@@ -31,9 +31,9 @@ def cm2inch(*tupl):
 
 f = plt.figure(num=None, figsize=cm2inch((9,9)), dpi=200)
 
-filename = u'D:/results/switchingobs_common_mcmnf_revised/SwitchingObservations_bulk_0.txt'
+filename = u'D:/results/sampled_UMFs_good_predict/SampledRegression_bulk_0.txt'
 data = pd.read_csv(filename, delimiter = " ", header=0, dtype=float, engine='python')
-n, bins, patches = plt.hist(data['49'].values[:], 40, density=1, facecolor='black', alpha=0.5)
+n, bins, patches = plt.hist(data['49'].values[:], 100, density=1, facecolor='black', alpha=0.5)
 
 
 m = np.mean(data['49'])

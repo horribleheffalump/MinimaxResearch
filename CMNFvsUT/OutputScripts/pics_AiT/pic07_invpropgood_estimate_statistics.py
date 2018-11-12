@@ -46,15 +46,15 @@ params_UMF = {
             'linewidth' : 2.5,
             }
 
-ax.plot(t, mErr_UT, **params_UT, linestyle=ls_m, label='$E[x_t - \hat{x}_t]$, $E[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(mErr_UT[49]) + '$')
-ax.plot(t, DErr_UT, **params_UT, linestyle=ls_D, label='$D[x_t - \hat{x}_t]$, $D[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(DErr_UT[49]) + '$')
-ax.plot(t, DErrTheor_UT, **params_UT, linestyle =ls_Dth, label='$\hat{K}_t$, $\hat{K}_T = ' + "{:.2f}".format(DErrTheor_UT[49]) + '$')
+ax.plot(t, mErr_UT, **params_UT, linestyle=ls_m, label='$E[x_t - \hat{x}_t]$, $E[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(mErr_UT[-1]) + '$')
+ax.plot(t, DErr_UT, **params_UT, linestyle=ls_D, label='$D[x_t - \hat{x}_t]$, $D[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(DErr_UT[-1]) + '$')
+ax.plot(t, DErrTheor_UT, **params_UT, linestyle =ls_Dth, label='$\hat{K}_t$, $\hat{K}_T = ' + "{:.2f}".format(DErrTheor_UT[-1]) + '$')
 
-#ax.plot(t, mErr_UMF, **params_UMF, linestyle=ls_m, label='$E[x_t - \hat{x}_t]$, $E[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(mErr_UMF[49]) + '$')
-#ax.plot(t, DErr_UMF, **params_UMF, linestyle=ls_D, label='$D[x_t - \hat{x}_t]$, $D[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(DErr_UMF[49]) + '$')
-#ax.plot(t, DErrTheor_UMF, color = 'black', alpha = alpha_UMF, linewidth = 1.5, linestyle = ls_Dth, label='$\hat{K}_t$, $\hat{K}_T = ' + "{:.2f}".format(DErrTheor_UMF[49]) + '$')
+#ax.plot(t, mErr_UMF, **params_UMF, linestyle=ls_m, label='$E[x_t - \hat{x}_t]$, $E[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(mErr_UMF[-1]) + '$')
+#ax.plot(t, DErr_UMF, **params_UMF, linestyle=ls_D, label='$D[x_t - \hat{x}_t]$, $D[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(DErr_UMF[-1]) + '$')
+#ax.plot(t, DErrTheor_UMF, color = 'black', alpha = alpha_UMF, linewidth = 1.5, linestyle = ls_Dth, label='$\hat{K}_t$, $\hat{K}_T = ' + "{:.2f}".format(DErrTheor_UMF[-1]) + '$')
 
-ax.fill_between(t, np.zeros_like(Dx), Dx, color='black', alpha = 0.2, linewidth=0.0, label='$D[x_t]$, $D[x_T] = ' + "{:.2f}".format(Dx[49]) + '$')
+ax.fill_between(t, np.zeros_like(Dx), Dx, color='black', alpha = 0.2, linewidth=0.0, label='$D[x_t]$, $D[x_T] = ' + "{:.2f}".format(Dx[-1]) + '$')
 
 #ax.set_ylim(-0.1, 1.2)
 ax.legend()

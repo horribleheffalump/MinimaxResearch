@@ -52,18 +52,18 @@ namespace CMNFTest
                 Phi1 = phi1;
                 Phi2 = phi2;
                 Psi1 = psi;
-                Xi = (s, x) => phi1(s, x) + phi2(s, x) * mW;
-                //Xi = (s, x) =>
-                //{
-                //    double num = 0;
-                //    double den = 0;
-                //    for (int i = 0; i < a.Count; i++)
-                //    {
-                //        num += d[i] * Normal.PDF(m[i], S[i], x[0]) * (a[i] * x[0] + b[i]);
-                //        den += d[i] * Normal.PDF(m[i], S[i], x[0]);
-                //    }
-                //    return Exts.Vector(num / den);
-                //};
+                //Xi = (s, x) => phi1(s, x) + phi2(s, x) * mW;
+                Xi = (s, x) =>
+                {
+                    double num = 0;
+                    double den = 0;
+                    for (int i = 0; i < a.Count; i++)
+                    {
+                        num += d[i] * Normal.PDF(m[i], S[i], x[0]) * (a[i] * x[0] + b[i]);
+                        den += d[i] * Normal.PDF(m[i], S[i], x[0]);
+                    }
+                    return Exts.Vector(num / den);
+                };
                 Zeta = (s, x, y, k) => y - psi(s, x) - mNu;
                 W = (s) => Exts.Vector(NormalW[0].Sample());
                 Nu = (s) => Exts.Vector(NormalNu[0].Sample());

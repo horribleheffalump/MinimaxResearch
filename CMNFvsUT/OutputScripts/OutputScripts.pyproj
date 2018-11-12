@@ -38,7 +38,6 @@
     <Compile Include="findspike.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="multiplypoints.py" />
     <Compile Include="pics\pic13a_switchingobs_process_sample.py" />
     <Compile Include="pics\pic13b_switchingobs_estimate_sample.py" />
     <Compile Include="pics\pic15_switchingobs_estimate_statistics_MCMNF.py" />
@@ -51,7 +50,6 @@
     <Compile Include="pics\pic06b_invpropgood_estimate_sample.py" />
     <Compile Include="pics\pic08a_invpropbad_process_sample.py" />
     <Compile Include="pics\pic06a_invpropgood_process_sample.py" />
-    <Compile Include="pic09_invpropbad_estimate_statistics.py" />
     <Compile Include="pics\pic07_invpropgood_estimate_statistics.py" />
     <Compile Include="pics\pic05b_invpropbad_hist.py" />
     <Compile Include="pics\pic05a_invpropgood_hist.py" />
@@ -85,11 +83,11 @@
     <Compile Include="pics_AiT\pic10a_logreg_process_sample.py" />
     <Compile Include="pics_AiT\pic10b_logreg_estimate_sample.py" />
     <Compile Include="pics_AiT\pic11_logreg_estimate_statistics.py" />
-    <Compile Include="pics_AiT\pic12_switchingobs_hist.py" />
-    <Compile Include="pics_AiT\pic13a_switchingobs_process_sample.py" />
-    <Compile Include="pics_AiT\pic13b_switchingobs_estimate_sample.py" />
-    <Compile Include="pics_AiT\pic14_switchingobs_estimate_statistics.py" />
-    <Compile Include="pics_AiT\pic15_switchingobs_estimate_statistics_MCMNF.py" />
+    <Compile Include="pics_AiT\pic12a_switchingobs_process_sample.py" />
+    <Compile Include="pics_AiT\pic12b_switchingobs_estimate_sample.py" />
+    <Compile Include="pics_AiT\pic13_switchingobs_estimate_statistics.py" />
+    <Compile Include="pics_AiT\pic14_sampled_hist_MCMNF.py" />
+    <Compile Include="pics_AiT\pic15_sampled_estimate_statistics_MCMNF.py" />
     <Compile Include="polar.py">
       <SubType>Code</SubType>
     </Compile>

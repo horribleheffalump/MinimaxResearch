@@ -17,14 +17,16 @@ def cm2inch(*tupl):
 #inputfilename = os.path.join(sys.argv[1], sys.argv[2])
 #outputfilename = os.path.join(sys.argv[1], sys.argv[3])
 
-inputfilename = "D:/results_ait/invprop_bad_take_cmnf/InverseProportionBad_average_0.txt"
+#inputfilename = "D:/results/switchingobs_common_mcmnf_revised/SwitchingObservations_average_0.txt"
+#t, x, Dx, xhat_UMF, mErr_UMF, DErr_UMF, DErrTheor_UMF = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,1,2,3,4,5,6), unpack=True, dtype=float)
+inputfilename = "D:/results/switchingobs_correct_CMNF/SwitchingObservations_average_0.txt"
 t, x, Dx, xhat_UMF, mErr_UMF, DErr_UMF, DErrTheor_UMF = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,1,2,3,4,5,6), unpack=True, dtype=float)
 
-inputfilename = "D:/results/invprop/InverseProportionBad_average_0.txt"
-xhat_M, mErr_M, DErr_M, DErrTheor_M = np.loadtxt(inputfilename, delimiter = ' ', usecols=(7,8,9,10), unpack=True, dtype=float)
+inputfilename = "D:/results/switchingobs_common_mcmnf_revised/SwitchingObservations_average_0.txt"
+t, x, Dx, xhat_UT, mErr_UT, DErr_UT, DErrTheor_UT = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,1,2,11,12,13,14), unpack=True, dtype=float)
 
 
-t, Dx, mErr_UMF, DErr_UMF, DErrTheor_UMF, mErr_M, DErr_M, DErrTheor_M = multx(t[0:20]), multy(Dx[0:20]), multy(mErr_UMF[0:20]), multy(DErr_UMF[0:20]), multy(DErrTheor_UMF[0:20]), multy(mErr_M), multy(DErr_M), multy(DErrTheor_M)
+t, Dx, mErr_UMF, DErr_UMF, DErrTheor_UMF, mErr_UT, DErr_UT, DErrTheor_UT = multx(t), multy(Dx), multy(mErr_UMF), multy(DErr_UMF), multy(DErrTheor_UMF), multy(mErr_UT), multy(DErr_UT), multy(DErrTheor_UT)
 
 from pylab import *
 
@@ -49,9 +51,9 @@ params_UMF = {
             'linewidth' : 2.5,
             }
 
-ax.plot(t, mErr_M, **params_UT, linestyle=ls_m, label='$E[x_t - \hat{x}_t]$, $E[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(mErr_M[-1]) + '$')
-ax.plot(t, DErr_M, **params_UT, linestyle=ls_D, label='$D[x_t - \hat{x}_t]$, $D[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(DErr_M[-1]) + '$')
-ax.plot(t, DErrTheor_M, **params_UT, linestyle =ls_Dth, label='$\hat{K}_t$, $\hat{K}_T = ' + "{:.2f}".format(DErrTheor_M[-1]) + '$')
+#ax.plot(t, mErr_UT, **params_UT, linestyle=ls_m, label='$E[x_t - \hat{x}_t]$, $E[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(mErr_UT[-1]) + '$')
+#ax.plot(t, DErr_UT, **params_UT, linestyle=ls_D, label='$D[x_t - \hat{x}_t]$, $D[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(DErr_UT[-1]) + '$')
+#ax.plot(t, DErrTheor_UT, **params_UT, linestyle =ls_Dth, label='$\hat{K}_t$, $\hat{K}_T = ' + "{:.2f}".format(DErrTheor_UT[-1]) + '$')
 
 ax.plot(t, mErr_UMF, **params_UMF, linestyle=ls_m, label='$E[x_t - \hat{x}_t]$, $E[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(mErr_UMF[-1]) + '$')
 ax.plot(t, DErr_UMF, **params_UMF, linestyle=ls_D, label='$D[x_t - \hat{x}_t]$, $D[x_{T} - \hat{x}_T] = ' + "{:.2f}".format(DErr_UMF[-1]) + '$')
@@ -59,7 +61,7 @@ ax.plot(t, DErrTheor_UMF, color = 'black', alpha = alpha_UMF, linewidth = 1.5, l
 
 ax.fill_between(t, np.zeros_like(Dx), Dx, color='black', alpha = 0.2, linewidth=0.0, label='$D[x_t]$, $D[x_T] = ' + "{:.2f}".format(Dx[-1]) + '$')
 
-#ax.set_ylim(-0.1, 1.2)
+ax.set_ylim(-0.1, 120)
 ax.legend()
 plt.tight_layout()
 plt.show()
