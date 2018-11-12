@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CMNF", "..\CMNFvsUT\CMNF\CM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NonlinearSystem", "..\CMNFvsUT\NonlinearSystem\NonlinearSystem.csproj", "{56B18624-92EE-44E0-A654-F86B72551462}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathNetExtensions", "..\CMNFvsUT\MathNetExtensions\MathNetExtensions.csproj", "{157A7FC2-699F-4F4E-AAFC-AC964124F989}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestEnvironments", "..\CMNFvsUT\TestEnvironments\TestEnvironments.csproj", "{7303FFD7-11C6-4F25-A388-25F251DC36C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +37,14 @@ Global
 		{56B18624-92EE-44E0-A654-F86B72551462}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{56B18624-92EE-44E0-A654-F86B72551462}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{56B18624-92EE-44E0-A654-F86B72551462}.Release|Any CPU.Build.0 = Release|Any CPU
+		{157A7FC2-699F-4F4E-AAFC-AC964124F989}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{157A7FC2-699F-4F4E-AAFC-AC964124F989}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{157A7FC2-699F-4F4E-AAFC-AC964124F989}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{157A7FC2-699F-4F4E-AAFC-AC964124F989}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7303FFD7-11C6-4F25-A388-25F251DC36C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7303FFD7-11C6-4F25-A388-25F251DC36C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7303FFD7-11C6-4F25-A388-25F251DC36C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7303FFD7-11C6-4F25-A388-25F251DC36C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
