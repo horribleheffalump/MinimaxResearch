@@ -55,6 +55,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\CMNFvsUT\MathNetExtensions\MathNetExtensions.csproj">
+      <Project>{157A7FC2-699F-4F4E-AAFC-AC964124F989}</Project>
+      <Name>MathNetExtensions</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\CMNFvsUT\NonlinearSystem\NonlinearSystem.csproj">
       <Project>{56B18624-92EE-44E0-A654-F86B72551462}</Project>
       <Name>NonlinearSystem</Name>

@@ -27,6 +27,13 @@ namespace NonlinearSystem
 
         public Dictionary<int,Vector<double>[]> Trajectory;
 
+        public DiscreteVectorModel() // dummy constructor
+        {
+            t = 0;
+            Trajectory = new Dictionary<int, Vector<double>[]>();
+        }
+
+
         public DiscreteVectorModel(Func<int, Vector<double>, Vector<double>> phi1, 
                                    Func<int, Vector<double>, Matrix<double>> phi2,
                                    Func<int, Vector<double>, Vector<double>> psi1,
