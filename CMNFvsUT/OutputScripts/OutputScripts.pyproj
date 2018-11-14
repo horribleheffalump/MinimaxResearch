@@ -62,6 +62,8 @@
     <Compile Include="pics_AiT\pic13_switchingobs_estimate_statistics.py" />
     <Compile Include="pics_AiT\pic14_sampled_hist_MCMNF.py" />
     <Compile Include="pics_AiT\pic15_sampled_estimate_statistics_MCMNF.py" />
+    <Compile Include="pics_IEEPR\cubic_estimate_statistics_MCMNF.py" />
+    <Compile Include="pics_IEEPR\multiplypoints.py" />
     <Compile Include="polar.py">
       <SubType>Code</SubType>
     </Compile>
@@ -83,6 +85,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="pics_IEEPR\" />
     <Folder Include="pics_AiT\" />
     <Folder Include="pics_AiT\__pycache__\" />
   </ItemGroup>

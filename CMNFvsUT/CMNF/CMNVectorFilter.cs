@@ -59,16 +59,17 @@ namespace CMNF
 
                 Matrix<double> CovXiHat = Exts.Cov(xiHat, xiHat);
                 Matrix<double> InvCovXiHat = Matrix<double>.Build.Dense(CovXiHat.RowCount, CovXiHat.ColumnCount, 0.0);
-                try
-                {
-                    InvCovXiHat = CovXiHat.PseudoInverse();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Can't inverse XiHat");
-                    Console.WriteLine(CovXiHat.ToString());
-                    Console.WriteLine(e.Message);
-                }
+                if (CovXiHat.FrobeniusNorm() > 0)
+                    try
+                    {
+                        InvCovXiHat = CovXiHat.PseudoInverse();
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Can't inverse XiHat");
+                        Console.WriteLine(CovXiHat.ToString());
+                        Console.WriteLine(e.Message);
+                    }
                 Matrix<double> F = Exts.Cov(x, xiHat) * InvCovXiHat;
                 Vector<double> f = x.Average() - F * xiHat.Average();
                 Matrix<double> kTilde = Exts.Cov(x, x) - Exts.Cov(x, xiHat) * F.Transpose();

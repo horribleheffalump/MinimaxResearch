@@ -18,7 +18,7 @@ namespace CMNFvsUTFTest
     {
         public class Options
         {
-            [Option('m', "model", Required = true, HelpText = "Model name, one of: sphere, polar, polartwo, cubic, invprop-good, invprop-bad, logreg-simple, logreg-zero, logreg-uniform, samplereg, switchingobs")]
+            [Option('m', "model", Required = true, HelpText = "Model name, one of: sphere, polar, polartwo, cubic, invprop-good, invprop-bad, logreg-simple, logreg-zero, logreg-uniform, samplereg, switchingobs, switchingobsident")]
             public string Model { get; set; }
 
             [Option('n', "samples", Required = false, HelpText = "Number of samples for static models (sphere and polar)")]
@@ -84,6 +84,8 @@ namespace CMNFvsUTFTest
             [Option('P', "parallel", Required = false, Default = false, HelpText = "Parallel bundles calculation (on to save time, off to save memory in case of multiple large bundles)")]
             public bool Parallel { get; set; }
 
+            [Option('i', "ident-model", Required = false, Default = 0, HelpText = "Identification model number")]
+            public int IdentNumber { get; set; }
 
 
         }
@@ -355,6 +357,16 @@ namespace CMNFvsUTFTest
             if (o.Model == "switchingobs")
             {
                 testEnv = new TestSwitchingObservations(o.DNu);
+            }
+            if (o.Model == "switchingobsident")
+            {
+                switch (o.IdentNumber)
+                {
+                    case 1: testEnv = new AnotherTestSwitchingObservationsIdentification(o.DNu); break;
+                    case 2: testEnv = new YetAnotherTestSwitchingObservationsIdentification(o.DNu); break;
+                    case 3: testEnv = new HopefullyTheLastTestSwitchingObservationsIdentification(o.DNu); break;
+                    default: testEnv = new TestSwitchingObservationsIdentification(o.DNu); break;
+                }
             }
 
             List<FilterType> filters = new List<FilterType>();
