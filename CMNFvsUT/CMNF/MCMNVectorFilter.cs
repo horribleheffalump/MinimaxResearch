@@ -74,7 +74,20 @@ namespace CMNF
                 zetaTilde[i] = Zeta(t, f, y_mod[i], kTilde);
             }
 
-            Matrix<double> H = Exts.Cov(x_mod.Subtract(f), zetaTilde) * (Exts.Cov(zetaTilde, zetaTilde).PseudoInverse());
+
+            Matrix<double> CovZetaTilde = Exts.Cov(zetaTilde, zetaTilde);
+            Matrix<double> InvCovZetaTilde = Matrix<double>.Build.Dense(CovZetaTilde.RowCount, CovZetaTilde.ColumnCount, 0.0);
+            try
+            {
+                InvCovZetaTilde = CovZetaTilde.PseudoInverse();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Can't inverse ZetaTilde");
+                Console.WriteLine(CovZetaTilde.ToString());
+                Console.WriteLine(e.Message);
+            }
+            Matrix<double> H = Exts.Cov(x_mod.Subtract(f), zetaTilde) * InvCovZetaTilde;
             Vector<double> h = -H * zetaTilde.Average();
 
             Matrix<double> kHat = kTilde - Exts.Cov(x_mod.Subtract(f), zetaTilde) * H.Transpose();

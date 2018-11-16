@@ -1,5 +1,6 @@
 ﻿using CMNFvsUTFTest.Properties;
 using CommandLine;
+using MathNet.Numerics;
 using MathNet.Numerics.Distributions;
 using MathNet.Numerics.LinearAlgebra;
 using MathNetExtensions;
@@ -92,6 +93,12 @@ namespace CMNFvsUTFTest
 
         static void Main(string[] args)
         {
+            //Control.UseNativeCUDA();
+            //Console.WriteLine(Control.TryUseNativeCUDA());
+
+            //Matrix<double> m = Exts.Diag(0.0, 0.0);
+            //Console.WriteLine(m.ToLatex());
+            //Console.WriteLine(m.PseudoInverse().ToLatex());
             CommandLine.Parser.Default.ParseArguments<Options>(args).WithParsed<Options>(opts => Run(opts, args));
         }
 
