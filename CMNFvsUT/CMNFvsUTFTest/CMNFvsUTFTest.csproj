@@ -87,6 +87,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="bin\Release\CMNFvsUTFTest.exe.config" />
+    <None Include="bin\Release\TestEnvironments.dll.config" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -106,6 +108,25 @@
       <Project>{7303ffd7-11c6-4f25-a388-25f251dc36c6}</Project>
       <Name>TestEnvironments</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="bin\Release\CMNF.dll" />
+    <Content Include="bin\Release\CMNFvsUTFTest.exe" />
+    <Content Include="bin\Release\CommandLine.dll" />
+    <Content Include="bin\Release\MathNet.Numerics.dll" />
+    <Content Include="bin\Release\MathNetUtils.dll" />
+    <Content Include="bin\Release\NonlinearSystem.dll" />
+    <Content Include="bin\Release\PythonInteract.dll" />
+    <Content Include="bin\Release\System.Console.dll" />
+    <Content Include="bin\Release\System.IO.dll" />
+    <Content Include="bin\Release\System.Linq.dll" />
+    <Content Include="bin\Release\System.Linq.Expressions.dll" />
+    <Content Include="bin\Release\System.Reflection.dll" />
+    <Content Include="bin\Release\System.Reflection.TypeExtensions.dll" />
+    <Content Include="bin\Release\System.Runtime.dll" />
+    <Content Include="bin\Release\System.Runtime.Extensions.dll" />
+    <Content Include="bin\Release\TestEnvironments.dll" />
+    <Content Include="bin\Release\UKF.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
