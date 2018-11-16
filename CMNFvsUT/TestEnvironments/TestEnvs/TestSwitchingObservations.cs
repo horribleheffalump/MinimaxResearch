@@ -287,7 +287,7 @@ namespace TestEnvironments
                 Nu = (s) => Exts.Vector(NormalNu[0].Sample());
                 DW = dW;
                 DNu = dNu;
-                X0 = () => Exts.Vector(UniformW.Sample(), 1.0);
+                X0 = () => Exts.Vector(UniformW.Sample(), 0.0);
                 X0Hat = mEta;
                 DX0Hat = dEta;
             }
@@ -347,7 +347,7 @@ namespace TestEnvironments
                 Nu = (s) => Exts.Vector(NormalNu[0].Sample());
                 DW = dW;
                 DNu = dNu;
-                X0 = () => Exts.Vector(UniformW.Sample(), 1.0);
+                X0 = () => Exts.Vector(UniformW.Sample(), 0.0);
                 X0Hat = mEta;
                 DX0Hat = dEta;
             }
