@@ -468,7 +468,7 @@ namespace TestEnvironments
             
             if (parallel)
             {
-                Parallel.For(0, N, m =>
+                Parallel.For(0, N, new ParallelOptions() { MaxDegreeOfParallelism = 2}, m =>
                 {
                     CalculateBundle(n, m, mx, Dx, mxHat, mKHat, mError, DError);
                     //}
