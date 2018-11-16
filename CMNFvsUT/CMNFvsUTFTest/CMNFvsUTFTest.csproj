@@ -130,6 +130,7 @@
     <Content Include="bin\Release\System.Reflection.TypeExtensions.dll" />
     <Content Include="bin\Release\System.Runtime.dll" />
     <Content Include="bin\Release\System.Runtime.Extensions.dll" />
+    <Content Include="bin\Release\System.ValueTuple.dll" />
     <Content Include="bin\Release\TestEnvironments.dll" />
     <Content Include="bin\Release\UKF.dll" />
   </ItemGroup>
