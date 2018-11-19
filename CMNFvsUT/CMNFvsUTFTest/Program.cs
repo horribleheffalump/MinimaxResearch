@@ -88,6 +88,8 @@ namespace CMNFvsUTFTest
             [Option('i', "ident-model", Required = false, Default = 0, HelpText = "Identification model number")]
             public int IdentNumber { get; set; }
 
+            [Option('d', "degree-parallelism", Required = false, Default = 1, HelpText = "Maximum degreee of parallelism")]
+            public int ParallelismDegree { get; set; }
 
         }
 
@@ -404,10 +406,11 @@ namespace CMNFvsUTFTest
             else
             {
                 testEnv.Initialize(o.T, o.TrainCount, o.MCMNFTrainCount, o.OutputFolder, filters);
-                if (o.BundleCount > 1)
-                    testEnv.GenerateBundles(o.BundleCount, o.TestCount, o.OutputFolder, o.Parallel);
-                else
-                    testEnv.GenerateBundle(o.TestCount, o.OutputFolder);
+                testEnv.GenerateBundles(o.BundleCount, o.TestCount, o.OutputFolder, o.Parallel, o.ParallelismDegree);
+                //if (o.BundleCount > 1)
+                //    testEnv.GenerateBundles(o.BundleCount, o.TestCount, o.OutputFolder, o.Parallel, o.ParallelismDegree);
+                //else
+                //    testEnv.GenerateBundle(o.TestCount, o.OutputFolder);
                 if (o.SamplesCount == 1)
                     testEnv.GenerateOne(o.OutputFolder);
                 else

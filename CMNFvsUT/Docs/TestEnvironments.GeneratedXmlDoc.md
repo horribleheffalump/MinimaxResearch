@@ -102,19 +102,7 @@
 
 
 ---
-#### Method TestEnvironmentVector.GenerateBundle(System.Int32,System.String)
-
- Generates a bundle of trajectories, applies the CMN and UK filters, calculates statistics for estimate errors and saves it to files 
-
-|Name | Description |
-|-----|------|
-|n: |Number of trajectories|
-|folderName: |Output folder name|
-|doCalculateUKF: |(optional, default = true) if true, UKF and CMNF estimates are calculated, if false - only CMNF |
-
-
----
-#### Method TestEnvironmentVector.GenerateBundles(System.Int32,System.Int32,System.String,System.Boolean)
+#### Method TestEnvironmentVector.GenerateBundles(System.Int32,System.Int32,System.String,System.Boolean,System.Int32)
 
  Generates N bundles of trajectories, applies the CMN and UK filters. The statistics for estimate errors are calculated by taking average on each bundle, and then on the whole set of bundles. Same as GenerateBundle but for larger numbers of trajectories. 
 

@@ -105,6 +105,20 @@ namespace MathNetExtensions
             return mx;
         }
 
+        public static Matrix<double>[] Average(this Matrix<double>[][] x)
+        {
+            Matrix<double>[] mx = new Matrix<double>[x[0].Length];
+            for (int i = 0; i < x[0].Length; i++)
+            {
+                mx[i] = ZeroOfShape(x[0][i]);
+                for (int j = 1; j < x.Length; j++)
+                {
+                    mx[i] = mx[i] + x[j][i]/x.Length;
+                }
+            }
+            return mx;
+        }
+
         public static Vector<double>[] Average(this Vector<double>[,] x, int axis = 0) // TODO: the same code for Matrix and Vector - NOT COOL!!!
         {
             var width = x.GetLength(0);
@@ -147,6 +161,19 @@ namespace MathNetExtensions
             return mx;
         }
 
+        public static Vector<double>[] Average(this Vector<double>[][] x)
+        {
+            Vector<double>[] mx = new Vector<double>[x[0].Length];
+            for (int i = 0; i < x[0].Length; i++)
+            {
+                mx[i] = ZeroOfShape(x[0][i]);
+                for (int j = 1; j < x.Length; j++)
+                {
+                    mx[i] = mx[i] + x[j][i] / x.Length;
+                }
+            }
+            return mx;
+        }
 
         public static Matrix<double> Average(this Matrix<double>[] x)
         {
@@ -158,6 +185,45 @@ namespace MathNetExtensions
             mx = mx / x.Length;
             return mx;
         }
+        public static Vector<double>[] ArrayOf(Vector<double> v, int n)
+        {
+            Vector<double>[] result = new Vector<double>[n];
+            for (int i = 0; i < n; i++)
+            {
+                result[i] = Vector<double>.Build.DenseOfVector(v);
+            }
+            return result;
+        }
+
+        public static Vector<double>[] ZerosArrayOfShape(Vector<double> v, int n)
+        {
+            return ArrayOf(Vector<double>.Build.Dense(v.Count), n);
+        }
+
+        public static Vector<double> ZeroOfShape(Vector<double> v)
+        {
+            return Vector<double>.Build.Dense(v.Count);
+        }
+
+        public static Matrix<double>[] ArrayOf(Matrix<double> m, int n)
+        {
+            Matrix<double>[] result = new Matrix<double>[n];
+            for (int i = 0; i < n; i++)
+            {
+                result[i] = Matrix<double>.Build.DenseOfMatrix(m);
+            }
+            return result;
+        }
+
+        public static Matrix<double>[] ZerosArrayOfShape(Matrix<double> m, int n)
+        {
+            return ArrayOf(Matrix<double>.Build.Dense(m.RowCount, m.ColumnCount), n);
+        }
+
+        public static Matrix<double> ZeroOfShape(Matrix<double> m)
+        {
+            return Matrix<double>.Build.Dense(m.RowCount, m.ColumnCount);
+        }
 
         public static Vector<double>[] Subtract(this Vector<double>[] v1, Vector<double>[] v2)
         {
@@ -165,6 +231,16 @@ namespace MathNetExtensions
             for (int i = 0; i < v1.Length; i++)
             {
                 result[i] = v1[i] - v2[i];
+            }
+            return result;
+        }
+
+        public static Vector<double>[] Add(this Vector<double>[] v1, Vector<double>[] v2)
+        {
+            Vector<double>[] result = new Vector<double>[v1.Length];
+            for (int i = 0; i < v1.Length; i++)
+            {
+                result[i] = v1[i] + v2[i];
             }
             return result;
         }

@@ -343,95 +343,94 @@ namespace TestEnvironments
             }
         }
 
-        /// <summary>
-        /// Generates a bundle of trajectories, applies the CMN and UK filters, calculates statistics for estimate errors and saves it to files
-        /// </summary> 
-        /// <param name="n">Number of trajectories</param>
-        /// <param name="folderName">Output folder name</param>
-        /// <param name="doCalculateUKF">(optional, default = true) if true, UKF and CMNF estimates are calculated, if false - only CMNF </param>
-        public void GenerateBundle(int n, string folderName)
-        {
-            Console.WriteLine($"GenerateBundle");
-            string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
-            //DiscreteScalarModel[] modelsEst = new DiscreteScalarModel[N];
-            DiscreteVectorModel[] modelsEst = new DiscreteVectorModel[n];
-            int dimX = X0().Count;
+        ///// <summary>
+        ///// Generates a bundle of trajectories, applies the filters, calculates statistics for estimate errors and saves it to files
+        ///// </summary> 
+        ///// <param name="n">Number of trajectories</param>
+        ///// <param name="folderName">Output folder name</param>
+        //public void GenerateBundle(int n, string folderName)
+        //{
+        //    Console.WriteLine($"GenerateBundle");
+        //    string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
+        //    //DiscreteScalarModel[] modelsEst = new DiscreteScalarModel[N];
+        //    DiscreteVectorModel[] modelsEst = new DiscreteVectorModel[n];
+        //    int dimX = X0().Count;
 
-            for (int i = 0; i < n; i++)
-            {
-                if (i % 1000 == 0) // inform every 1000-th trajectory
-                    Console.WriteLine($"model {i}");
-                modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-                for (int s = 0; s < T; s++)
-                {
-                    modelsEst[i].Step();
-                }
-            }
+        //    for (int i = 0; i < n; i++)
+        //    {
+        //        if (i % 1000 == 0) // inform every 1000-th trajectory
+        //            Console.WriteLine($"model {i}");
+        //        modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
+        //        for (int s = 0; s < T; s++)
+        //        {
+        //            modelsEst[i].Step();
+        //        }
+        //    }
 
-            for (int k = 0; k < dimX; k++)
-            {
-                using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString())))
-                {
-                    outputfile.Close();
-                }
-            }
+        //    for (int k = 0; k < dimX; k++)
+        //    {
+        //        using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString())))
+        //        {
+        //            outputfile.Close();
+        //        }
+        //    }
 
-            Vector<double>[][] xHat = new Vector<double>[Filters.Count()][];
-            Matrix<double>[][] KHat = new Matrix<double>[Filters.Count()][];
-            Vector<double>[] mxHat = new Vector<double>[Filters.Count()];
-            Matrix<double>[] mKHat = new Matrix<double>[Filters.Count()];
-            Vector<double>[] mError = new Vector<double>[Filters.Count()];
-            Matrix<double>[] DError = new Matrix<double>[Filters.Count()];
-            for (int j = 0; j < Filters.Count(); j++)
-            {
-                xHat[j] = Enumerable.Repeat(X0Hat, n).ToArray();
-                KHat[j] = Enumerable.Repeat(DX0Hat, n).ToArray();
-            }
-            Console.WriteLine($"calculate estimates");
-            for (int t = 0; t < T; t++)
-            {
-                Console.WriteLine($"t={t}");
-                Vector<double>[] x = new Vector<double>[n];
-                Vector<double>[] y = new Vector<double>[n];
+        //    Vector<double>[][] xHat = new Vector<double>[Filters.Count()][];
+        //    Matrix<double>[][] KHat = new Matrix<double>[Filters.Count()][];
+        //    Vector<double>[] mxHat = new Vector<double>[Filters.Count()];
+        //    Matrix<double>[] mKHat = new Matrix<double>[Filters.Count()];
+        //    Vector<double>[] mError = new Vector<double>[Filters.Count()];
+        //    Matrix<double>[] DError = new Matrix<double>[Filters.Count()];
+        //    for (int j = 0; j < Filters.Count(); j++)
+        //    {
+        //        xHat[j] = Enumerable.Repeat(X0Hat, n).ToArray();
+        //        KHat[j] = Enumerable.Repeat(DX0Hat, n).ToArray();
+        //    }
+        //    Console.WriteLine($"calculate estimates");
+        //    for (int t = 0; t < T; t++)
+        //    {
+        //        Console.WriteLine($"t={t}");
+        //        Vector<double>[] x = new Vector<double>[n];
+        //        Vector<double>[] y = new Vector<double>[n];
 
-                for (int j = 0; j < Filters.Count(); j++)
-                {
-                    for (int i = 0; i < n; i++)
-                    {
-                        x[i] = modelsEst[i].Trajectory[t][0];
-                        y[i] = modelsEst[i].Trajectory[t][1];
-                        (xHat[j][i], KHat[j][i]) = Filters[j].Step(t, y[i], xHat[j][i], KHat[j][i]);
+        //        for (int j = 0; j < Filters.Count(); j++)
+        //        {
+        //            for (int i = 0; i < n; i++)
+        //            {
+        //                x[i] = modelsEst[i].Trajectory[t][0];
+        //                y[i] = modelsEst[i].Trajectory[t][1];
+        //                (xHat[j][i], KHat[j][i]) = Filters[j].Step(t, y[i], xHat[j][i], KHat[j][i]);
 
-                    }
-                    mxHat[j] = xHat[j].Average();
-                    mKHat[j] = KHat[j].Average();
-                    mError[j] = (x.Subtract(xHat[j])).Average();
-                    DError[j] = Exts.Cov(x.Subtract(xHat[j]), x.Subtract(xHat[j]));
-                }
+        //            }
+        //            mxHat[j] = xHat[j].Average();
+        //            mKHat[j] = KHat[j].Average();
+        //            mError[j] = (x.Subtract(xHat[j])).Average();
+        //            DError[j] = Exts.Cov(x.Subtract(xHat[j]), x.Subtract(xHat[j]));
+        //        }
 
-                Vector<double> mx = x.Average();
-                Matrix<double> Dx = Exts.Cov(x, x);
+        //        Vector<double> mx = x.Average();
+        //        Matrix<double> Dx = Exts.Cov(x, x);
 
 
-                for (int k = 0; k < dimX; k++)
-                {
-                    using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString()), true))
-                    {
-                        outputfile.Write(string.Format(provider, "{0} {1} {2}",
-                            t, mx[k], Dx[k, k]
-                            ));
-                        for (int j = 0; j < Filters.Count(); j++)
-                        {
-                            outputfile.Write(string.Format(provider, " {0} {1} {2} {3}",
-                            mxHat[j][k], mError[j][k], DError[j][k, k], mKHat[j][k, k]
-                            ));
-                        }
-                        outputfile.WriteLine();
-                        outputfile.Close();
-                    }
-                }
-            }
-        }
+        //        for (int k = 0; k < dimX; k++)
+        //        {
+        //            using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString()), true))
+        //            {
+        //                outputfile.Write(string.Format(provider, "{0} {1} {2}",
+        //                    t, mx[k], Dx[k, k]
+        //                    ));
+        //                for (int j = 0; j < Filters.Count(); j++)
+        //                {
+        //                    outputfile.Write(string.Format(provider, " {0} {1} {2} {3}",
+        //                    mxHat[j][k], mError[j][k], DError[j][k, k], mKHat[j][k, k]
+        //                    ));
+        //                }
+        //                outputfile.WriteLine();
+        //                outputfile.Close();
+        //            }
+        //        }
+        //    }
+        //}
 
 
         /// <summary>
@@ -442,76 +441,105 @@ namespace TestEnvironments
         /// <param name="n">Number of trajectories</param>
         /// <param name="folderName">Output folder name</param>
         /// <param name="doCalculateUKF">(optional, default = true) if true, UKF and CMNF estimates are calculated, if false - only CMNF </param>
-        public void GenerateBundles(int N, int n, string folderName, bool parallel = false)
+        public void GenerateBundles(int N, int n, string folderName, bool parallel = false, int parallel_degree = 1)
         {
             Console.WriteLine($"GenerateBundles");
             string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
 
-            Vector<double>[,] mx = new Vector<double>[N, T];
-            Matrix<double>[,] Dx = new Matrix<double>[N, T];
-
-            Vector<double>[][,] mxHat = new Vector<double>[Filters.Count()][,];
-            Matrix<double>[][,] mKHat = new Matrix<double>[Filters.Count()][,];
-            Vector<double>[][,] mError = new Vector<double>[Filters.Count()][,];
-            Matrix<double>[][,] DError = new Matrix<double>[Filters.Count()][,];
-
-            for (int j = 0; j < Filters.Count(); j++)
-            {
-                mxHat[j] = new Vector<double>[N, T];
-                mKHat[j] = new Matrix<double>[N, T];
-                mError[j] = new Vector<double>[N, T];
-                DError[j] = new Matrix<double>[N, T];
-            }
+            List<ProcessInfo> processInfos = new List<ProcessInfo>();
 
             int dimX = X0().Count;
 
-            
+
             if (parallel)
             {
-                Parallel.For(0, N, new ParallelOptions() { MaxDegreeOfParallelism = 2}, m =>
+                Parallel.For(0, N, new ParallelOptions() { MaxDegreeOfParallelism = parallel_degree },
+                () =>
                 {
-                    CalculateBundle(n, m, mx, Dx, mxHat, mKHat, mError, DError);
-                    //}
-                });
+                    return new ProcessInfo(T, Filters.Count(), X0Hat, DX0Hat);
+                },
+                (m, loop, bundleData) =>
+                {
+                    return CalculateBundle(n, m, bundleData);
+                },
+                (bundleData) =>
+                {
+                    lock (processInfos)
+                    {
+                        processInfos.Add(bundleData);
+                    }
+                }
+                );
             }
             else
             {
                 for (int m = 0; m < N; m++)
-                { 
-                    CalculateBundle(n, m, mx, Dx, mxHat, mKHat, mError, DError);
-                }
-            }
-            for (int k = 0; k < dimX; k++)
-            {
-                using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString())))
                 {
-                    outputfile.Close();
+                    ProcessInfo p = new ProcessInfo(T, Filters.Count(), X0Hat, DX0Hat);
+                    p = CalculateBundle(n, m, p);
+                    processInfos.Add(p);
                 }
             }
 
-            for (int t = 0; t < T; t++)
+            if (processInfos.Count > 1)
             {
-                for (int k = 0; k < dimX; k++)
-                {
-                    using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString()), true))
-                    {
-                        outputfile.Write(string.Format(provider, "{0} {1} {2}",
-                            t, mx.Average(axis: 1)[t][k], Dx.Average(axis: 1)[t][k, k]
-                            ));
-                        for (int j = 0; j < Filters.Count(); j++)
-                        {
-                            outputfile.Write(string.Format(provider, " {0} {1} {2} {3}",
-                            mxHat[j].Average(axis: 1)[t][k], mError[j].Average(axis: 1)[t][k], DError[j].Average(axis: 1)[t][k, k], mKHat[j].Average(axis: 1)[t][k, k] //, CMNF.KHat[t][k, k]
-                            ));
-                        }
-                        outputfile.WriteLine();
-                        outputfile.Close();
-                    }
-                }
+                ProcessInfo totalProcessInfo = new ProcessInfo(processInfos.ToArray());
+                totalProcessInfo.SaveToFile(fileName);
+            }
+            else
+            {
+                processInfos[0].SaveToFile(fileName);
             }
         }
 
-        private void CalculateBundle(int n, int m, Vector<double>[,] mx, Matrix<double>[,] Dx, Vector<double>[][,] mxHat, Matrix<double>[][,] mKHat, Vector<double>[][,] mError, Matrix<double>[][,] DError)
+        //private void CalculateBundle(int n, int m, Vector<double>[,] mx, Matrix<double>[,] Dx, Vector<double>[][,] mxHat, Matrix<double>[][,] mKHat, Vector<double>[][,] mError, Matrix<double>[][,] DError)
+        //{
+        //    Console.WriteLine($"GenerateBundle {m}");
+        //    DiscreteVectorModel[] modelsEst = new DiscreteVectorModel[n];
+        //    for (int i = 0; i < n; i++)
+        //    {
+        //        if (i % 1000 == 0) // inform every 1000-th trajectory
+        //            Console.WriteLine($"model {i}");
+        //        modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
+        //        for (int s = 0; s < T; s++)
+        //        {
+        //            modelsEst[i].Step();
+        //        }
+        //    }
+
+        //    Vector<double>[][] xHat = new Vector<double>[Filters.Count()][];
+        //    Matrix<double>[][] KHat = new Matrix<double>[Filters.Count()][];
+        //    for (int j = 0; j < Filters.Count(); j++)
+        //    {
+        //        xHat[j] = Enumerable.Repeat(X0Hat, n).ToArray();
+        //        KHat[j] = Enumerable.Repeat(DX0Hat, n).ToArray();
+        //    }
+        //    Console.WriteLine($"calculate estimates");
+        //    for (int t = 0; t < T; t++)
+        //    {
+        //        Console.WriteLine($"t={t}");
+        //        Vector<double>[] x = new Vector<double>[n];
+        //        Vector<double>[] y = new Vector<double>[n];
+        //        for (int j = 0; j < Filters.Count(); j++)
+        //        {
+        //            for (int i = 0; i < n; i++)
+        //            {
+        //                x[i] = modelsEst[i].Trajectory[t][0];
+        //                y[i] = modelsEst[i].Trajectory[t][1];
+        //                (xHat[j][i], KHat[j][i]) = Filters[j].Step(t, y[i], xHat[j][i], KHat[j][i]);
+        //            }
+        //            mxHat[j][m, t] = xHat[j].Average();
+        //            mKHat[j][m, t] = KHat[j].Average();
+        //            mError[j][m, t] = (x.Subtract(xHat[j])).Average();
+        //            DError[j][m, t] = Exts.Cov(x.Subtract(xHat[j]), x.Subtract(xHat[j]));
+        //        }
+        //        mx[m, t] = x.Average();
+        //        Dx[m, t] = Exts.Cov(x, x);
+        //    }
+
+        //}
+
+        private ProcessInfo CalculateBundle(int n, int m, ProcessInfo processInfo)
         {
             Console.WriteLine($"GenerateBundle {m}");
             DiscreteVectorModel[] modelsEst = new DiscreteVectorModel[n];
@@ -530,8 +558,8 @@ namespace TestEnvironments
             Matrix<double>[][] KHat = new Matrix<double>[Filters.Count()][];
             for (int j = 0; j < Filters.Count(); j++)
             {
-                xHat[j] = Enumerable.Repeat(X0Hat, n).ToArray();
-                KHat[j] = Enumerable.Repeat(DX0Hat, n).ToArray();
+                xHat[j] = Exts.ArrayOf(X0Hat, n);
+                KHat[j] = Exts.ArrayOf(DX0Hat, n);
             }
             Console.WriteLine($"calculate estimates");
             for (int t = 0; t < T; t++)
@@ -547,15 +575,15 @@ namespace TestEnvironments
                         y[i] = modelsEst[i].Trajectory[t][1];
                         (xHat[j][i], KHat[j][i]) = Filters[j].Step(t, y[i], xHat[j][i], KHat[j][i]);
                     }
-                    mxHat[j][m, t] = xHat[j].Average();
-                    mKHat[j][m, t] = KHat[j].Average();
-                    mError[j][m, t] = (x.Subtract(xHat[j])).Average();
-                    DError[j][m, t] = Exts.Cov(x.Subtract(xHat[j]), x.Subtract(xHat[j]));
+                    processInfo.FilterQualityInfos[j].mxHat[t] = xHat[j].Average();
+                    processInfo.FilterQualityInfos[j].mKHat[t] = KHat[j].Average();
+                    processInfo.FilterQualityInfos[j].mError[t] = (x.Subtract(xHat[j])).Average();
+                    processInfo.FilterQualityInfos[j].DError[t] = Exts.Cov(x.Subtract(xHat[j]), x.Subtract(xHat[j]));
                 }
-                mx[m, t] = x.Average();
-                Dx[m, t] = Exts.Cov(x, x);
+                processInfo.mx[t] = x.Average();
+                processInfo.Dx[t] = Exts.Cov(x, x);
             }
-
+            return processInfo;
         }
 
         public void ProcessResults(string dataFolder, string scriptsFolder, string outputFolder)
@@ -563,7 +591,7 @@ namespace TestEnvironments
             Console.WriteLine("Running scripts");
 
             string[] scriptNamesOne = new string[] { "process_sample", "estimate_sample" };
-            string[] scriptNamesMany = new string[] { "process_statistics", "estimate_statistics", "estimate_statistics_single"};
+            string[] scriptNamesMany = new string[] { "process_statistics", "estimate_statistics", "estimate_statistics_single" };
 
             string fileNameOne_state = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState);
             string fileNameOne_obs = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs);
@@ -659,4 +687,89 @@ namespace TestEnvironments
     }
 
     public enum FilterType { CMNF, MCMNF, UKFIntegral, UKFIntegralRandomShoot, UKFStepwise, UKFStepwiseRandomShoot };
+
+    public class FilterQualityInfo
+    {
+        public Vector<double>[] mError;
+        public Matrix<double>[] DError;
+        public Vector<double>[] mxHat;
+        public Matrix<double>[] mKHat;
+
+        public FilterQualityInfo(int T, Vector<double> X0Hat, Matrix<double> DX0Hat)
+        {
+            mError = Exts.ZerosArrayOfShape(X0Hat, T);
+            DError = Exts.ZerosArrayOfShape(DX0Hat, T);
+            mxHat = Exts.ZerosArrayOfShape(X0Hat, T);
+            mKHat = Exts.ZerosArrayOfShape(DX0Hat, T);
+        }
+    }
+
+    public class ProcessInfo
+    {
+        public Vector<double>[] mx;
+        public Matrix<double>[] Dx;
+        public FilterQualityInfo[] FilterQualityInfos;
+        public ProcessInfo(int T, int FiltersCount, Vector<double> X0Hat, Matrix<double> DX0Hat)
+        {
+            mx = Exts.ZerosArrayOfShape(X0Hat, T);
+            Dx = Exts.ZerosArrayOfShape(DX0Hat, T);
+            FilterQualityInfos = new FilterQualityInfo[FiltersCount];
+            for (int j = 0; j < FiltersCount; j++)
+            {
+                FilterQualityInfos[j] = new FilterQualityInfo(T, X0Hat, DX0Hat);
+            }
+
+
+        }
+
+        public ProcessInfo(ProcessInfo[] infos)
+        {
+            mx = Exts.Average(infos.Select(i => i.mx).ToArray());
+            Dx = Exts.Average(infos.Select(i => i.Dx).ToArray());
+            FilterQualityInfos = new FilterQualityInfo[infos[0].FilterQualityInfos.Count()];
+            for (int j = 0; j < FilterQualityInfos.Count(); j++)
+            {
+                FilterQualityInfos[j] = new FilterQualityInfo(infos[0].FilterQualityInfos[j].mError.Length, infos[0].FilterQualityInfos[j].mError[0], infos[0].FilterQualityInfos[j].DError[0]);
+                FilterQualityInfos[j].mError = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].mError).ToArray());
+                FilterQualityInfos[j].DError = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].DError).ToArray());
+                FilterQualityInfos[j].mxHat = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].mxHat).ToArray());
+                FilterQualityInfos[j].mKHat = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].mKHat).ToArray());
+            }
+        }
+
+        public void SaveToFile(string fileName)
+        {
+            NumberFormatInfo provider = new NumberFormatInfo();
+            provider.NumberDecimalSeparator = ".";
+            
+            for (int k = 0; k < mx[0].Count; k++)
+            {
+                using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString())))
+                {
+                    outputfile.Close();
+                }
+            }
+            for (int t = 0; t < mx.Length; t++)
+            {
+                for (int k = 0; k < mx[0].Count; k++)
+                {
+                    using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString()), true))
+                    {
+                        outputfile.Write(string.Format(provider, "{0} {1} {2}",
+                            t, mx[t][k], Dx[t][k, k]
+                            ));
+                        for (int j = 0; j < FilterQualityInfos.Count(); j++)
+                        {
+                            outputfile.Write(string.Format(provider, " {0} {1} {2} {3}",
+                            FilterQualityInfos[j].mxHat[t][k], FilterQualityInfos[j].mError[t][k], FilterQualityInfos[j].DError[t][k, k], FilterQualityInfos[j].mKHat[t][k, k]
+                            ));
+                        }
+                        outputfile.WriteLine();
+                        outputfile.Close();
+                    }
+                }
+            }
+        }
+    }
+
 }
