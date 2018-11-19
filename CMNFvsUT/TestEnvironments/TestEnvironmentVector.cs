@@ -453,31 +453,9 @@ namespace TestEnvironments
 
             if (parallel)
             {
-                AsyncCalculatorComplexPlanner acp = new AsyncCalculatorComplexPlanner(N, parallel_degree, () => CalculateBundle(n, new ProcessInfo(T, Filters.Count(), X0Hat, DX0Hat)));
-                processInfos = acp.DoCalculate();
+                AsyncCalculatorPlanner acp = new MathNetExtensions.AsyncCalculatorPlanner(N, parallel_degree, () => CalculateBundle(n, new ProcessInfo(T, Filters.Count(), X0Hat, DX0Hat)));
+                processInfos = acp.DoCalculate().Select(x => x as ProcessInfo).ToList();
             }
-
-            //if (parallel)
-            //{
-            //    Parallel.For(0, N, new ParallelOptions() { MaxDegreeOfParallelism = parallel_degree },
-            //    () =>
-            //    {
-            //        return new ProcessInfo(T, Filters.Count(), X0Hat, DX0Hat);
-            //    },
-            //    (m, loop, bundleData) =>
-            //    {
-            //        Console.WriteLine($"GenerateBundle {m}");
-            //        return CalculateBundle(n, bundleData);
-            //    },
-            //    (bundleData) =>
-            //    {
-            //        lock (processInfos)
-            //        {
-            //            processInfos.Add(bundleData);
-            //        }
-            //    }
-            //    );
-            //}
             else
             {
                 for (int m = 0; m < N; m++)
@@ -777,81 +755,6 @@ namespace TestEnvironments
                     }
                 }
             }
-        }
-    }
-    class AsyncCalculatorComplex
-    {
-        private ManualResetEvent doneEvent;
-        private ProcessInfo result;
-        private Func<ProcessInfo> calculate;
-
-
-        public ProcessInfo Result { get { return result; } }
-
-        // Constructor.
-        public AsyncCalculatorComplex(int n, ManualResetEvent doneEvent, Func<ProcessInfo> calculate)
-        {
-            this.doneEvent = doneEvent;
-            this.calculate = calculate;
-        }
-
-        // Wrapper method for use with thread pool.
-        public void ThreadPoolCallback(Object threadContext)
-        {
-            int threadIndex = (int)threadContext;
-            //Console.WriteLine("thread {0} started...", threadIndex);
-            result = calculate();
-            //Console.WriteLine("thread {0} result calculated...", threadIndex);
-            doneEvent.Set();
-        }
-
-    }
-
-    class AsyncCalculatorComplexPlanner
-    {
-        private int samplesCount;
-        private int packCount;
-        private Func<ProcessInfo> calculate;
-
-        public AsyncCalculatorComplexPlanner(int samplesCount, int packCount, Func<ProcessInfo> calculate)
-        {
-            this.samplesCount = samplesCount;
-            this.packCount = packCount;
-            this.calculate = calculate;
-        }
-
-        public List<ProcessInfo> DoCalculate()
-        {
-            List<ProcessInfo> result = new List<ProcessInfo>();
-            for (int pack = 0; pack <= samplesCount / packCount; pack++)
-            {
-                ManualResetEvent[] doneEvents = new ManualResetEvent[Math.Min(packCount, samplesCount - pack * packCount)];
-                AsyncCalculatorComplex[] calcArray = new AsyncCalculatorComplex[Math.Min(packCount, samplesCount - pack * packCount)];
-
-                // Configure and start threads using ThreadPool.
-                //Console.WriteLine("launching {0} tasks...", packCount);
-                for (int i = 0; i < Math.Min(packCount, samplesCount - pack * packCount); i++)
-                {
-                    doneEvents[i] = new ManualResetEvent(false);
-                    AsyncCalculatorComplex calc = new AsyncCalculatorComplex(pack * packCount + i, doneEvents[i], calculate);
-                    calcArray[i] = calc;
-                    ThreadPool.QueueUserWorkItem(calc.ThreadPoolCallback, i);
-                }
-
-                // Wait for all threads in pool to calculate.
-                if (doneEvents.Length > 0)
-                    WaitHandle.WaitAll(doneEvents);
-                //Console.WriteLine("All calculations are complete.");
-
-                // Display the results.
-                for (int i = 0; i < Math.Min(packCount, samplesCount - pack * packCount); i++)
-                {
-                    AsyncCalculatorComplex calc = calcArray[i];
-                    result.Add(calc.Result);
-                    //Console.WriteLine("({0}) = {1}", j.N, j.JOfN);
-                }
-            }
-            return result;
         }
     }
 }

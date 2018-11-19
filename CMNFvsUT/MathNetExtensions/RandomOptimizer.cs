@@ -53,23 +53,24 @@ namespace MathNetExtensions
 
             AsyncCalculatorPlanner acp = new AsyncCalculatorPlanner(PointsUniform, PackSize, () => CalculateSample(Objective, distr));
 
-            List<(double val, Vector<double> x)> results1 = acp.DoCalculate();
+            //List<(double val, Vector<double> x)> results1 = acp.DoCalculate();
+            List<CritValuePair> results1 = acp.DoCalculate().Select(x => x as CritValuePair).ToList();
 
-            (double val, Vector<double> x) min1 = results1.Where(i => !double.IsNaN(i.val)).OrderBy(i => i.val).First();
-            (double val, Vector<double> x) min2;
+            CritValuePair min1 = results1.Where(i => !double.IsNaN(i.Crit)).OrderBy(i => i.Crit).First();
+            CritValuePair min2;
             if (PointsNormal == 0)
                 min2 = min1;
             else
             {
                 for (int i = 0; i < n; i++)
                 {
-                    distr[i] = new Normal(min1.x[i], (UpperBound[i] - LowerBound[i]) / (PointsUniform / n * 3)); // to ajust the standart deviation with average distanse between the uniformly generated points
+                    distr[i] = new Normal(min1.Value[i], (UpperBound[i] - LowerBound[i]) / (PointsUniform / n * 3)); // to ajust the standart deviation with average distanse between the uniformly generated points
                 }
 
                 acp = new AsyncCalculatorPlanner(PointsNormal, PackSize, () => CalculateSample(Objective, distr));
-                List<(double val, Vector<double> x)> results2 = acp.DoCalculate();
+                List<CritValuePair> results2 = acp.DoCalculate().Select(x => x as CritValuePair).ToList();
 
-                min2 = results2.Where(i => !double.IsNaN(i.val)).OrderBy(i => i.val).First();
+                min2 = results2.Where(i => !double.IsNaN(i.Crit)).OrderBy(i => i.Crit).First();
 
                 if (!string.IsNullOrWhiteSpace(OutputFileName))
                     using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(OutputFileName))
@@ -80,19 +81,19 @@ namespace MathNetExtensions
                             NumberDecimalSeparator = "."
                         };
 
-                        var results = results1.Concat(results2).Where(i => !double.IsNaN(i.val) && i.val < double.MaxValue);
-                        foreach (var e in results.OrderBy(i => i.val))
+                        var results = results1.Concat(results2).Where(i => !double.IsNaN(i.Crit) && i.Crit < double.MaxValue);
+                        foreach (var e in results.OrderBy(i => i.Crit))
                         {
-                            outputfile.WriteLine(string.Format(provider, "{0}", e.val) + ", " + String.Join(",", e.x.Select(s => string.Format(provider, "{0}", s))));
+                            outputfile.WriteLine(string.Format(provider, "{0}", e.Crit) + ", " + String.Join(",", e.Value.Select(s => string.Format(provider, "{0}", s))));
                         }
 
                     }
             }
-            return min2;
+            return (min2.Crit, min2.Value);
         }
 
 
-        static (double, Vector<double>) CalculateSample(Func<Vector<double>, double> Objective, IContinuousDistribution[] distribution)
+        static CritValuePair CalculateSample(Func<Vector<double>, double> Objective, IContinuousDistribution[] distribution)
         {
             int n = distribution.Count();
 
@@ -100,24 +101,34 @@ namespace MathNetExtensions
 
             double crit = Objective(x);
 
-            return (crit, x);
+            return new CritValuePair(crit, x);
         }
 
     }
 
+    public class CritValuePair
+    {
+        public double Crit;
+        public Vector<double> Value;
 
+        public CritValuePair(double Crit, Vector<double> Value)
+        {
+            this.Crit = Crit;
+            this.Value = Value;
+        }
+    }
 
     class AsyncCalculator
     {
         private ManualResetEvent doneEvent;
-        private (double, Vector<double>) result;
-        private Func<(double, Vector<double>)> calculate;
+        private object result;
+        private Func<object> calculate;
 
 
-        public (double, Vector<double>) Result { get { return result; } }
+        public object Result { get { return result; } }
 
         // Constructor.
-        public AsyncCalculator(int n, ManualResetEvent doneEvent, Func<(double, Vector<double>)> calculate)
+        public AsyncCalculator(int n, ManualResetEvent doneEvent, Func<object> calculate)
         {
             this.doneEvent = doneEvent;
             this.calculate = calculate;
@@ -132,25 +143,25 @@ namespace MathNetExtensions
             //Console.WriteLine("thread {0} result calculated...", threadIndex);
             doneEvent.Set();
         }
-        
+
     }
 
-    class AsyncCalculatorPlanner
+    public class AsyncCalculatorPlanner
     {
         private int samplesCount;
         private int packCount;
-        private Func<(double, Vector<double>)> calculate;
+        private Func<object> calculate;
 
-        public AsyncCalculatorPlanner(int samplesCount, int packCount, Func<(double, Vector<double>)> calculate)
+        public AsyncCalculatorPlanner(int samplesCount, int packCount, Func<object> calculate)
         {
             this.samplesCount = samplesCount;
             this.packCount = packCount;
             this.calculate = calculate;
         }
 
-        public List<(double, Vector<double>)> DoCalculate()
+        public List<object> DoCalculate()
         {
-            List<(double, Vector<double>)> result = new List<(double, Vector<double>)>();
+            List<object> result = new List<object>();
             for (int pack = 0; pack <= samplesCount / packCount; pack++)
             {
                 ManualResetEvent[] doneEvents = new ManualResetEvent[Math.Min(packCount, samplesCount - pack * packCount)];
