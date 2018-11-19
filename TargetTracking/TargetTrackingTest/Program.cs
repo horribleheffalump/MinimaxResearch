@@ -14,9 +14,23 @@ namespace TargetTrackingTest
     {
         static void Main(string[] args)
         {
-            Vector<double> mW = Exts.Vector(0); Matrix<double> dW = Exts.Diag(1);
-            Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(1);
-            Vector<double> mEta = Exts.Vector(0); Matrix<double> dEta = Exts.Diag(1);
+            double Alpha_t = 0.1;
+            double Alpha_n = 0.05;
+            double Beta_t = 2;
+            double Beta_n = 1;
+            double Gamma_t = -0.005;
+            double Gamma_n = 0.02;
+
+
+            Vector<double> mEta = Exts.Vector(100000 , 200000, 450, 10 * Math.PI / 180, Gamma_t / Alpha_t, Gamma_n / Alpha_n );
+            Matrix<double> dEta = Exts.Diag(Math.Pow(2000, 2), Math.Pow(2000, 2), Math.Pow(100, 2), Math.Pow(Math.PI / 180, 2), Math.Pow(Beta_t, 2) / 2 / Alpha_t, Math.Pow(Beta_n, 2) / 2 / Alpha_n );
+            Vector<double> mW = Exts.Vector(0 , 0);
+            Matrix<double> dW = Exts.Diag(Math.Pow(Beta_t, 2), Math.Pow(Beta_n, 2));
+
+            Vector<double> X_R = Exts.Vector(20000, 0);
+            Vector<double> mNu = Exts.Vector(0, 0);
+            Matrix<double> dNu = Exts.Diag(Math.Pow(5 * Math.PI / 180, 2), Math.Pow(30, 2) );
+
             Func<double, Vector<double>, Vector<double>> Phi1 = (s, x) => Exts.Vector(1);
             Func<double, Vector<double>, Matrix<double>> Phi2 = (s, x) => Exts.Diag(1);
             Func<double, Vector<double>, Vector<double>> Psi1 = (s, x) => Exts.Vector(x[0]);

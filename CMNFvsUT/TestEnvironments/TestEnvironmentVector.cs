@@ -541,12 +541,12 @@ namespace TestEnvironments
 
         private ProcessInfo CalculateBundle(int n, int m, ProcessInfo processInfo)
         {
-            Console.WriteLine($"GenerateBundle {m}");
+            //Console.WriteLine($"GenerateBundle {m}");
             DiscreteVectorModel[] modelsEst = new DiscreteVectorModel[n];
             for (int i = 0; i < n; i++)
             {
                 if (i % 1000 == 0) // inform every 1000-th trajectory
-                    Console.WriteLine($"model {i}");
+                    //Console.WriteLine($"model {i}");
                 modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
                 for (int s = 0; s < T; s++)
                 {
@@ -561,10 +561,10 @@ namespace TestEnvironments
                 xHat[j] = Exts.ArrayOf(X0Hat, n);
                 KHat[j] = Exts.ArrayOf(DX0Hat, n);
             }
-            Console.WriteLine($"calculate estimates");
+            //Console.WriteLine($"calculate estimates");
             for (int t = 0; t < T; t++)
             {
-                Console.WriteLine($"t={t}");
+                //Console.WriteLine($"t={t}");
                 Vector<double>[] x = new Vector<double>[n];
                 Vector<double>[] y = new Vector<double>[n];
                 for (int j = 0; j < Filters.Count(); j++)
