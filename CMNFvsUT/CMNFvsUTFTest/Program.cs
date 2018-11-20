@@ -1,6 +1,5 @@
 ﻿using CMNFvsUTFTest.Properties;
 using CommandLine;
-using MathNet.Numerics;
 using MathNet.Numerics.Distributions;
 using MathNet.Numerics.LinearAlgebra;
 using MathNetExtensions;
@@ -9,8 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+using System.Xml.Serialization;
 using TestEnvironments;
 
 namespace CMNFvsUTFTest
@@ -40,10 +39,10 @@ namespace CMNFvsUTFTest
             [Option('U', "UKF", Required = false, Default = false, HelpText = "Do calculate Unscented Kalman Filter")]
             public bool UKF { get; set; }
 
-            [Option('S', "UKF-stepwise", Required = false, Default = false, HelpText = "Do calculate Unscented Kalman Filter with stepwise parameter estimation")]
+            [Option("UKF-stepwise", Required = false, Default = false, HelpText = "Do calculate Unscented Kalman Filter with stepwise parameter estimation")]
             public bool UKFStepwise { get; set; }
 
-            [Option('R', "UKF-randomshoot", Required = false, Default = false, HelpText = "Do optimize Unscented Kalman Filter parameters with random shoot method")]
+            [Option("UKF-randomshoot", Required = false, Default = false, HelpText = "Do optimize Unscented Kalman Filter parameters with random shoot method")]
             public bool UKFRandomShoot { get; set; }
 
             [Option('C', "CMNF", Required = false, Default = false, HelpText = "Do calculate conditionally minimax nonlinear filter")]
@@ -55,13 +54,13 @@ namespace CMNFvsUTFTest
             [Option('l', "MCMNF-train-count", Required = false, Default = 0, HelpText = "Number of test set points for MCMNF wtepwise parameters fitting")]
             public int MCMNFTrainCount { get; set; }
 
-            [Option('b', "bound", Required = false, HelpText = "Upper bound for the state")]
+            [Option("bound", Required = false, HelpText = "Upper bound for the state")]
             public double Bound { get; set; }
 
-            [Option('W', "DW", Required = false, Default = 1.0, HelpText = "State noise variation")]
+            [Option("DW", Required = false, Default = 1.0, HelpText = "State noise variation")]
             public double DW { get; set; }
 
-            [Option('N', "DNu", Required = false, Default = 1.0, HelpText = "Observations noise variation")]
+            [Option("DNu", Required = false, Default = 1.0, HelpText = "Observations noise variation")]
             public double DNu { get; set; }
 
             [Option('o', "output-folder", Required = false, HelpText = "Folder to store numeric results")]
@@ -85,12 +84,23 @@ namespace CMNFvsUTFTest
             [Option('P', "parallel", Required = false, Default = false, HelpText = "Parallel bundles calculation (on to save time, off to save memory in case of multiple large bundles)")]
             public bool Parallel { get; set; }
 
-            [Option('i', "ident-model", Required = false, Default = 0, HelpText = "Identification model number")]
+            [Option("ident-model", Required = false, Default = 0, HelpText = "Identification model number")]
             public int IdentNumber { get; set; }
 
             [Option('d', "degree-parallelism", Required = false, Default = 1, HelpText = "Maximum degreee of parallelism")]
             public int ParallelismDegree { get; set; }
 
+            [Option("UKF-file", Required = false, HelpText = "File name to save/load parameters of trained UKF filter")]
+            public string UKFFileName { get; set; }
+            
+            [Option("CMNF-file", Required = false, HelpText = "File name to save/load parameters of trained CMNF filter")]
+            public string CMNFFileName { get; set; }
+
+            [Option('L', "load", Required = false, Default = false, HelpText = "Load filter parameters from files")]
+            public bool Load { get; set; }
+
+            [Option('S', "Save", Required = false, Default = false, HelpText = "Save trained filter parameters to files for future use")]
+            public bool Save { get; set; }
         }
 
         static void Main(string[] args)
@@ -382,20 +392,20 @@ namespace CMNFvsUTFTest
                     }
                 }
 
-                List<FilterType> filters = new List<FilterType>();
-                if (o.CMNF) filters.Add(FilterType.CMNF);
-                if (o.MCMNF) filters.Add(FilterType.MCMNF);
+                List<(FilterType, string)> filters = new List<(FilterType, string)>();
+                if (o.CMNF) filters.Add((FilterType.CMNF, o.CMNFFileName));
+                if (o.MCMNF) filters.Add((FilterType.MCMNF, string.Empty));
                 if (o.UKF)
                 {
                     if (o.UKFStepwise)
                     {
-                        if (o.UKFRandomShoot) filters.Add(FilterType.UKFStepwiseRandomShoot);
-                        else filters.Add(FilterType.UKFStepwise);
+                        if (o.UKFRandomShoot) filters.Add((FilterType.UKFStepwiseRandomShoot, o.UKFFileName));
+                        else filters.Add((FilterType.UKFStepwise, o.UKFFileName));
                     }
                     else
                     {
-                        if (o.UKFRandomShoot) filters.Add(FilterType.UKFIntegralRandomShoot);
-                        else filters.Add(FilterType.UKFIntegral);
+                        if (o.UKFRandomShoot) filters.Add((FilterType.UKFIntegralRandomShoot, o.UKFFileName));
+                        else filters.Add((FilterType.UKFIntegral, o.UKFFileName));
                     }
                 }
 
@@ -409,7 +419,10 @@ namespace CMNFvsUTFTest
                     testEnv.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
                 else
                 {
-                    testEnv.Initialize(o.T, o.TrainCount, o.MCMNFTrainCount, o.OutputFolder, filters);
+                    testEnv.Initialize(o.T, o.TrainCount, o.MCMNFTrainCount, o.OutputFolder, filters, o.Save, o.Load);
+
+                    //if (!string.IsNullOrEmpty(o.SaveFileName))
+                    //    SaveEnvironment(testEnv, o.SaveFileName);
                     testEnv.GenerateBundles(o.BundleCount, o.TestCount, o.OutputFolder, o.Parallel, o.ParallelismDegree);
                     //if (o.BundleCount > 1)
                     //    testEnv.GenerateBundles(o.BundleCount, o.TestCount, o.OutputFolder, o.Parallel, o.ParallelismDegree);
@@ -428,6 +441,24 @@ namespace CMNFvsUTFTest
                     //testEnv.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
                 }
             }
+        }
+
+        //static TestEnvironmentVector LoadEnvironment(string fileName)
+        //{
+
+        //}
+        static void SaveEnvironment(TestEnvironmentVector testEnv, string fileName)
+        {
+            XmlSerializer formatter = new XmlSerializer(typeof(TestEnvironmentVector));
+            using (Stream stream = new FileStream(fileName, FileMode.OpenOrCreate))
+            {
+                formatter.Serialize(stream, testEnv);
+                stream.Close();
+            }
+            //IFormatter formatter = new BinaryFormatter();
+            //using(Stream stream = new FileStream("MyFile.bin", FileMode.Open, FileAccess.Read, FileShare.Read);
+            //MyObject obj = (MyObject)formatter.Deserialize(stream);
+            //stream.Close();
         }
     }
 }

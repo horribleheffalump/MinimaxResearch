@@ -57,7 +57,7 @@ namespace TestEnvironments
         public Func<int, Vector<double>, Vector<double>> Xi;
         public Func<int, Vector<double>, Vector<double>, Matrix<double>, Vector<double>> Zeta;
 
-        private NumberFormatInfo provider;
+        //private NumberFormatInfo provider;
 
         public BasicFilter[] Filters;
 
@@ -82,12 +82,11 @@ namespace TestEnvironments
         /// <param name="doCalculateUKFStepwise"></param>
         /// <param name="outputFolder"></param>
         //public void Initialize(int t, int n, bool doCalculateUKF, bool doCalculateUKFStepwise, bool doOptimizeWithRandomShoot, string outputFolder)
-        public void Initialize(int t, int n, int nMCMNF, string outputFolder, List<FilterType> filters)
+        public void Initialize(int t, int n, int nMCMNF, string outputFolder, List<(FilterType type, string fileName)> filters, bool save = false, bool load = false)
         {
             Console.WriteLine("Init");
-            provider = new NumberFormatInfo();
+            NumberFormatInfo provider = new NumberFormatInfo();
             provider.NumberDecimalSeparator = ".";
-
             HandleNulls();
 
             T = t;
@@ -108,10 +107,11 @@ namespace TestEnvironments
             Filters = new BasicFilter[filters.Count()];
             for (int j = 0; j < filters.Count(); j++)
             {
-                if (filters[j] == FilterType.CMNF)
+                if (filters[j].type == FilterType.CMNF)
                 {
                     CMNFWrapper CMNF = new CMNFWrapper
                     {
+                        FileName = filters[j].fileName,
                         T = T,
                         X0Hat = X0Hat,
                         Models = models,
@@ -120,7 +120,7 @@ namespace TestEnvironments
                     };
                     Filters[j] = CMNF;
                 }
-                if (filters[j] == FilterType.MCMNF)
+                if (filters[j].type == FilterType.MCMNF)
                 {
                     int nTrain = nMCMNF;
                     if (nTrain == 0)
@@ -130,6 +130,7 @@ namespace TestEnvironments
                     }
                     MCMNFWrapper MCMNF = new MCMNFWrapper
                     {
+                        FileName = filters[j].fileName,
                         T = T,
                         N = nTrain,
                         X0Hat = X0Hat,
@@ -145,10 +146,11 @@ namespace TestEnvironments
                     };
                     Filters[j] = MCMNF;
                 }
-                if (new[] { FilterType.UKFIntegral, FilterType.UKFIntegralRandomShoot, FilterType.UKFStepwise, FilterType.UKFStepwiseRandomShoot }.Contains(filters[j]))
+                if (new[] { FilterType.UKFIntegral, FilterType.UKFIntegralRandomShoot, FilterType.UKFStepwise, FilterType.UKFStepwiseRandomShoot }.Contains(filters[j].type))
                 {
                     UKFWrapper UKF = new UKFWrapper
                     {
+                        FileName = filters[j].fileName,
                         T = T,
                         X0Hat = X0Hat,
                         Models = models,
@@ -165,12 +167,12 @@ namespace TestEnvironments
                         outputFolder = outputFolder
                     };
 
-                    if (new[] { FilterType.UKFIntegralRandomShoot, FilterType.UKFStepwiseRandomShoot }.Contains(filters[j]))
+                    if (new[] { FilterType.UKFIntegralRandomShoot, FilterType.UKFStepwiseRandomShoot }.Contains(filters[j].type))
                         UKF.doOptimizeWithRandomShoot = true;
                     else
                         UKF.doOptimizeWithRandomShoot = false;
 
-                    if (new[] { FilterType.UKFStepwise, FilterType.UKFStepwiseRandomShoot }.Contains(filters[j]))
+                    if (new[] { FilterType.UKFStepwise, FilterType.UKFStepwiseRandomShoot }.Contains(filters[j].type))
                         UKF.doCalculateUKFStepwise = true;
                     else
                         UKF.doCalculateUKFStepwise = false;
@@ -182,7 +184,17 @@ namespace TestEnvironments
 
             foreach (var f in Filters)
             {
-                f.Initialize();
+                if (load)
+                {
+                    f.Initialize();
+                    f.LoadParams();
+                }
+                else
+                {
+                    f.InitializeAndTrain();
+                }
+                if (save)
+                    f.SaveParams();
             }
             models = null;
             //GC.Collect();
@@ -202,7 +214,7 @@ namespace TestEnvironments
         {
             HandleNulls();
 
-            provider = new NumberFormatInfo();
+            NumberFormatInfo provider = new NumberFormatInfo();
             provider.NumberDecimalSeparator = ".";
 
             T = t;
@@ -256,6 +268,8 @@ namespace TestEnvironments
 
         public void GenerateOne(string folderName, int? n = null)
         {
+            NumberFormatInfo provider = new NumberFormatInfo();
+            provider.NumberDecimalSeparator = ".";
             string fileName_state = "";
             string fileName_obs = "";
             if (n == null)
@@ -470,11 +484,11 @@ namespace TestEnvironments
             if (processInfos.Count > 1)
             {
                 ProcessInfo totalProcessInfo = new ProcessInfo(processInfos.ToArray());
-                totalProcessInfo.SaveToFile(fileName);
+                totalProcessInfo.SaveToText(fileName);
             }
             else
             {
-                processInfos[0].SaveToFile(fileName);
+                processInfos[0].SaveToText(fileName);
             }
         }
 
@@ -569,6 +583,7 @@ namespace TestEnvironments
                 processInfo.mx[t] = x.Average();
                 processInfo.Dx[t] = Exts.Cov(x, x);
             }
+            processInfo.Count = n;
             return processInfo;
         }
 
@@ -692,11 +707,13 @@ namespace TestEnvironments
 
     public class ProcessInfo
     {
+        public int Count;
         public Vector<double>[] mx;
         public Matrix<double>[] Dx;
         public FilterQualityInfo[] FilterQualityInfos;
         public ProcessInfo(int T, int FiltersCount, Vector<double> X0Hat, Matrix<double> DX0Hat)
         {
+            Count = 0;
             mx = Exts.ZerosArrayOfShape(X0Hat, T);
             Dx = Exts.ZerosArrayOfShape(DX0Hat, T);
             FilterQualityInfos = new FilterQualityInfo[FiltersCount];
@@ -710,20 +727,21 @@ namespace TestEnvironments
 
         public ProcessInfo(ProcessInfo[] infos)
         {
-            mx = Exts.Average(infos.Select(i => i.mx).ToArray());
-            Dx = Exts.Average(infos.Select(i => i.Dx).ToArray());
+            double[] TrCounts = infos.Select(i => (double)i.Count).ToArray(); 
+            mx = Exts.Average(infos.Select(i => i.mx).ToArray(), TrCounts);
+            Dx = Exts.Average(infos.Select(i => i.Dx).ToArray(), TrCounts);
             FilterQualityInfos = new FilterQualityInfo[infos[0].FilterQualityInfos.Count()];
             for (int j = 0; j < FilterQualityInfos.Count(); j++)
             {
                 FilterQualityInfos[j] = new FilterQualityInfo(infos[0].FilterQualityInfos[j].mError.Length, infos[0].FilterQualityInfos[j].mError[0], infos[0].FilterQualityInfos[j].DError[0]);
-                FilterQualityInfos[j].mError = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].mError).ToArray());
-                FilterQualityInfos[j].DError = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].DError).ToArray());
-                FilterQualityInfos[j].mxHat = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].mxHat).ToArray());
-                FilterQualityInfos[j].mKHat = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].mKHat).ToArray());
+                FilterQualityInfos[j].mError = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].mError).ToArray(), TrCounts);
+                FilterQualityInfos[j].DError = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].DError).ToArray(), TrCounts);
+                FilterQualityInfos[j].mxHat = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].mxHat).ToArray(), TrCounts);
+                FilterQualityInfos[j].mKHat = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].mKHat).ToArray(), TrCounts);
             }
         }
 
-        public void SaveToFile(string fileName)
+        public void SaveToText(string fileName)
         {
             NumberFormatInfo provider = new NumberFormatInfo();
             provider.NumberDecimalSeparator = ".";

@@ -6,6 +6,7 @@ using NonlinearSystem;
 
 namespace TestEnvironments
 {
+    [Serializable]
     public class TestSwitchingObservations : TestEnvironmentVector
     {
         public TestSwitchingObservations(double _dnu)
@@ -95,6 +96,7 @@ namespace TestEnvironments
         }
     }
 
+    [Serializable]
     public class TestSwitchingObservationsIdentification : TestEnvironmentVector
     {
         public TestSwitchingObservationsIdentification(double _dnu)
@@ -174,6 +176,7 @@ namespace TestEnvironments
         }
     }
 
+    [Serializable]
     public class AnotherTestSwitchingObservationsIdentification : TestEnvironmentVector
     {
         public AnotherTestSwitchingObservationsIdentification(double _dnu)
@@ -230,6 +233,7 @@ namespace TestEnvironments
         }
     }
 
+    [Serializable]
     public class YetAnotherTestSwitchingObservationsIdentification : TestEnvironmentVector
     {
         public YetAnotherTestSwitchingObservationsIdentification(double _dnu)
@@ -294,6 +298,7 @@ namespace TestEnvironments
         }
     }
 
+    [Serializable]
     public class HopefullyTheLastTestSwitchingObservationsIdentification : TestEnvironmentVector
     {
         public HopefullyTheLastTestSwitchingObservationsIdentification(double _dnu)

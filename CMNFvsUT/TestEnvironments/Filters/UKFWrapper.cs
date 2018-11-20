@@ -34,8 +34,12 @@ namespace TestEnvironments
             if (doOptimizeWithRandomShoot)
                 UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.RandomShoot);
             else
-                UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.NelderMeed);
+                UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.NelderMeed);            
+        }
 
+        public override void InitializeAndTrain()
+        {
+            Initialize();
             if (doCalculateUKFStepwise)
             {
                 Console.WriteLine($"UKF estimate parameters stepwise");
@@ -52,5 +56,15 @@ namespace TestEnvironments
         {
             return UKF.Step(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, t, y, xHat, kHat);
         }
+
+        public override void SaveParams()
+        {
+        }
+
+        public override void LoadParams()
+        {
+        }
+
+
     }
 }

@@ -7,9 +7,15 @@ using System.Threading.Tasks;
 
 namespace TestEnvironments
 {
+    [Serializable]
     public abstract class BasicFilter
     {
+        public string FileName;
         public abstract void Initialize();
+        public abstract void InitializeAndTrain();
         public abstract (Vector<double>, Matrix<double>) Step(int t, Vector<double> y, Vector<double> xHat, Matrix<double> kHat);
+
+        public abstract void SaveParams();
+        public abstract void LoadParams();
     }
 }

@@ -29,10 +29,22 @@ namespace TestEnvironments
         {
             MCMNF = new ModifiedCMNFilter(Xi, Zeta, Phi1, Phi2, Psi1, Psi2, W, Nu);
         }
+        public override void InitializeAndTrain()
+        {
+            Initialize();
+        }
 
         public override (Vector<double>, Matrix<double>) Step(int t, Vector<double> y, Vector<double> xHat, Matrix<double> kHat)
         {
             return MCMNF.Step(t, y, xHat, kHat, N);
+        }
+
+        public override void SaveParams()
+        {
+        }
+
+        public override void LoadParams()
+        {
         }
     }
 }

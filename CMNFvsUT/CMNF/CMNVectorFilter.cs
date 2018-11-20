@@ -5,7 +5,9 @@ using System.Text;
 using MathNet.Numerics.LinearAlgebra;
 using NonlinearSystem;
 using MathNetExtensions;
-using System.Threading.Tasks;
+using System.Xml.Serialization;
+using System.Xml;
+using System.Xml.Schema;
 
 namespace CMNF
 {
@@ -13,7 +15,7 @@ namespace CMNF
     {
         Func<int, Vector<double>, Vector<double>> Xi;
         Func<int, Vector<double>, Vector<double>, Matrix<double>, Vector<double>> Zeta;
-
+ 
         public Dictionary<int, Matrix<double>> FHat;
         public Dictionary<int, Vector<double>> fHat;
         public Dictionary<int, Matrix<double>> HHat;
@@ -131,19 +133,6 @@ namespace CMNF
             Vector<double> xHat = xTilde + HHat[t] * Zeta(t, xTilde, y, KTilde[t]) + hHat[t];
             return (xHat, KHat[t]);
         }
-
-        //private double cov(Vector<double> x, Vector<double> y)
-        //{
-
-        //    double r1 = ((x - x.Average()).PointwiseMultiply(y - y.Average())).Average();
-        //    double r2 = (1.0 / x.Count) * x.DotProduct(y) - x.Average() * y.Average();
-
-        //    double n = x.Count;
-        //    double r3 = (x.DotProduct(y) * n - x.Sum() * y.Sum()) / n / n;
-
-        //    return r2;
-        //}
-
     }
 
 

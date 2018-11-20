@@ -63,7 +63,7 @@ namespace MathNetExtensions
             return mx;
         }
 
-        public static Matrix<double>[] Average(this Matrix<double>[,] x, int axis=0)
+        public static Matrix<double>[] Average(this Matrix<double>[,] x, int axis = 0)
         {
             var width = x.GetLength(0);
             var height = x.GetLength(1);
@@ -105,15 +105,21 @@ namespace MathNetExtensions
             return mx;
         }
 
-        public static Matrix<double>[] Average(this Matrix<double>[][] x)
+        public static Matrix<double>[] Average(this Matrix<double>[][] x, double[] weights = null)
         {
+            double[] coeffs = Enumerable.Repeat(1.0 / x.Length, x.Length).ToArray();
+            if (weights != null)
+            {
+                double sum = weights.Sum();
+                coeffs = weights.Select(e => e / sum).ToArray();
+            }
             Matrix<double>[] mx = new Matrix<double>[x[0].Length];
             for (int i = 0; i < x[0].Length; i++)
             {
                 mx[i] = ZeroOfShape(x[0][i]);
                 for (int j = 1; j < x.Length; j++)
                 {
-                    mx[i] = mx[i] + x[j][i]/x.Length;
+                    mx[i] = mx[i] + x[j][i] * coeffs[j];
                 }
             }
             return mx;
@@ -161,15 +167,21 @@ namespace MathNetExtensions
             return mx;
         }
 
-        public static Vector<double>[] Average(this Vector<double>[][] x)
+        public static Vector<double>[] Average(this Vector<double>[][] x, double[] weights = null)
         {
+            double[] coeffs = Enumerable.Repeat(1.0 / x.Length, x.Length).ToArray();
+            if (weights != null)
+            {
+                double sum = weights.Sum();
+                coeffs = weights.Select(e => e / sum).ToArray();
+            }
             Vector<double>[] mx = new Vector<double>[x[0].Length];
             for (int i = 0; i < x[0].Length; i++)
             {
                 mx[i] = ZeroOfShape(x[0][i]);
                 for (int j = 1; j < x.Length; j++)
                 {
-                    mx[i] = mx[i] + x[j][i] / x.Length;
+                    mx[i] = mx[i] + x[j][i] * coeffs[j];
                 }
             }
             return mx;
