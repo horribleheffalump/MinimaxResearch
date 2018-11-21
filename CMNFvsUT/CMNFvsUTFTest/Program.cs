@@ -271,13 +271,13 @@ namespace CMNFvsUTFTest
                 if (o.Model == "polartwo")
                 {
                     int N = o.N;
-                    Vector<double> secondpoint = Exts.Vector(10000, 0);
-                    Vector<double> mX = Exts.Vector(30000, 40000); Matrix<double> KX = Exts.Diag(4500 * 4500, 4500 * 4500);
+                    Vector<double> secondpoint = Exts.Vector(-10000, 10000);
+                    Vector<double> mX = Exts.Vector(30000, 40000); Matrix<double> KX = Exts.Diag(2000 * 2000, 2000 * 2000);
                     Vector<double> mNu = Exts.Vector(0, 0, 0, 0);
-                    Matrix<double> KNu = Exts.Diag(Math.Pow(5 * Math.PI / 180.0, 2.0),
-                                                    30 * 30,
-                                                    Math.Pow(5 * Math.PI / 180.0, 2.0),
-                                                    30 * 30);
+                    Matrix<double> KNu = Exts.Diag(Math.Pow(0.1 * Math.PI / 180.0, 2.0),
+                                                    50 * 50,
+                                                    Math.Pow(0.1 * Math.PI / 180.0, 2.0),
+                                                    50 * 50);
                     Normal[] NormalX = new Normal[2] { new Normal(mX[0], Math.Sqrt(KX[0, 0])), new Normal(mX[1], Math.Sqrt(KX[1, 1])) };
                     Normal[] NormalNu = new Normal[4] { new Normal(mNu[0], Math.Sqrt(KNu[0, 0])),
                                                     new Normal(mNu[1], Math.Sqrt(KNu[1, 1])),
