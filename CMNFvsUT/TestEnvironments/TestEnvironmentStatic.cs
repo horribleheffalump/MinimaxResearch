@@ -26,6 +26,7 @@ namespace TestEnvironments
 
         private NumberFormatInfo provider;
 
+        private Matrix<double> Kxx;
         private Matrix<double> Kxy;
         private Matrix<double> Kyy;
         private Vector<double> My;
@@ -67,6 +68,7 @@ namespace TestEnvironments
                 YXinv[i] = models[i].YXinv;
             }
 
+            Kxx = Exts.Cov(X, X);
             Kxy = Exts.Cov(X, YXinv);
             Kyy = Exts.Cov(YXinv, YXinv);
             My = YXinv.Average();
@@ -112,19 +114,22 @@ namespace TestEnvironments
             Vector<double>[] Err = Xhat.Subtract(X);
             mErr = Err.Average();
             KErr = Exts.Cov(Err, Err);
-            KErrTh = KX - P * Kyy * P.Transpose();
+            //KErrTh = KX - P * Kyy * P.Transpose();
+            KErrTh = Kxx - P * Kyy * P.Transpose();
 
             Vector<double>[] Xhat_inv = Xinv.Select(y => MX + P_inv * (y - My_inv)).ToArray();
             Vector<double>[] Err_inv = Xhat_inv.Subtract(X);
             mErr_inv = Err_inv.Average();
             KErr_inv = Exts.Cov(Err_inv, Err_inv);
-            KErrTh_inv = KX - P_inv * Kyy_inv * P_inv.Transpose();
+            //KErrTh_inv = KX - P_inv * Kyy_inv * P_inv.Transpose();
+            KErrTh_inv = Kxx - P_inv * Kyy_inv * P_inv.Transpose();
 
             Vector<double>[] Xhat_lin = Y.Select(y => MX + P_lin * (y - My_lin)).ToArray();
             Vector<double>[] Err_lin = Xhat_lin.Subtract(X);
             mErr_lin = Err_lin.Average();
             KErr_lin = Exts.Cov(Err_lin, Err_lin);
-            KErrTh_lin = KX - P_lin * Kyy_lin * P_lin.Transpose();
+            //KErrTh_lin = KX - P_lin * Kyy_lin * P_lin.Transpose();
+            KErrTh_lin = Kxx - P_lin * Kyy_lin * P_lin.Transpose();
 
             Vector<double>[] Xhat_UT = utStaticEstimate.Estimate(Phi, X, Y, MX, KX, KNu, out mErr_UT, out KErr_UT, out KErrTh_UT);
 
