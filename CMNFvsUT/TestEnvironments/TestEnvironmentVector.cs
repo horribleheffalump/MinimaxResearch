@@ -15,6 +15,8 @@ using MathNetExtensions;
 using System.Threading.Tasks;
 using TestEnvironments.Properties;
 using System.Threading;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
 
 namespace TestEnvironments
 {
@@ -92,15 +94,19 @@ namespace TestEnvironments
             T = t;
 
             // generate models for filters parameters fitting/optimization
-            DiscreteVectorModel[] models = new DiscreteVectorModel[n];
-            for (int i = 0; i < n; i++)
+            DiscreteVectorModel[] models = new DiscreteVectorModel[0];
+            if (!load)
             {
-                if (i % 1000 == 0) // inform every 1000-th trajectory
-                    Console.WriteLine($"model {i}");
-                models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-                for (int s = 0; s < T; s++)
+                models = new DiscreteVectorModel[n];
+                for (int i = 0; i < n; i++)
                 {
-                    models[i].Step();
+                    if (i % 1000 == 0) // inform every 1000-th trajectory
+                        Console.WriteLine($"model {i}");
+                    models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
+                    for (int s = 0; s < T; s++)
+                    {
+                        models[i].Step();
+                    }
                 }
             }
 
@@ -456,7 +462,7 @@ namespace TestEnvironments
         /// <param name="n">Number of trajectories</param>
         /// <param name="folderName">Output folder name</param>
         /// <param name="doCalculateUKF">(optional, default = true) if true, UKF and CMNF estimates are calculated, if false - only CMNF </param>
-        public void GenerateBundles(int N, int n, string folderName, bool parallel = false, int parallel_degree = 1)
+        public void GenerateBundles(int N, int n, string folderName, bool parallel = false, int parallel_degree = 1, bool doSaveBin = true, bool doSaveText = true)
         {
             Console.WriteLine($"GenerateBundles");
             string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
@@ -481,16 +487,70 @@ namespace TestEnvironments
                 }
             }
 
+            ProcessInfo totalProcessInfo;
             if (processInfos.Count > 1)
             {
-                ProcessInfo totalProcessInfo = new ProcessInfo(processInfos.ToArray());
-                totalProcessInfo.SaveToText(fileName);
+                totalProcessInfo = new ProcessInfo(processInfos.ToArray());
             }
             else
             {
-                processInfos[0].SaveToText(fileName);
+                totalProcessInfo = processInfos[0];
+            }
+            if (doSaveText)
+                totalProcessInfo.SaveToText(fileName);
+            if (doSaveBin)
+            {
+                string fileNameBin = Path.Combine(folderName, Resources.OutputFileNameBinTemplate.Replace("{name}", TestFileName).Replace("{rnd}", Guid.NewGuid().ToString()));
+                totalProcessInfo.SaveToFile(fileNameBin);
             }
         }
+
+
+        /// <summary>
+        /// Imports and aggregates the data from prevoiously generated bundles of trajectories.
+        /// The statistics for estimate errors are calculated by taking average the whole set of bundles. 
+        /// </summary> 
+        /// <param name="folderName">Output folder name</param>
+        public void Aggregate(string inputFolderName, string outputFolderName, bool doSaveBin = true, bool doSaveText = true)
+        {
+            Console.WriteLine($"ImportBundles");
+            List<ProcessInfo> pinfos = new List<ProcessInfo>();
+            foreach (var f in Directory.EnumerateFiles(inputFolderName))
+            {
+                string result = $"Importing {f}: ";
+                try
+                {
+                    ProcessInfo p = ProcessInfo.LoadFromFile(f);
+                    pinfos.Add(p);
+                    result += $"succeded, trajectories count: {p.Count}";
+                }
+                catch (Exception e)
+                {
+                    result += $"failed {e.Message}";
+                }
+                Console.WriteLine(result);
+            }
+            if (pinfos.Count > 0)
+            {
+                ProcessInfo totalProcessInfo = new ProcessInfo(pinfos.ToArray());
+                Console.WriteLine($"Aggregated data. Trajectories count: {totalProcessInfo.Count}");
+
+                if (doSaveText)
+                {
+                    string fileName = Path.Combine(outputFolderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
+                    totalProcessInfo.SaveToText(fileName);
+                }
+                if (doSaveBin)
+                {
+                    string fileNameBin = Path.Combine(outputFolderName, Resources.OutputFileNameBinTemplate.Replace("{name}", TestFileName).Replace("{rnd}", "total"));
+                    totalProcessInfo.SaveToFile(fileNameBin);
+                }
+            }
+            else
+                Console.WriteLine("No data found");
+        }
+
+
 
         //private void CalculateBundle(int n, int m, Vector<double>[,] mx, Matrix<double>[,] Dx, Vector<double>[][,] mxHat, Matrix<double>[][,] mKHat, Vector<double>[][,] mError, Matrix<double>[][,] DError)
         //{
@@ -575,12 +635,12 @@ namespace TestEnvironments
                         y[i] = modelsEst[i].Trajectory[t][1];
                         (xHat[j][i], KHat[j][i]) = Filters[j].Step(t, y[i], xHat[j][i], KHat[j][i]);
                     }
-                    processInfo.FilterQualityInfos[j].mxHat[t] = xHat[j].Average();
+                    processInfo.FilterQualityInfos[j].mxHat[t] = xHat[j].Average().ToColumnMatrix();
                     processInfo.FilterQualityInfos[j].mKHat[t] = KHat[j].Average();
-                    processInfo.FilterQualityInfos[j].mError[t] = (x.Subtract(xHat[j])).Average();
+                    processInfo.FilterQualityInfos[j].mError[t] = (x.Subtract(xHat[j])).Average().ToColumnMatrix();
                     processInfo.FilterQualityInfos[j].DError[t] = Exts.Cov(x.Subtract(xHat[j]), x.Subtract(xHat[j]));
                 }
-                processInfo.mx[t] = x.Average();
+                processInfo.mx[t] = x.Average().ToColumnMatrix();
                 processInfo.Dx[t] = Exts.Cov(x, x);
             }
             processInfo.Count = n;
@@ -689,32 +749,37 @@ namespace TestEnvironments
 
     public enum FilterType { CMNF, MCMNF, UKFIntegral, UKFIntegralRandomShoot, UKFStepwise, UKFStepwiseRandomShoot };
 
+    [Serializable]
     public class FilterQualityInfo
     {
-        public Vector<double>[] mError;
+        public Matrix<double>[] mError;
         public Matrix<double>[] DError;
-        public Vector<double>[] mxHat;
+        public Matrix<double>[] mxHat;
         public Matrix<double>[] mKHat;
 
         public FilterQualityInfo(int T, Vector<double> X0Hat, Matrix<double> DX0Hat)
         {
-            mError = Exts.ZerosArrayOfShape(X0Hat, T);
+            mError = Exts.ZerosArrayOfShape(X0Hat.ToColumnMatrix(), T);
             DError = Exts.ZerosArrayOfShape(DX0Hat, T);
-            mxHat = Exts.ZerosArrayOfShape(X0Hat, T);
+            mxHat = Exts.ZerosArrayOfShape(X0Hat.ToColumnMatrix(), T);
             mKHat = Exts.ZerosArrayOfShape(DX0Hat, T);
         }
+
+        public FilterQualityInfo(int T, Matrix<double> X0Hat, Matrix<double> DX0Hat) : this(T, X0Hat.Column(0), DX0Hat) { }
+
     }
 
+    [Serializable]
     public class ProcessInfo
     {
         public int Count;
-        public Vector<double>[] mx;
+        public Matrix<double>[] mx;
         public Matrix<double>[] Dx;
         public FilterQualityInfo[] FilterQualityInfos;
         public ProcessInfo(int T, int FiltersCount, Vector<double> X0Hat, Matrix<double> DX0Hat)
         {
             Count = 0;
-            mx = Exts.ZerosArrayOfShape(X0Hat, T);
+            mx = Exts.ZerosArrayOfShape(X0Hat.ToColumnMatrix(), T);
             Dx = Exts.ZerosArrayOfShape(DX0Hat, T);
             FilterQualityInfos = new FilterQualityInfo[FiltersCount];
             for (int j = 0; j < FiltersCount; j++)
@@ -725,8 +790,21 @@ namespace TestEnvironments
 
         }
 
+        public static ProcessInfo LoadFromFile(string fileName)
+        {
+            ProcessInfo p;
+            IFormatter formatter = new BinaryFormatter();
+            using (Stream stream = new FileStream(fileName, FileMode.Open))
+            {
+                p = (ProcessInfo)formatter.Deserialize(stream);
+                stream.Close();
+            }
+            return p;
+        }
+
         public ProcessInfo(ProcessInfo[] infos)
         {
+            Count = (int)infos.Select(i => (double)i.Count).Sum();
             double[] TrCounts = infos.Select(i => (double)i.Count).ToArray(); 
             mx = Exts.Average(infos.Select(i => i.mx).ToArray(), TrCounts);
             Dx = Exts.Average(infos.Select(i => i.Dx).ToArray(), TrCounts);
@@ -741,12 +819,22 @@ namespace TestEnvironments
             }
         }
 
+        public void SaveToFile(string fileName)
+        {
+            IFormatter formatter = new BinaryFormatter();
+            using (Stream stream = new FileStream(fileName, FileMode.Create))
+            {
+                formatter.Serialize(stream, this);
+                stream.Close();
+            }
+        }
+
         public void SaveToText(string fileName)
         {
             NumberFormatInfo provider = new NumberFormatInfo();
             provider.NumberDecimalSeparator = ".";
             
-            for (int k = 0; k < mx[0].Count; k++)
+            for (int k = 0; k < mx[0].RowCount; k++)
             {
                 using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString())))
                 {
@@ -755,17 +843,17 @@ namespace TestEnvironments
             }
             for (int t = 0; t < mx.Length; t++)
             {
-                for (int k = 0; k < mx[0].Count; k++)
+                for (int k = 0; k < mx[0].RowCount; k++)
                 {
                     using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString()), true))
                     {
                         outputfile.Write(string.Format(provider, "{0} {1} {2}",
-                            t, mx[t][k], Dx[t][k, k]
+                            t, mx[t][k,0], Dx[t][k, k]
                             ));
                         for (int j = 0; j < FilterQualityInfos.Count(); j++)
                         {
                             outputfile.Write(string.Format(provider, " {0} {1} {2} {3}",
-                            FilterQualityInfos[j].mxHat[t][k], FilterQualityInfos[j].mError[t][k], FilterQualityInfos[j].DError[t][k, k], FilterQualityInfos[j].mKHat[t][k, k]
+                            FilterQualityInfos[j].mxHat[t][k,0], FilterQualityInfos[j].mError[t][k,0], FilterQualityInfos[j].DError[t][k, k], FilterQualityInfos[j].mKHat[t][k, k]
                             ));
                         }
                         outputfile.WriteLine();

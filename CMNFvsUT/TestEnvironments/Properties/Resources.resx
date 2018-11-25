@@ -121,6 +121,9 @@
     <value>\centerline{\includegraphics[width=0.9\textwidth]{%file%}}
 \caption{%caption%}</value>
   </data>
+  <data name="OutputFileNameBinTemplate" xml:space="preserve">
+    <value>{name}_{rnd}.pinfo</value>
+  </data>
   <data name="OutputFileNameTemplate" xml:space="preserve">
     <value>{name}_{type}_{0}.txt</value>
   </data>

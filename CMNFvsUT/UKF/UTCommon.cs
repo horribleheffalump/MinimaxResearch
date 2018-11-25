@@ -3,6 +3,7 @@ using MathNetExtensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace UKF
@@ -116,11 +117,12 @@ namespace UKF
     /// <para>- implicitly with one parameter alpha0,</para>
     /// <para>- implicitly with three parameters alpha, beta, kappa</para>
     /// </summary>
+    [Serializable]
     public class UTParams
     {
         public double Lambda;
-        public Vector<double> Wm;
-        public Vector<double> Wc;
+        public double[] Wm;
+        public double[] Wc;
         /// <summary>
         /// Constructor
         /// </summary>
@@ -145,9 +147,11 @@ namespace UKF
         public void SetUTParams(int L, double alpha0)
         {
             Lambda = 2.0 / (1 - alpha0) - L;
-            Wm = Vector<double>.Build.Dense(2 * L + 1, (1.0 - alpha0) / 4.0);
+            //Wm = Vector<double>.Build.Dense(2 * L + 1, (1.0 - alpha0) / 4.0);
+            Wm = Enumerable.Repeat((1.0 - alpha0) / 4.0, 2 * L + 1).ToArray();
             Wm[0] = alpha0;
-            Wc = Vector<double>.Build.Dense(2 * L + 1, (1.0 - alpha0) / 4.0);
+            //Wc = Vector<double>.Build.Dense(2 * L + 1, (1.0 - alpha0) / 4.0);
+            Wc = Enumerable.Repeat((1.0 - alpha0) / 4.0, 2 * L + 1).ToArray(); 
             Wc[0] = alpha0;
         }
 
@@ -161,10 +165,12 @@ namespace UKF
         public void SetUTParams(int L, double alpha, double beta, double kappa)
         {
             Lambda = Math.Pow(alpha, 2.0) * (L + kappa) - L;
-            Wm = Vector<double>.Build.Dense(2 * L + 1, 0.5 / (Lambda + L));
+            //Wm = Vector<double>.Build.Dense(2 * L + 1, 0.5 / (Lambda + L));
+            Wm = Enumerable.Repeat(0.5 / (Lambda + L), 2 * L + 1).ToArray();
             Wm[0] = Lambda / (Lambda + L);
 
-            Wc = Vector<double>.Build.Dense(2 * L + 1, 0.5 / (Lambda + L));
+            //Wc = Vector<double>.Build.Dense(2 * L + 1, 0.5 / (Lambda + L));
+            Wc = Enumerable.Repeat(0.5 / (Lambda + L), 2 * L + 1).ToArray();
             Wc[0] = Lambda / (Lambda + L) + 1.0 - Math.Pow(alpha, 2.0) + beta;
         }
 
@@ -179,10 +185,12 @@ namespace UKF
         public void SetUTParams(int L, double lambda, double wm0, double wc0, double wi)
         {
             Lambda = lambda;
-            Wm = Vector<double>.Build.Dense(2 * L + 1, wi);
+            //Wm = Vector<double>.Build.Dense(2 * L + 1, wi);
+            Wm = Enumerable.Repeat(wi, 2 * L + 1).ToArray();
             Wm[0] = wm0;
 
-            Wc = Vector<double>.Build.Dense(2 * L + 1, wi);
+            //Wc = Vector<double>.Build.Dense(2 * L + 1, wi);
+            Wc = Enumerable.Repeat(wi, 2 * L + 1).ToArray();
             Wc[0] = wc0;
         }
 
@@ -195,7 +203,6 @@ namespace UKF
             {
                 return new double[4] { Lambda, Wm[0], Wc[0], Wm[1] };
             }
-
         }
     }
 

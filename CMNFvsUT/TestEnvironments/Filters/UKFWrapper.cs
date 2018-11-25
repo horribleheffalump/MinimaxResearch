@@ -2,7 +2,10 @@
 using NonlinearSystem;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using UKF;
@@ -57,14 +60,58 @@ namespace TestEnvironments
             return UKF.Step(Phi1, Phi2, Psi1, Psi2, MW, DW, MNu, DNu, t, y, xHat, kHat);
         }
 
+        public UKFilterParams GetParams()
+        {
+            UKFilterParams p = new UKFilterParams();
+            p.utParamsForecast = UKF.utParamsForecast;
+            p.utParamsCorrection = UKF.utParamsCorrection;
+            p.utParamsForecastStepwise = UKF.utParamsForecastStepwise;
+            p.utParamsCorrectionStepwise = UKF.utParamsCorrectionStepwise;
+            return p;
+        }
+
+        public void SetParams(UKFilterParams p)
+        {
+            UKF.utParamsForecast = p.utParamsForecast;
+            UKF.utParamsCorrection = p.utParamsCorrection;
+            UKF.utParamsForecastStepwise = p.utParamsForecastStepwise;
+            UKF.utParamsCorrectionStepwise = p.utParamsCorrectionStepwise;
+        }
+
         public override void SaveParams()
         {
+            //XmlSerializer formatter = new XmlSerializer(typeof(CMNVectorFilterParams));
+            IFormatter formatter = new BinaryFormatter();
+            using (Stream stream = new FileStream(FileName, FileMode.Create))
+            {
+                formatter.Serialize(stream, GetParams());
+                stream.Close();
+            }
         }
-
         public override void LoadParams()
         {
+            UKFilterParams p;
+            IFormatter formatter = new BinaryFormatter();
+            using (Stream stream = new FileStream(FileName, FileMode.Open))
+            {
+                p = (UKFilterParams)formatter.Deserialize(stream);
+                stream.Close();
+            }
+            SetParams(p);
         }
 
+    }
 
+    [Serializable]
+    public class UKFilterParams 
+    {
+        public UTParams utParamsForecast;
+        public UTParams utParamsCorrection; 
+        public UTParams[] utParamsForecastStepwise; 
+        public UTParams[] utParamsCorrectionStepwise; 
+
+        public UKFilterParams()
+        {
+        }
     }
 }

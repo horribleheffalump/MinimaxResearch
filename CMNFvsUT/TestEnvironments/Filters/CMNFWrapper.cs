@@ -39,9 +39,9 @@ namespace TestEnvironments
             return CMNF.Step(t, y, xHat);
         }
 
-        public CMFFilterParams GetParams()
+        public CMNVectorFilterParams GetParams()
         {
-            CMFFilterParams p = new CMFFilterParams();
+            CMNVectorFilterParams p = new CMNVectorFilterParams();
             p.FHat = CMNF.FHat.Select(x => x.Value).ToArray();
             p.fHat = CMNF.fHat.Select(x => x.Value.ToColumnMatrix()).ToArray();
             p.HHat = CMNF.HHat.Select(x => x.Value).ToArray();
@@ -50,9 +50,24 @@ namespace TestEnvironments
             p.KHat = CMNF.KHat.Select(x => x.Value).ToArray();
             return p;
         }
+
+        public void SetParams(CMNVectorFilterParams p)
+        {
+            for (int t = 0; t < p.FHat.Length; t++)
+            {
+                CMNF.FHat.Add(t, p.FHat[t]);
+                CMNF.fHat.Add(t, p.fHat[t].Column(0));
+                CMNF.HHat.Add(t, p.HHat[t]);
+                CMNF.hHat.Add(t, p.hHat[t].Column(0));
+                CMNF.KTilde.Add(t, p.KTilde[t]);
+                CMNF.KHat.Add(t, p.KHat[t]);
+            }
+
+        }
+
         public override void SaveParams()
         {
-            //XmlSerializer formatter = new XmlSerializer(typeof(CMFFilterParams));
+            //XmlSerializer formatter = new XmlSerializer(typeof(CMNVectorFilterParams));
             IFormatter formatter = new BinaryFormatter();
             using (Stream stream = new FileStream(FileName, FileMode.Create))
             {
@@ -62,19 +77,20 @@ namespace TestEnvironments
         }
         public override void LoadParams()
         {
-            CMFFilterParams p;
+            CMNVectorFilterParams p;
             IFormatter formatter = new BinaryFormatter();
             using (Stream stream = new FileStream(FileName, FileMode.Open))
             {
-                p = (CMFFilterParams)formatter.Deserialize(stream);
+                p = (CMNVectorFilterParams)formatter.Deserialize(stream);
                 stream.Close();
             }
+            SetParams(p);
         }
 
     }
 
     [Serializable]
-    public class CMFFilterParams: ISerializable
+    public class CMNVectorFilterParams
     {
         public Matrix<double>[] FHat;
         public Matrix<double>[] fHat;
@@ -83,28 +99,8 @@ namespace TestEnvironments
         public Matrix<double>[] KTilde;
         public Matrix<double>[] KHat;
 
-        public CMFFilterParams()
+        public CMNVectorFilterParams()
         {
-        }
-
-        public void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            info.AddValue("FHat", FHat);
-            info.AddValue("fHat", FHat);
-            info.AddValue("HHat", FHat);
-            info.AddValue("hHat", FHat);
-            info.AddValue("KTilde", FHat);
-            info.AddValue("KHat", FHat);
-        }
-
-        public CMFFilterParams(SerializationInfo info, StreamingContext context)
-        {
-            FHat = (Matrix<double>[])info.GetValue("FHat", typeof(Matrix<double>[]));
-            fHat = (Matrix<double>[])info.GetValue("FHat", typeof(Matrix<double>[]));
-            HHat = (Matrix<double>[])info.GetValue("FHat", typeof(Matrix<double>[]));
-            hHat = (Matrix<double>[])info.GetValue("FHat", typeof(Matrix<double>[]));
-            KTilde = (Matrix<double>[])info.GetValue("FHat", typeof(Matrix<double>[]));
-            KHat = (Matrix<double>[])info.GetValue("FHat", typeof(Matrix<double>[]));
         }
     }
 }

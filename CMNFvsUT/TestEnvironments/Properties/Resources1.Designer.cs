@@ -71,6 +71,15 @@ namespace TestEnvironments.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {name}_{rnd}.pinfo.
+        /// </summary>
+        internal static string OutputFileNameBinTemplate {
+            get {
+                return ResourceManager.GetString("OutputFileNameBinTemplate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {name}_{type}_{0}.txt.
         /// </summary>
         internal static string OutputFileNameTemplate {

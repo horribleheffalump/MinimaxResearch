@@ -28,6 +28,13 @@
 
 
 ---
+#### Property Properties.Resources.OutputFileNameBinTemplate
+
+ Looks up a localized string similar to {name}_{rnd}.pinfo. 
+
+
+
+---
 #### Property Properties.Resources.OutputFileNameTemplate
 
  Looks up a localized string similar to {name}_{type}_{0}.txt. 
@@ -102,7 +109,7 @@
 
 
 ---
-#### Method TestEnvironmentVector.GenerateBundles(System.Int32,System.Int32,System.String,System.Boolean,System.Int32)
+#### Method TestEnvironmentVector.GenerateBundles(System.Int32,System.Int32,System.String,System.Boolean,System.Int32,System.Boolean,System.Boolean)
 
  Generates N bundles of trajectories, applies the CMN and UK filters. The statistics for estimate errors are calculated by taking average on each bundle, and then on the whole set of bundles. Same as GenerateBundle but for larger numbers of trajectories. 
 
@@ -112,6 +119,16 @@
 |n: |Number of trajectories|
 |folderName: |Output folder name|
 |doCalculateUKF: |(optional, default = true) if true, UKF and CMNF estimates are calculated, if false - only CMNF |
+
+
+---
+#### Method TestEnvironmentVector.Aggregate(System.String,System.Boolean,System.Boolean)
+
+ Imports and aggregates the data from prevoiously generated bundles of trajectories. The statistics for estimate errors are calculated by taking average the whole set of bundles. 
+
+|Name | Description |
+|-----|------|
+|folderName: |Output folder name|
 
 
 ---

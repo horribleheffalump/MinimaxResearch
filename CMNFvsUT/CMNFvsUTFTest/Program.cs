@@ -78,7 +78,7 @@ namespace CMNFvsUTFTest
             [Option('B', "bulk", Required = false, Default = false, HelpText = "Bulk output of the state process trajectories bundle")]
             public bool Bulk { get; set; }
 
-            [Option('G', "generate-samples", Required = false, Default = 1, HelpText = "Number of single trajectories to generate")]
+            [Option('G', "generate-samples", Required = false, Default = 0, HelpText = "Number of single trajectories to generate")]
             public int SamplesCount { get; set; }
 
             [Option('P', "parallel", Required = false, Default = false, HelpText = "Parallel bundles calculation (on to save time, off to save memory in case of multiple large bundles)")]
@@ -92,7 +92,7 @@ namespace CMNFvsUTFTest
 
             [Option("UKF-file", Required = false, HelpText = "File name to save/load parameters of trained UKF filter")]
             public string UKFFileName { get; set; }
-            
+
             [Option("CMNF-file", Required = false, HelpText = "File name to save/load parameters of trained CMNF filter")]
             public string CMNFFileName { get; set; }
 
@@ -101,6 +101,22 @@ namespace CMNFvsUTFTest
 
             [Option('S', "Save", Required = false, Default = false, HelpText = "Save trained filter parameters to files for future use")]
             public bool Save { get; set; }
+
+            [Option("skip-filter", Required = false, Default = false, HelpText = "Skip filter calculation step")]
+            public bool Skip { get; set; }
+
+            [Option('A', "aggregate", Required = false, Default = false, HelpText = "Aggregate the previously generated data")]
+            public bool Aggregate { get; set; }
+
+            [Option("no-bin", Required = false, Default = false, HelpText = "Do not save the calculated data to reuse later")]
+            public bool NoBin { get; set; }
+
+            [Option("no-text", Required = false, Default = false, HelpText = "Do not save the calculated data to text file")]
+            public bool NoText { get; set; }
+
+            [Option("no-python", Required = false, Default = false, HelpText = "Do not process the generated data")]
+            public bool NoPython { get; set; }
+
         }
 
         static void Main(string[] args)
@@ -420,45 +436,35 @@ namespace CMNFvsUTFTest
                 else
                 {
                     testEnv.Initialize(o.T, o.TrainCount, o.MCMNFTrainCount, o.OutputFolder, filters, o.Save, o.Load);
-
-                    //if (!string.IsNullOrEmpty(o.SaveFileName))
-                    //    SaveEnvironment(testEnv, o.SaveFileName);
-                    testEnv.GenerateBundles(o.BundleCount, o.TestCount, o.OutputFolder, o.Parallel, o.ParallelismDegree);
-                    //if (o.BundleCount > 1)
-                    //    testEnv.GenerateBundles(o.BundleCount, o.TestCount, o.OutputFolder, o.Parallel, o.ParallelismDegree);
-                    //else
-                    //    testEnv.GenerateBundle(o.TestCount, o.OutputFolder);
-                    if (o.SamplesCount == 1)
-                        testEnv.GenerateOne(o.OutputFolder);
-                    else
+                    if (o.Aggregate)
                     {
-                        for (int i = 0; i < o.SamplesCount; i++)
-                        {
-                            testEnv.GenerateOne(o.OutputFolder, i);
-                        }
+                        testEnv.Aggregate(o.OutputFolder, o.OutputFolder, !o.NoBin, !o.NoText);
                     }
-                    testEnv.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
-                    //testEnv.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
+                    if (!o.Skip)
+                    {
+                        testEnv.GenerateBundles(o.BundleCount, o.TestCount, o.OutputFolder, o.Parallel, o.ParallelismDegree, !o.NoBin, !o.NoText);
+                        //if (o.BundleCount > 1)
+                        //    testEnv.GenerateBundles(o.BundleCount, o.TestCount, o.OutputFolder, o.Parallel, o.ParallelismDegree);
+                        //else
+                        //    testEnv.GenerateBundle(o.TestCount, o.OutputFolder);
+
+                        if (o.SamplesCount == 1)
+                            testEnv.GenerateOne(o.OutputFolder);
+                        else
+                        {
+                            for (int i = 0; i < o.SamplesCount; i++)
+                            {
+                                testEnv.GenerateOne(o.OutputFolder, i);
+                            }
+                        }
+                        //testEnv.GenerateReport(o.TemplatesFolder, o.PlotsFolder);
+                    }
+                    if (!o.NoPython)
+                    {
+                        testEnv.ProcessResults(o.OutputFolder, o.ScriptsFolder, o.PlotsFolder);
+                    }
                 }
             }
-        }
-
-        //static TestEnvironmentVector LoadEnvironment(string fileName)
-        //{
-
-        //}
-        static void SaveEnvironment(TestEnvironmentVector testEnv, string fileName)
-        {
-            XmlSerializer formatter = new XmlSerializer(typeof(TestEnvironmentVector));
-            using (Stream stream = new FileStream(fileName, FileMode.OpenOrCreate))
-            {
-                formatter.Serialize(stream, testEnv);
-                stream.Close();
-            }
-            //IFormatter formatter = new BinaryFormatter();
-            //using(Stream stream = new FileStream("MyFile.bin", FileMode.Open, FileAccess.Read, FileShare.Read);
-            //MyObject obj = (MyObject)formatter.Deserialize(stream);
-            //stream.Close();
         }
     }
 }
