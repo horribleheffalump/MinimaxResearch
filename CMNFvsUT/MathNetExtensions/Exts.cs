@@ -309,7 +309,10 @@ namespace MathNetExtensions
             {
                 result = result + (x[i] - mx).ToColumnMatrix() * (y[i] - my).ToRowMatrix();
             }
-            return result / (x.Length - 1.0);
+            if (x.Length == 1)
+                return result;
+            else
+                return result / (x.Length - 1.0);
         }
         public static Vector<double> Vector(params double[] val)
         {
