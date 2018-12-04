@@ -11,7 +11,7 @@ namespace NonlinearSystem
     public class ContinuousVectorModel
     {
         private Func<double, Vector<double>, Vector<double>> Phi1; // Phi1(t, X)
-        private Func<double, Vector<double>, Matrix<double>> Phi2;
+        private Func<double, Matrix<double>> Phi2; // Does not depend on state
         private Func<double, Vector<double>, Vector<double>> Psi1;
         private Func<double, Vector<double>, Matrix<double>> Psi2;
         private Func<double, Vector<double>> W;
@@ -32,12 +32,12 @@ namespace NonlinearSystem
         public DiscreteVectorModel DiscreteModel;
 
         NumberFormatInfo provider = new NumberFormatInfo();
-       
+
         public ContinuousVectorModel(
                                        double h_state,
                                        double h_obs,
                                        Func<double, Vector<double>, Vector<double>> Phi1,
-                                       Func<double, Vector<double>, Matrix<double>> Phi2,
+                                       Func<double, Matrix<double>> Phi2,
                                        Func<double, Vector<double>, Vector<double>> Psi1,
                                        Func<double, Vector<double>, Matrix<double>> Psi2,
                                        Func<double, Vector<double>> W,
@@ -68,17 +68,32 @@ namespace NonlinearSystem
             State = X0;
             if (doSave) Trajectory.Add(t, X0);
             DiscreteModel = new DiscreteVectorModel(); // dummy discrete model to save discretized trajectory
-            Obs = Psi1(t,State) + Psi2(t, State) * Nu(t);
+            Obs = Psi1(t, State) + Psi2(t, State) * Nu(t);
             if (doSave) Observation.Add(t, Obs);
 
             provider.NumberDecimalSeparator = ".";
+        }
+
+        public Func<int, Vector<double>, Vector<double>> Integrate(Func<double, Vector<double>, Vector<double>> f)
+        {
+            return (i, x) =>
+            {
+                double tt = i * h_obs;
+                Vector<double> xx = x;
+                while (tt < (i + 1) * h_obs + h_state)
+                {
+                    xx = xx + h_state * f(tt, xx);
+                    tt = tt + h_state;
+                }
+                return xx;
+            };
         }
 
         public Vector<double>[] Step()
         {
             if (t > 0)
             {
-                State += h_state * Phi1(t, State) + Math.Sqrt(h_state) * Phi2(t, State) * W(t);
+                State += h_state * Phi1(t, State) + Math.Sqrt(h_state) * Phi2(t) * W(t);
                 if (doSave) Trajectory.Add(t, State);
             }
             if (Math.Abs(t - t_nextobservation) < h_tolerance)
@@ -93,7 +108,21 @@ namespace NonlinearSystem
             else
                 Obs = null;
             Vector<double>[] result = new Vector<double>[] { State, Obs };
-            t+= h_state;
+            t += h_state;
+            return result;
+        }
+
+        public Vector<double>[] StepObs()
+        {
+            t = n * h_obs;
+            State = h_obs * Integrate(Phi1)(n, State) + Math.Sqrt(h_obs) * Phi2(t) * W(t);
+            if (doSave) Trajectory.Add(t + h_obs, State);
+            Obs = Psi1(t + h_obs, State) + Psi2(t + h_obs, State) * Nu(t + h_obs);
+            //t_nextobservation += h_obs;
+            if (doSave) Observation.Add(t + h_obs, Obs);
+            DiscreteModel.Trajectory.Add(n, new Vector<double>[] { State, Obs });
+            n++;
+            Vector<double>[] result = new Vector<double>[] { State, Obs };
             return result;
         }
 

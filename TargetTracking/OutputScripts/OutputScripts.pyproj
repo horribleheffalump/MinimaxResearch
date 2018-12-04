@@ -21,6 +21,12 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="estimate_sample.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="estimate_statistics.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="trajectory.py" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
