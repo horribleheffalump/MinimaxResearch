@@ -59,6 +59,7 @@ namespace TestEnvironments
         public Func<int, Vector<double>, Vector<double>> Xi;
         public Func<int, Vector<double>, Vector<double>, Matrix<double>, Vector<double>> Zeta;
 
+        public Func<DiscreteVectorModel> ModelGenerator;
         //private NumberFormatInfo provider;
 
         public BasicFilter[] Filters;
@@ -84,8 +85,24 @@ namespace TestEnvironments
         /// <param name="doCalculateUKFStepwise"></param>
         /// <param name="outputFolder"></param>
         //public void Initialize(int t, int n, bool doCalculateUKF, bool doCalculateUKFStepwise, bool doOptimizeWithRandomShoot, string outputFolder)
-        public void Initialize(int t, int n, int nMCMNF, string outputFolder, List<(FilterType type, string fileName)> filters, bool save = false, bool load = false)
+        public void Initialize(int t, int n, int nMCMNF, string outputFolder, List<(FilterType type, string fileName)> filters, bool save = false, bool load = false, Func<DiscreteVectorModel> ModelGenerator = null)
         {
+            if (ModelGenerator == null)
+            {
+                this.ModelGenerator = () =>
+                       {
+                           DiscreteVectorModel model = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
+                           for (int s = 0; s < T; s++)
+                           {
+                               model.Step();
+                           }
+                           return model;
+                       };
+            }
+            else
+            {
+                this.ModelGenerator = ModelGenerator;
+            }
             Console.WriteLine("Init");
             NumberFormatInfo provider = new NumberFormatInfo();
             provider.NumberDecimalSeparator = ".";
@@ -93,7 +110,7 @@ namespace TestEnvironments
 
             T = t;
 
-            // generate models for filters parameters fitting/optimization
+            // generate models for filters parameters fitting/optimization if we are not importing them from file
             DiscreteVectorModel[] models = new DiscreteVectorModel[0];
             if (!load)
             {
@@ -102,14 +119,14 @@ namespace TestEnvironments
                 {
                     if (i % 1000 == 0) // inform every 1000-th trajectory
                         Console.WriteLine($"model {i}");
-                    models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-                    for (int s = 0; s < T; s++)
-                    {
-                        models[i].Step();
-                    }
+                    models[i] = ModelGenerator();
+                    //models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
+                    //for (int s = 0; s < T; s++)
+                    //{
+                    //    models[i].Step();
+                    //}
                 }
             }
-
             Filters = new BasicFilter[filters.Count()];
             for (int j = 0; j < filters.Count(); j++)
             {
@@ -152,7 +169,7 @@ namespace TestEnvironments
                     };
                     Filters[j] = MCMNF;
                 }
-                if (new[] { FilterType.UKFIntegral, FilterType.UKFIntegralRandomShoot, FilterType.UKFStepwise, FilterType.UKFStepwiseRandomShoot }.Contains(filters[j].type))
+                if (new[] { FilterType.UKFNoOptimization, FilterType.UKFIntegral, FilterType.UKFIntegralRandomShoot, FilterType.UKFStepwise, FilterType.UKFStepwiseRandomShoot }.Contains(filters[j].type))
                 {
                     UKFWrapper UKF = new UKFWrapper
                     {
@@ -168,10 +185,18 @@ namespace TestEnvironments
                         DW = DW,
                         MNu = MNu,
                         DNu = DNu,
-                        Crit = x => x[0, 0],
+                        Crit = x => x.Trace(),//x[0, 0],
                         DX0Hat = DX0Hat,
                         outputFolder = outputFolder
                     };
+
+                    if (filters[j].type == FilterType.UKFNoOptimization)
+                    {
+                        UKF.doOptimize = false;
+                        UKF.doCalculateUKFStepwise = false;
+                    }
+                    else
+                        UKF.doOptimize = true;
 
                     if (new[] { FilterType.UKFIntegralRandomShoot, FilterType.UKFStepwiseRandomShoot }.Contains(filters[j].type))
                         UKF.doOptimizeWithRandomShoot = true;
@@ -231,11 +256,12 @@ namespace TestEnvironments
                 if (i % 1000 == 0) // inform every 1000-th trajectory
                     Console.WriteLine($"model {i}");
                 //Console.WriteLine($"model {i}");
-                models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-                for (int s = 0; s < T; s++)
-                {
-                    models[i].Step();
-                }
+                models[i] = ModelGenerator();
+                //models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
+                //for (int s = 0; s < T; s++)
+                //{
+                //    models[i].Step();
+                //}
             }
 
             for (int k = 0; k < models[0].State.Count; k++)
@@ -289,11 +315,12 @@ namespace TestEnvironments
                 fileName_obs = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs + "_" + n.ToString()));
             }
 
-            DiscreteVectorModel modelEst = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-            for (int s = 0; s < T; s++)
-            {
-                modelEst.Step();
-            }
+            DiscreteVectorModel modelEst = ModelGenerator();
+            //DiscreteVectorModel modelEst = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
+            //for (int s = 0; s < T; s++)
+            //{
+            //    modelEst.Step();
+            //}
 
             int dimX = modelEst.Trajectory[0][0].Count;
             int dimY = modelEst.Trajectory[0][1].Count;
@@ -607,11 +634,12 @@ namespace TestEnvironments
             {
                 //if (i % 1000 == 0) // inform every 1000-th trajectory
                 //    Console.WriteLine($"model {i}");
-                modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-                for (int s = 0; s < T; s++)
-                {
-                    modelsEst[i].Step();
-                }
+                modelsEst[i] = ModelGenerator();
+                //modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
+                //for (int s = 0; s < T; s++)
+                //{
+                //    modelsEst[i].Step();
+                //}
             }
 
             Vector<double>[][] xHat = new Vector<double>[Filters.Count()][];
@@ -747,7 +775,7 @@ namespace TestEnvironments
 
     }
 
-    public enum FilterType { CMNF, MCMNF, UKFIntegral, UKFIntegralRandomShoot, UKFStepwise, UKFStepwiseRandomShoot };
+    public enum FilterType { CMNF, MCMNF, UKFNoOptimization, UKFIntegral, UKFIntegralRandomShoot, UKFStepwise, UKFStepwiseRandomShoot };
 
     [Serializable]
     public class FilterQualityInfo
@@ -805,7 +833,7 @@ namespace TestEnvironments
         public ProcessInfo(ProcessInfo[] infos)
         {
             Count = (int)infos.Select(i => (double)i.Count).Sum();
-            double[] TrCounts = infos.Select(i => (double)i.Count).ToArray(); 
+            double[] TrCounts = infos.Select(i => (double)i.Count).ToArray();
             mx = Exts.Average(infos.Select(i => i.mx).ToArray(), TrCounts);
             Dx = Exts.Average(infos.Select(i => i.Dx).ToArray(), TrCounts);
             FilterQualityInfos = new FilterQualityInfo[infos[0].FilterQualityInfos.Count()];
@@ -833,7 +861,7 @@ namespace TestEnvironments
         {
             NumberFormatInfo provider = new NumberFormatInfo();
             provider.NumberDecimalSeparator = ".";
-            
+
             for (int k = 0; k < mx[0].RowCount; k++)
             {
                 using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString())))
@@ -848,12 +876,12 @@ namespace TestEnvironments
                     using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString()), true))
                     {
                         outputfile.Write(string.Format(provider, "{0} {1} {2}",
-                            t, mx[t][k,0], Dx[t][k, k]
+                            t, mx[t][k, 0], Dx[t][k, k]
                             ));
                         for (int j = 0; j < FilterQualityInfos.Count(); j++)
                         {
                             outputfile.Write(string.Format(provider, " {0} {1} {2} {3}",
-                            FilterQualityInfos[j].mxHat[t][k,0], FilterQualityInfos[j].mError[t][k,0], FilterQualityInfos[j].DError[t][k, k], FilterQualityInfos[j].mKHat[t][k, k]
+                            FilterQualityInfos[j].mxHat[t][k, 0], FilterQualityInfos[j].mError[t][k, 0], FilterQualityInfos[j].DError[t][k, k], FilterQualityInfos[j].mKHat[t][k, k]
                             ));
                         }
                         outputfile.WriteLine();
