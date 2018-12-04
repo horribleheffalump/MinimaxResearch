@@ -100,7 +100,7 @@ namespace UKF
     /// <summary>
     /// Unscented transform parameters optimization method.
     /// </summary>
-    public enum OptimizationMethod { RandomShoot, NelderMeed }
+    public enum OptimizationMethod { RandomShoot, NelderMeed, NoOptimization }
 
     /// <summary>
     /// Unscented transform parameters definition type.

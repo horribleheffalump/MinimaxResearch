@@ -192,8 +192,8 @@ namespace UKF
                     n = 3;
                     lowerBound = Exts.Vector(0, 0, 0);
                     upperBound = Exts.Vector(5, 5, 5);
-                    initialGuess = Exts.Vector(1, 2, 1);
-                    //initialGuess = Exts.Vector(3, 2, 1);
+                    //initialGuess = Exts.Vector(1, 2, 1);
+                    initialGuess = Exts.Vector(3, 2, 1);
                     filename = filename.Replace("{type}", "ImplicitABK"); break;
                 case UTDefinitionType.Explicit:
                     n = 4;
@@ -355,6 +355,9 @@ namespace UKF
                     //    argmin = OptimumRandom_.argmin;
                     //}
                     break;
+                default: // no optimization by default
+                    break;
+
 
             }
             return (min, new UTParams(xhat0.Count, argmin.Take(n).ToArray()), new UTParams(xhat0.Count, argmin.Skip(n).Take(n).ToArray()));
@@ -898,7 +901,7 @@ namespace UKF
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                //Console.WriteLine(e.Message);
                 return (xHat_, P_);
             }
             //Matrix<double> K2 = PXY2 * PYtilde2.Inverse();

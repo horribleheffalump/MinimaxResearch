@@ -29,15 +29,21 @@ namespace TestEnvironments
         public Func<Matrix<double>, double> Crit;
         public Matrix<double> DX0Hat;
         public string outputFolder;
+        public bool doOptimize;
         public bool doOptimizeWithRandomShoot;
         public bool doCalculateUKFStepwise;
 
         public override void Initialize()
         {
-            if (doOptimizeWithRandomShoot)
-                UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.RandomShoot);
+            if (doOptimize)
+            {
+                if (doOptimizeWithRandomShoot)
+                    UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.RandomShoot);
+                else
+                    UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.NelderMeed);
+            }
             else
-                UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.NelderMeed);            
+                UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.NoOptimization);
         }
 
         public override void InitializeAndTrain()
