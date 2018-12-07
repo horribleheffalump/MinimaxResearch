@@ -92,7 +92,7 @@ namespace TestEnvironments
                 this.ModelGenerator = () =>
                        {
                            DiscreteVectorModel model = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-                           for (int s = 0; s < T; s++)
+                           for (int s = 1; s < T; s++)
                            {
                                model.Step();
                            }

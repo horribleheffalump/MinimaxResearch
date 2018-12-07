@@ -55,12 +55,13 @@ namespace TestEnvironments
         {
             for (int t = 0; t < p.FHat.Length; t++)
             {
-                CMNF.FHat.Add(t, p.FHat[t]);
-                CMNF.fHat.Add(t, p.fHat[t].Column(0));
-                CMNF.HHat.Add(t, p.HHat[t]);
-                CMNF.hHat.Add(t, p.hHat[t].Column(0));
-                CMNF.KTilde.Add(t, p.KTilde[t]);
-                CMNF.KHat.Add(t, p.KHat[t]);
+                // t+1 since we start filtring from t = 1
+                CMNF.FHat.Add(t + 1, p.FHat[t]);
+                CMNF.fHat.Add(t + 1, p.fHat[t].Column(0));
+                CMNF.HHat.Add(t + 1, p.HHat[t]);
+                CMNF.hHat.Add(t + 1, p.hHat[t].Column(0));
+                CMNF.KTilde.Add(t + 1, p.KTilde[t]);
+                CMNF.KHat.Add(t + 1, p.KHat[t]);
             }
 
         }

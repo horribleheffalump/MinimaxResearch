@@ -107,11 +107,11 @@ namespace TargetTrackingTest
             //double Beta_t = 2;
             //double Gamma_t = -0.005;
             double Alpha_n = 0.05;
-            double Beta_n = 3.0;
+            double Beta_n = 10.0;
             double Gamma_n = 0.02;
 
 
-            Vector<double> mEta = Exts.Vector(20000, 20000, 450, 10 * Math.PI / 180, Gamma_n / Alpha_n);
+            Vector<double> mEta = Exts.Vector(200000, 200000, 450, 10 * Math.PI / 180, Gamma_n / Alpha_n);
             Matrix<double> dEta = Exts.Diag(Math.Pow(2000, 2), Math.Pow(2000, 2), Math.Pow(100, 2), Math.Pow(15 * Math.PI / 180, 2), Math.Pow(Beta_n, 2) / 2 / Alpha_n);
             //Matrix<double> dEta = Exts.Diag(0.0, 0.0, 0.0, 0.0, 0.0);
 
@@ -119,20 +119,20 @@ namespace TargetTrackingTest
             Matrix<double> dW = Exts.Diag(0, 0, 0, 0, Math.Pow(Beta_n, 2));
 
             Vector<double> X_R1 = Exts.Vector(20000, 0);
-            Vector<double> mNu = Exts.Vector(0, 0);
-            Matrix<double> dNu = Exts.Diag(Math.Pow(1 * Math.PI / 180, 2), Math.Pow(50, 2));
+            //Vector<double> mNu = Exts.Vector(0, 0);
+            //Matrix<double> dNu = Exts.Diag(Math.Pow(0.1 * Math.PI / 180, 2), Math.Pow(50, 2));
 
 
             Func<Vector<double>, Vector<double>> Phi1 = (x) => Exts.Vector(x[2] * Math.Cos(x[3]), x[2] * Math.Sin(x[3]), 0, x[4] / x[2], -Alpha_n * x[4] + Gamma_n);
             Func<Matrix<double>> Phi2 = () => Exts.Diag(0, 0, 0, 0, 1.0);
-            Func<Vector<double>, Vector<double>> Psi1 = (x) => Utils.cart2pol(Exts.Vector(x[0], x[1]) - X_R1);
-            Func<Matrix<double>> Psi2 = () => Exts.Diag(1.0, 1.0);
+            //Func<Vector<double>, Vector<double>> Psi1 = (x) => Utils.cart2pol(Exts.Vector(x[0], x[1]) - X_R1);
+            //Func<Matrix<double>> Psi2 = () => Exts.Diag(1.0, 1.0);
 
-            //Vector<double> X_R2 = Exts.Vector(0, 0);
-            //Vector<double> mNu = Exts.Vector(0, 0, 0, 0);
-            //Matrix<double> dNu = Exts.Diag(Math.Pow(0.1 * Math.PI / 180, 2), Math.Pow(50, 2), Math.Pow(0.1 * Math.PI / 180, 2), Math.Pow(50, 2));
-            //Func<double, Vector<double>, Vector<double>> Psi1 = (s, x) => Exts.Stack(Utils.cart2pol(Exts.Vector(x[0], x[1]) - X_R1), Utils.cart2pol(Exts.Vector(x[0], x[1]) - X_R2));
-            //Func<double, Vector<double>, Matrix<double>> Psi2 = (s, x) => Exts.Diag(1.0, 1.0, 1.0, 1.0);
+            Vector<double> X_R2 = Exts.Vector(0, 0);
+            Vector<double> mNu = Exts.Vector(0, 0, 0, 0);
+            Matrix<double> dNu = Exts.Diag(Math.Pow(0.1 * Math.PI / 180, 2), Math.Pow(50, 2), Math.Pow(0.1 * Math.PI / 180, 2), Math.Pow(50, 2));
+            Func<Vector<double>, Vector<double>> Psi1 = (x) => Exts.Stack(Utils.cart2pol(Exts.Vector(x[0], x[1]) - X_R1), Utils.cart2pol(Exts.Vector(x[0], x[1]) - X_R2));
+            Func<Matrix<double>> Psi2 = () => Exts.Diag(1.0, 1.0, 1.0, 1.0);
 
             Normal NormalW = new Normal(mW[4], Math.Sqrt(dW[4, 4]));
             RandomVector<Normal> NormalNu = new RandomVector<Normal>(mNu, dNu);
@@ -146,9 +146,9 @@ namespace TargetTrackingTest
             X0 = () => NormalEta.Sample();
             //X0 = () => mEta;
 
-            double h_state = 0.001;
+            double h_state = 0.01;
             double h_obs = 1.0;
-            double T = 150.0 + h_state / 2;
+            double T = 600.0 + h_state / 2;
 
             #endregion
 
@@ -207,7 +207,7 @@ namespace TargetTrackingTest
                 Vector<double> State = X0();
                 Vector<double> Obs;
                 DiscreteVectorModel model = new DiscreteVectorModel(Phi1_discr, Phi2_discr, Psi1_discr, Psi2_discr, (i) => W(), (i) => Nu(), X0(), true);
-                for (double s = 0; s < T; s += h_state)
+                for (double s = h_state; s < T; s += h_state)
                 {
                     if (s > 0)
                     {
@@ -226,7 +226,7 @@ namespace TargetTrackingTest
             };
 
             bool doCalculateFilter = true;
-            testEnv.Initialize(N, 10000, 10000, "d:\\results\\cont\\", filters, doCalculateFilter, !doCalculateFilter, ModelGenerator);
+            testEnv.Initialize(N, 1000, 1000, "d:\\results\\cont\\", filters, doCalculateFilter, !doCalculateFilter, ModelGenerator);
             //testEnv.GenerateBundles(20, 100, "d:\\results\\cont\\", false);
             testEnv.GenerateOne("d:\\results\\cont\\");
 
