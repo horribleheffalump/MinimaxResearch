@@ -109,12 +109,12 @@ namespace TestEnvironments
     }
 
     [Serializable]
-    public class UKFilterParams 
+    public class UKFilterParams
     {
         public UTParams utParamsForecast;
-        public UTParams utParamsCorrection; 
-        public UTParams[] utParamsForecastStepwise; 
-        public UTParams[] utParamsCorrectionStepwise; 
+        public UTParams utParamsCorrection;
+        public UTParams[] utParamsForecastStepwise;
+        public UTParams[] utParamsCorrectionStepwise;
 
         public UKFilterParams()
         {

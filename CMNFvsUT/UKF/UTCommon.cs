@@ -1,4 +1,5 @@
 ﻿using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Factorization;
 using MathNetExtensions;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,10 @@ namespace UKF
         {
             int L = x.Count;
 
-            Matrix<double> Sqrt = (Math.Sqrt(lambda + L)) * P.Cholesky().Factor.Transpose();
+            //Matrix<double> Sqrt = (Math.Sqrt(lambda + L)) * P.Cholesky().Factor.Transpose();
+            Svd<double> Psvd = P.Svd();
+            Matrix<double> Sqrt = (Math.Sqrt(lambda + L)) * Psvd.U * Psvd.W.PointwiseSqrt() * Psvd.VT;
+
 
             Matrix<double> Xi = x.ToColumnMatrix();
             for (int i = 0; i < L; i++)

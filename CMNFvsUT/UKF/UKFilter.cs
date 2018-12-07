@@ -330,7 +330,7 @@ namespace UKF
 
             (int n, Vector<double> lowerBound, Vector<double> upperBound, Vector<double> initialGuess, string filename) = DefineOptimizationParameters(type, xhat0, string.IsNullOrWhiteSpace(outputFolder) ? null : Path.Combine(outputFolder, "UT_optimization_{type}.txt"));
             double min = double.MaxValue;
-            Vector<double> argmin = initialGuess;
+            Vector<double> argmin = Exts.Stack(initialGuess, initialGuess);
 
             switch (method)
             {
@@ -901,7 +901,7 @@ namespace UKF
             }
             catch (Exception e)
             {
-                //Console.WriteLine(e.Message);
+                Console.WriteLine(e.Message);
                 return (xHat_, P_);
             }
             //Matrix<double> K2 = PXY2 * PYtilde2.Inverse();
