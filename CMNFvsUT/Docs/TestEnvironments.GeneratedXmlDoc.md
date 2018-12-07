@@ -84,7 +84,7 @@
 
 
 ---
-#### Method TestEnvironmentVector.Initialize(System.Int32,System.Int32,System.Int32,System.String,System.Collections.Generic.List{System.ValueTuple{TestEnvironments.FilterType,System.String}},System.Boolean,System.Boolean)
+#### Method TestEnvironmentVector.Initialize(System.Int32,System.Int32,System.Int32,System.String,System.Collections.Generic.List{System.ValueTuple{TestEnvironments.FilterType,System.String}},System.Boolean,System.Boolean,System.Func{NonlinearSystem.DiscreteVectorModel})
 
  Initializes the test environment by calculating the statistics for CMN and UT filters 
 
@@ -122,7 +122,7 @@
 
 
 ---
-#### Method TestEnvironmentVector.Aggregate(System.String,System.Boolean,System.Boolean)
+#### Method TestEnvironmentVector.Aggregate(System.String,System.String,System.Boolean,System.Boolean)
 
  Imports and aggregates the data from prevoiously generated bundles of trajectories. The statistics for estimate errors are calculated by taking average the whole set of bundles. 
 

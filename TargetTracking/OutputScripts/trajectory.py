@@ -35,10 +35,15 @@ data_stateX = pd.read_csv(filenameX, delimiter = " ", header=None, dtype=float, 
 filenameY = u'D:/results/cont/TargetTracking_sample_1.txt'
 data_stateY = pd.read_csv(filenameY, delimiter = " ", header=None, dtype=float, engine='python')
 
-plt.plot(data_stateX[1], data_stateY[1], 'k')
-plt.plot(data_stateX[1]+data_stateX[2], data_stateY[1]+data_stateY[2], 'r')
-plt.plot(data_stateX[1]+data_stateX[3], data_stateY[1]+data_stateY[3], 'g')
-#plt.plot(data_stateX[1]+data_stateX[4], data_stateY[1]+data_stateY[4], 'b')
+plt.plot(data_stateX[1], data_stateY[1], 'k', linewidth = 3.0)
+#plt.plot(data_stateX[1]-data_stateX[2], data_stateY[1]-data_stateY[2], 'r')
+#plt.plot(data_stateX[1]-data_stateX[3], data_stateY[1]-data_stateY[3], 'g')
+#plt.plot(data_stateX[1]-data_stateX[4], data_stateY[1]-data_stateY[4], 'b')
+
+plt.scatter(data_stateX[1]-data_stateX[2], data_stateY[1]-data_stateY[2], c = 'r')
+plt.scatter(data_stateX[1]-data_stateX[3], data_stateY[1]-data_stateY[3], c = 'g')
+plt.scatter(data_stateX[1]-data_stateX[4], data_stateY[1]-data_stateY[4], c = 'b')
+
 
 def pol2cart(rho, phi):
     x = rho * np.cos(phi)
@@ -51,8 +56,8 @@ data_statePhi = pd.read_csv(filenamePhi, delimiter = " ", header=None, dtype=flo
 filenameRho = u'D:/results/cont/TargetTracking_sample_obs_1.txt'
 data_stateRho = pd.read_csv(filenameRho, delimiter = " ", header=None, dtype=float, engine='python')
 
-X_R = [20000, 0];
-Xobs, Yobs = pol2cart(data_stateRho[1], data_statePhi[1])
-plt.scatter(Xobs+X_R[0],Yobs+X_R[1], c='k')
+#X_R = [20000, 0];
+#Xobs, Yobs = pol2cart(data_stateRho[1], data_statePhi[1])
+#plt.scatter(Xobs+X_R[0],Yobs+X_R[1], c='k')
 
 plt.show() 
