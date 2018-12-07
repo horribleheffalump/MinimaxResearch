@@ -1,5 +1,6 @@
 ﻿using MathNet.Numerics.Distributions;
 using MathNet.Numerics.LinearAlgebra;
+using MathNet.Numerics.LinearAlgebra.Factorization;
 using MathNetExtensions;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,16 @@ namespace MathNetExtensions
         public RandomVector(Vector<double> M, Matrix<double> Cov)
         {
             this.M = M;
-            Sigma = Cov.Cholesky().Factor;
+            Svd<double> Cov_svd = Cov.Svd();
+            Sigma = Cov_svd.U * Cov_svd.W.PointwiseSqrt() * Cov_svd.VT;
+            //if (Cov.FrobeniusNorm() == 0)
+            //{
+            //    Sigma = Cov;
+            //}
+            //else
+            //{
+            //    Sigma = Cov.Cholesky().Factor;
+            //}
             distrs = new T[M.Count];
             for (int i = 0; i < M.Count; i++)
             {
