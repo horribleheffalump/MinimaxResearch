@@ -43,13 +43,13 @@ namespace CMNF
             Vector<double>[] xHat = Enumerable.Repeat(xhat0, n).ToArray();
             Console.WriteLine($"CMNF estimate parameters start");
             DateTime start = DateTime.Now;
-            for (int t = 0; t < T; t++)
+            for (int t = 1; t < T; t++) // start from 1 because for 0 we do not have observations
             {
                 DateTime startiteration = DateTime.Now;
                 Vector<double>[] x = new Vector<double>[n];
                 Vector<double>[] y = new Vector<double>[n];
                 Vector<double>[] xiHat = new Vector<double>[n];
-                for (int i = 0; i < n; i++)
+                for (int i = 0; i < n; i++) 
                 {
                     //models[i].Step();
                     //x[i] = models[i].State;

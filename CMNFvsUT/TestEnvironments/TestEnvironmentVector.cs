@@ -121,7 +121,7 @@ namespace TestEnvironments
                         Console.WriteLine($"model {i}");
                     models[i] = ModelGenerator();
                     //models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-                    //for (int s = 0; s < T; s++)
+                    //for (int s = 1; s < T; s++)
                     //{
                     //    models[i].Step();
                     //}
@@ -258,7 +258,7 @@ namespace TestEnvironments
                 //Console.WriteLine($"model {i}");
                 models[i] = ModelGenerator();
                 //models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-                //for (int s = 0; s < T; s++)
+                //for (int s = 1; s < T; s++)
                 //{
                 //    models[i].Step();
                 //}
@@ -269,14 +269,14 @@ namespace TestEnvironments
                 string fileName = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeBulk));
                 using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString())))
                 {
-                    for (int s = 0; s < T; s++)
+                    for (int s = 1; s < T; s++)
                     {
                         outputfile.Write(string.Format(provider, "{0} ", s));
                     }
                     outputfile.WriteLine();
                     for (int i = 0; i < n; i++)
                     {
-                        for (int s = 0; s < T; s++)
+                        for (int s = 1; s < T; s++)
                         {
                             outputfile.Write(string.Format(provider, "{0} ", models[i].Trajectory[s][0][k]));
                         }
@@ -317,13 +317,13 @@ namespace TestEnvironments
 
             DiscreteVectorModel modelEst = ModelGenerator();
             //DiscreteVectorModel modelEst = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-            //for (int s = 0; s < T; s++)
+            //for (int s = 1; s < T; s++)
             //{
             //    modelEst.Step();
             //}
 
-            int dimX = modelEst.Trajectory[0][0].Count;
-            int dimY = modelEst.Trajectory[0][1].Count;
+            int dimX = modelEst.Trajectory[1][0].Count;
+            int dimY = modelEst.Trajectory[1][1].Count;
 
             for (int k = 0; k < dimX; k++)
             {
@@ -349,7 +349,7 @@ namespace TestEnvironments
                 KHat[j] = DX0Hat;
             }
 
-            for (int t = 0; t < T; t++)
+            for (int t = 1; t < T; t++) // start from 1 because for 0 we do not have observations
             {
                 var x = modelEst.Trajectory[t][0];
                 var y = modelEst.Trajectory[t][1];
@@ -409,7 +409,7 @@ namespace TestEnvironments
         //        if (i % 1000 == 0) // inform every 1000-th trajectory
         //            Console.WriteLine($"model {i}");
         //        modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-        //        for (int s = 0; s < T; s++)
+        //        for (int s = 1; s < T; s++)
         //        {
         //            modelsEst[i].Step();
         //        }
@@ -435,7 +435,7 @@ namespace TestEnvironments
         //        KHat[j] = Enumerable.Repeat(DX0Hat, n).ToArray();
         //    }
         //    Console.WriteLine($"calculate estimates");
-        //    for (int t = 0; t < T; t++)
+        //    for (int t = 1; t < T; t++)
         //    {
         //        Console.WriteLine($"t={t}");
         //        Vector<double>[] x = new Vector<double>[n];
@@ -588,7 +588,7 @@ namespace TestEnvironments
         //        if (i % 1000 == 0) // inform every 1000-th trajectory
         //            Console.WriteLine($"model {i}");
         //        modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-        //        for (int s = 0; s < T; s++)
+        //        for (int s = 1; s < T; s++)
         //        {
         //            modelsEst[i].Step();
         //        }
@@ -602,7 +602,7 @@ namespace TestEnvironments
         //        KHat[j] = Enumerable.Repeat(DX0Hat, n).ToArray();
         //    }
         //    Console.WriteLine($"calculate estimates");
-        //    for (int t = 0; t < T; t++)
+        //    for (int t = 1; t < T; t++)
         //    {
         //        Console.WriteLine($"t={t}");
         //        Vector<double>[] x = new Vector<double>[n];
@@ -636,7 +636,7 @@ namespace TestEnvironments
                 //    Console.WriteLine($"model {i}");
                 modelsEst[i] = ModelGenerator();
                 //modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-                //for (int s = 0; s < T; s++)
+                //for (int s = 1; s < T; s++)
                 //{
                 //    modelsEst[i].Step();
                 //}
@@ -650,7 +650,7 @@ namespace TestEnvironments
                 KHat[j] = Exts.ArrayOf(DX0Hat, n);
             }
             Console.WriteLine($"calculate estimates");
-            for (int t = 0; t < T; t++)
+            for (int t = 1; t < T; t++)
             {
                 Console.WriteLine($"t={t}");
                 Vector<double>[] x = new Vector<double>[n];
