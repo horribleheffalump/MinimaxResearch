@@ -407,6 +407,10 @@ namespace CMNFvsUTFTest
                         default: testEnv = new TestSwitchingObservationsIdentification(o.DNu); break;
                     }
                 }
+                if (o.Model == "simpleident")
+                {
+                    testEnv = new TestSimpleIdentification();
+                }
 
                 List<(FilterType, string)> filters = new List<(FilterType, string)>();
                 if (o.CMNF) filters.Add((FilterType.CMNF, o.CMNFFileName));
