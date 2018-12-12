@@ -21,7 +21,8 @@ def cm2inch(*tupl):
         return tuple(i/inch for i in tupl)
 
 for i in range (0,10):
-    inputfilename = "D:/results/cont/TargetTracking_sample_"+str(i)+".txt"
+    inputfilename = "D:/results/cont_a_1.0_two/TargetTracking_sample_"+str(i)+".txt"
+    outputfilename = "D:/results/cont_a_1.0_two/TargetTracking_sample_" + str(i) + ".png"
 
     t, x, err_1, err_2, err_3 = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,1,2,3,4), unpack=True, dtype=float)
     from pylab import *
@@ -38,5 +39,6 @@ for i in range (0,10):
     ax1.legend()
 
     plt.tight_layout()
-    plt.show()
+    #plt.show()    
+    plt.savefig(outputfilename)
 

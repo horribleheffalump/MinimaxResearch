@@ -107,7 +107,7 @@ namespace TargetTrackingTest
             //double Beta_t = 2;
             //double Gamma_t = -0.005;
             double Alpha_n = 0.05;
-            double Beta_n = 10.0;
+            double Beta_n = 1.0;
             double Gamma_n = 0.02;
 
 
@@ -148,7 +148,7 @@ namespace TargetTrackingTest
 
             double h_state = 0.01;
             double h_obs = 1.0;
-            double T = 600.0 + h_state / 2;
+            double T = 150.0 + h_state / 2;
 
             #endregion
 
@@ -157,8 +157,8 @@ namespace TargetTrackingTest
 
             int N = (int)(T / h_obs);
 
-            string CMNFFileName = "d:\\results\\cont\\cmnf.params";
-            string UKFFileName = "d:\\results\\cont\\ukf.params";
+            string CMNFFileName = "d:\\results\\cont_a_1.0_two\\cmnf.params";
+            string UKFFileName = "d:\\results\\cont_a_1.0_two\\ukf.params";
             List<(FilterType, string)> filters = new List<(FilterType, string)>
             {
                 (FilterType.CMNF, CMNFFileName),
@@ -226,9 +226,9 @@ namespace TargetTrackingTest
             };
 
             bool doCalculateFilter = true;
-            testEnv.Initialize(N, 1000, 1000, "d:\\results\\cont\\", filters, doCalculateFilter, !doCalculateFilter, ModelGenerator);
-            //testEnv.GenerateBundles(20, 100, "d:\\results\\cont\\", false);
-            testEnv.GenerateOne("d:\\results\\cont\\");
+            testEnv.Initialize(N, 100, 100, "d:\\results\\cont_a_1.0_two\\", filters, doCalculateFilter, !doCalculateFilter, ModelGenerator);
+            testEnv.GenerateBundles(1, 100, "d:\\results\\cont_a_1.0_two\\", false);
+            testEnv.GenerateOne("d:\\results\\cont_a_1.0_two\\");
 
             //ContinuousVectorModel model = new ContinuousVectorModel(h_state, h_obs, Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
             ////for (double s = 0; s < T; s += h_state)
