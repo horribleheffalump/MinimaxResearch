@@ -19,12 +19,12 @@ namespace TestEnvironments
             Func<int, Vector<double>, Vector<double>> phi = (s, x) => Exts.Vector(Math.Max(-bound, Math.Min(bound, x[0] * (1 - x[0]))));
             Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(x[0]);
 
-            Phi1_latex = new string[] { @"max(-" + bound.ToString() + @", min(" + bound.ToString() + @",x(1-x)))" };
-            Psi1_latex = new string[] { @"x_t" };
+            //Phi1_latex = new string[] { @"max(-" + bound.ToString() + @", min(" + bound.ToString() + @",x(1-x)))" };
+            //Psi1_latex = new string[] { @"x_t" };
 
-            P_W = @"\mathcal{N}\left(" + mW.ToLatex() + ", " + dW.ToLatex() + @"\right)";
-            P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + dNu.ToLatex() + @"\right)";
-            P_Eta = @"\mathcal{N}\left(" + mEta.ToLatex() + ", " + dEta.ToLatex() + @"\right)";
+            //P_W = @"\mathcal{N}\left(" + mW.ToLatex() + ", " + dW.ToLatex() + @"\right)";
+            //P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + dNu.ToLatex() + @"\right)";
+            //P_Eta = @"\mathcal{N}\left(" + mEta.ToLatex() + ", " + dEta.ToLatex() + @"\right)";
 
             Normal[] NormalW = new Normal[1] { new Normal(mW[0], Math.Sqrt(dW[0, 0])) };
             Normal[] NormalNu = new Normal[1] { new Normal(mNu[0], Math.Sqrt(dNu[0, 0])) };
@@ -66,12 +66,12 @@ namespace TestEnvironments
             Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(x[0]);
             Func<int, Vector<double>, Matrix<double>> psi_test = (s, x) => Matrix<double>.Build.Dense(1, 1, 1.0);
 
-            Phi1_latex = new string[] { @"x(1-x) if abs(x(1-x)) < " + bound.ToString() + "; 0 else" };
-            Psi1_latex = new string[] { @"x_t" };
+            //Phi1_latex = new string[] { @"x(1-x) if abs(x(1-x)) < " + bound.ToString() + "; 0 else" };
+            //Psi1_latex = new string[] { @"x_t" };
 
-            P_W = @"\mathcal{N}\left(" + mW.ToLatex() + ", " + dW.ToLatex() + @"\right)";
-            P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + dNu.ToLatex() + @"\right)";
-            P_Eta = @"\mathcal{N}\left(" + mEta.ToLatex() + ", " + dEta.ToLatex() + @"\right)";
+            //P_W = @"\mathcal{N}\left(" + mW.ToLatex() + ", " + dW.ToLatex() + @"\right)";
+            //P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + dNu.ToLatex() + @"\right)";
+            //P_Eta = @"\mathcal{N}\left(" + mEta.ToLatex() + ", " + dEta.ToLatex() + @"\right)";
 
             Normal[] NormalW = new Normal[1] { new Normal(mW[0], Math.Sqrt(dW[0, 0])) };
             Normal[] NormalNu = new Normal[1] { new Normal(mNu[0], Math.Sqrt(dNu[0, 0])) };
@@ -109,12 +109,12 @@ namespace TestEnvironments
             Func<int, Vector<double>, Matrix<double>> phi2 = (s, x) => Exts.Diag(x[0] * (1 - x[0]));
             Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(x[0]);
 
-            Phi1_latex = new string[] { @"???" };
-            Psi1_latex = new string[] { @"x_t" };
+            //Phi1_latex = new string[] { @"???" };
+            //Psi1_latex = new string[] { @"x_t" };
 
-            P_W = @"\mathcal{R}\left(0,1\right)";
-            P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + dNu.ToLatex() + @"\right)";
-            P_Eta = @"\mathcal{N}\left(" + mEta.ToLatex() + ", " + dEta.ToLatex() + @"\right)";
+            //P_W = @"\mathcal{R}\left(0,1\right)";
+            //P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + dNu.ToLatex() + @"\right)";
+            //P_Eta = @"\mathcal{N}\left(" + mEta.ToLatex() + ", " + dEta.ToLatex() + @"\right)";
 
             ContinuousUniform[] UniformW = new ContinuousUniform[1] { new ContinuousUniform(-1 + 1e-5, 1 + 1e-5) };
             Normal[] NormalNu = new Normal[1] { new Normal(mNu[0], Math.Sqrt(dNu[0, 0])) };

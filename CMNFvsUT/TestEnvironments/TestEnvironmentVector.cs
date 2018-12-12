@@ -35,14 +35,14 @@ namespace TestEnvironments
         public Func<int, Vector<double>, Vector<double>> Psi1;
         public Func<int, Vector<double>, Matrix<double>> Psi2;
 
-        public string[] Phi1_latex;
-        public string[][] Phi2_latex;
-        public string[] Psi1_latex;
-        public string[][] Psi2_latex;
+        //public string[] Phi1_latex;
+        //public string[][] Phi2_latex;
+        //public string[] Psi1_latex;
+        //public string[][] Psi2_latex;
 
-        public string P_W;
-        public string P_Nu;
-        public string P_Eta;
+        //public string P_W;
+        //public string P_Nu;
+        //public string P_Eta;
 
 
         public Func<int, Vector<double>> W;
@@ -92,7 +92,7 @@ namespace TestEnvironments
                 this.ModelGenerator = () =>
                        {
                            DiscreteVectorModel model = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-                           for (int s = 1; s < T; s++)
+                           for (int s = 1; s <= T; s++)
                            {
                                model.Step();
                            }
@@ -119,7 +119,7 @@ namespace TestEnvironments
                 {
                     if (i % 1000 == 0) // inform every 1000-th trajectory
                         Console.WriteLine($"model {i}");
-                    models[i] = ModelGenerator();
+                    models[i] = this.ModelGenerator();
                     //models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
                     //for (int s = 1; s < T; s++)
                     //{
@@ -743,34 +743,34 @@ namespace TestEnvironments
 
         }
 
-        public void GenerateReport(string templateFolderName, string folderName)
-        {
-            Dictionary<string, string> replacements = new Dictionary<string, string>();
-            replacements.Add("%Title%", TestName);
-            replacements.Add("%phi1%", Phi1_latex == null ? "" : Phi1_latex.ToLatex());
-            replacements.Add("%phi2%", Phi2_latex == null ? "" : Phi2_latex.ToLatex());
-            replacements.Add("%psi1%", Psi1_latex == null ? "" : Psi1_latex.ToLatex());
-            replacements.Add("%psi2%", Psi2_latex == null ? "" : Psi2_latex.ToLatex());
-            replacements.Add("%P_w%", P_W);
-            replacements.Add("%P_nu%", P_Nu);
-            replacements.Add("%P_eta%", P_Eta);
+        //public void GenerateReport(string templateFolderName, string folderName)
+        //{
+        //    Dictionary<string, string> replacements = new Dictionary<string, string>();
+        //    replacements.Add("%Title%", TestName);
+        //    replacements.Add("%phi1%", Phi1_latex == null ? "" : Phi1_latex.ToLatex());
+        //    replacements.Add("%phi2%", Phi2_latex == null ? "" : Phi2_latex.ToLatex());
+        //    replacements.Add("%psi1%", Psi1_latex == null ? "" : Psi1_latex.ToLatex());
+        //    replacements.Add("%psi2%", Psi2_latex == null ? "" : Psi2_latex.ToLatex());
+        //    replacements.Add("%P_w%", P_W);
+        //    replacements.Add("%P_nu%", P_Nu);
+        //    replacements.Add("%P_eta%", P_Eta);
 
-            string picTemplate = Resources.OutputPictureNameTemplate.Replace("{name}", TestFileName);
+        //    string picTemplate = Resources.OutputPictureNameTemplate.Replace("{name}", TestFileName);
 
-            replacements.Add("%figs_process%", ProcessPics(picTemplate.Replace("{script}", "process_statistics"), "Статистика процесса."));
-            replacements.Add("%figs_filter%", ProcessPics(picTemplate.Replace("{script}", "estimate_statistics"), "Результаты фильтрации."));
-            replacements.Add("%figs_process_sample%", ProcessPics(picTemplate.Replace("{script}", "process_sample"), "Пример траектории процесса и наблюдений."));
-            replacements.Add("%figs_estimate_sample%", ProcessPics(picTemplate.Replace("{script}", "estimate_sample"), "Пример оценки УМНФ и UKF."));
+        //    replacements.Add("%figs_process%", ProcessPics(picTemplate.Replace("{script}", "process_statistics"), "Статистика процесса."));
+        //    replacements.Add("%figs_filter%", ProcessPics(picTemplate.Replace("{script}", "estimate_statistics"), "Результаты фильтрации."));
+        //    replacements.Add("%figs_process_sample%", ProcessPics(picTemplate.Replace("{script}", "process_sample"), "Пример траектории процесса и наблюдений."));
+        //    replacements.Add("%figs_estimate_sample%", ProcessPics(picTemplate.Replace("{script}", "estimate_sample"), "Пример оценки УМНФ и UKF."));
 
 
-            string template = File.ReadAllText(Path.Combine(templateFolderName, "modelling_dynamictemplate.tex"), Encoding.Default);
-            foreach (var pair in replacements)
-            {
-                template = template.Replace(pair.Key, pair.Value);
-            }
-            Directory.CreateDirectory(folderName);
-            File.WriteAllText(Path.Combine(folderName, TestFileName + ".tex"), template, Encoding.Default);
-        }
+        //    string template = File.ReadAllText(Path.Combine(templateFolderName, "modelling_dynamictemplate.tex"), Encoding.Default);
+        //    foreach (var pair in replacements)
+        //    {
+        //        template = template.Replace(pair.Key, pair.Value);
+        //    }
+        //    Directory.CreateDirectory(folderName);
+        //    File.WriteAllText(Path.Combine(folderName, TestFileName + ".tex"), template, Encoding.Default);
+        //}
 
 
     }

@@ -30,12 +30,12 @@ namespace TestEnvironments
             };
             Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(x[0]);
 
-            Phi1_latex = new string[] { @"\frac{1}{\sqrt[3]{x_t}}" };
-            Psi1_latex = new string[] { @"x_t" };
+            //Phi1_latex = new string[] { @"\frac{1}{\sqrt[3]{x_t}}" };
+            //Psi1_latex = new string[] { @"x_t" };
 
-            P_W = @"\mathcal{N}\left(" + mW.ToLatex() + ", " + mW.ToLatex() + @"\right)";
-            P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + dNu.ToLatex() + @"\right)";
-            P_Eta = @"\mathcal{N}\left(" + mEta.ToLatex() + ", " + dEta.ToLatex() + @"\right)";
+            //P_W = @"\mathcal{N}\left(" + mW.ToLatex() + ", " + mW.ToLatex() + @"\right)";
+            //P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + dNu.ToLatex() + @"\right)";
+            //P_Eta = @"\mathcal{N}\left(" + mEta.ToLatex() + ", " + dEta.ToLatex() + @"\right)";
 
             Normal[] NormalW = new Normal[1] { new Normal(mW[0], Math.Sqrt(dW[0, 0])) };
             Normal[] NormalNu = new Normal[1] { new Normal(mNu[0], Math.Sqrt(dNu[0, 0])) };
@@ -78,12 +78,12 @@ namespace TestEnvironments
             };
             Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(x[0]);
 
-            Phi1_latex = new string[] { @"min(" + bound.ToString() + @",\frac{1}{x_t^2})" };
-            Psi1_latex = new string[] { @"x_t" };
+            //Phi1_latex = new string[] { @"min(" + bound.ToString() + @",\frac{1}{x_t^2})" };
+            //Psi1_latex = new string[] { @"x_t" };
 
-            P_W = @"\mathcal{N}\left(" + mW.ToLatex() + ", " + mW.ToLatex() + @"\right)";
-            P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + dNu.ToLatex() + @"\right)";
-            P_Eta = @"\mathcal{N}\left(" + mEta.ToLatex() + ", " + dEta.ToLatex() + @"\right)";
+            //P_W = @"\mathcal{N}\left(" + mW.ToLatex() + ", " + mW.ToLatex() + @"\right)";
+            //P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + dNu.ToLatex() + @"\right)";
+            //P_Eta = @"\mathcal{N}\left(" + mEta.ToLatex() + ", " + dEta.ToLatex() + @"\right)";
 
             Normal[] NormalW = new Normal[1] { new Normal(mW[0], Math.Sqrt(dW[0, 0])) };
             Normal[] NormalNu = new Normal[1] { new Normal(mNu[0], Math.Sqrt(dNu[0, 0])) };

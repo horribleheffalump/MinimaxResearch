@@ -6,7 +6,6 @@ using NonlinearSystem;
 
 namespace TestEnvironments
 {
-    [Serializable]
     public class TestSwitchingObservations : TestEnvironmentVector
     {
         public TestSwitchingObservations(double _dnu)
@@ -50,14 +49,14 @@ namespace TestEnvironments
                 Func<int, Vector<double>, Vector<double>> psi1 = (s, x) => Exts.Vector(d[I(x[1])] * x[0]);
                 Func<int, Vector<double>, Matrix<double>> psi2 = (s, x) => Exts.Matrix(sig[I(x[1])]);
 
-                Phi1_latex = new string[] { @"a x_t + b", "0" };
-                Phi2_latex = new string[][] { new string[] { @"c", "0" }, new string[] { @"0", "1" }};
-                Psi1_latex = new string[] { @"d^T * e(x^1_t) * x_t" };
-                Psi2_latex = new string[][] { new string[] { @"\sigma^T * e(x^1_t)" } };
+                //Phi1_latex = new string[] { @"a x_t + b", "0" };
+                //Phi2_latex = new string[][] { new string[] { @"c", "0" }, new string[] { @"0", "1" }};
+                //Psi1_latex = new string[] { @"d^T * e(x^1_t) * x_t" };
+                //Psi2_latex = new string[][] { new string[] { @"\sigma^T * e(x^1_t)" } };
 
-                P_W = @"\mathcal{N}\left(" + mW.ToLatex() + ", " + dW.ToLatex() + @"\right)";
-                P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + dNu.ToLatex() + @"\right)";
-                P_Eta = @"\mathcal{N}\left(" + mEta.ToLatex() + ", " + dEta.ToLatex() + @"\right)";
+                //P_W = @"\mathcal{N}\left(" + mW.ToLatex() + ", " + dW.ToLatex() + @"\right)";
+                //P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + dNu.ToLatex() + @"\right)";
+                //P_Eta = @"\mathcal{N}\left(" + mEta.ToLatex() + ", " + dEta.ToLatex() + @"\right)";
 
                 Normal[] NormalW = new Normal[2] { new Normal(mW[0], Math.Sqrt(dW[0, 0])), new Normal(mW[1], Math.Sqrt(dW[1, 1])) };
                 Normal[] NormalNu = new Normal[1] { new Normal(mNu[0], Math.Sqrt(dNu[0, 0])) };
@@ -96,7 +95,8 @@ namespace TestEnvironments
         }
     }
 
-    [Serializable]
+
+
     public class TestSwitchingObservationsIdentification : TestEnvironmentVector
     {
         public TestSwitchingObservationsIdentification(double _dnu)
@@ -176,7 +176,6 @@ namespace TestEnvironments
         }
     }
 
-    [Serializable]
     public class AnotherTestSwitchingObservationsIdentification : TestEnvironmentVector
     {
         public AnotherTestSwitchingObservationsIdentification(double _dnu)
@@ -233,7 +232,6 @@ namespace TestEnvironments
         }
     }
 
-    [Serializable]
     public class YetAnotherTestSwitchingObservationsIdentification : TestEnvironmentVector
     {
         public YetAnotherTestSwitchingObservationsIdentification(double _dnu)
@@ -298,7 +296,7 @@ namespace TestEnvironments
         }
     }
 
-    [Serializable]
+
     public class HopefullyTheLastTestSwitchingObservationsIdentification : TestEnvironmentVector
     {
         public HopefullyTheLastTestSwitchingObservationsIdentification(double _dnu)

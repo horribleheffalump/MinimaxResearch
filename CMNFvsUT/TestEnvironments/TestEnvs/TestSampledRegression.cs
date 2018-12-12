@@ -35,13 +35,13 @@ namespace TestEnvironments
                 Func<int, Vector<double>, Matrix<double>> phi2 = (s, x) => Exts.Matrix(c[I(x[0])]);
                 Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(x[0]);
 
-                Phi1_latex = new string[] { @"a^T e(x_t) x_t + b^T e(x_t)" };
-                Phi2_latex = new string[][] { new string[] { @"c^T e(x_t)" } };
-                Psi1_latex = new string[] { @"x_t" };
+                //Phi1_latex = new string[] { @"a^T e(x_t) x_t + b^T e(x_t)" };
+                //Phi2_latex = new string[][] { new string[] { @"c^T e(x_t)" } };
+                //Psi1_latex = new string[] { @"x_t" };
 
-                P_W = @"\mathcal{N}\left(" + mW.ToLatex() + ", " + dW.ToLatex() + @"\right)";
-                P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + dNu.ToLatex() + @"\right)";
-                P_Eta = @"\mathcal{N}\left(" + mEta.ToLatex() + ", " + dEta.ToLatex() + @"\right)";
+                //P_W = @"\mathcal{N}\left(" + mW.ToLatex() + ", " + dW.ToLatex() + @"\right)";
+                //P_Nu = @"\mathcal{N}\left(" + mNu.ToLatex() + ", " + dNu.ToLatex() + @"\right)";
+                //P_Eta = @"\mathcal{N}\left(" + mEta.ToLatex() + ", " + dEta.ToLatex() + @"\right)";
 
                 Normal[] NormalW = new Normal[1] { new Normal(mW[0], Math.Sqrt(dW[0, 0])) };
                 Normal[] NormalNu = new Normal[1] { new Normal(mNu[0], Math.Sqrt(dNu[0, 0])) };

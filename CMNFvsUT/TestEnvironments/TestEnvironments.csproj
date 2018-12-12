@@ -121,6 +121,7 @@
     <Compile Include="TestEnvs\TestInverseProportion.cs" />
     <Compile Include="TestEnvs\TestLogisticModel.cs" />
     <Compile Include="TestEnvs\TestPolar.cs" />
+    <Compile Include="TestEnvs\TestSimpleIdentification.cs" />
     <Compile Include="TestEnvs\TestSwitchingObservations.cs" />
     <Compile Include="TestEnvs\TestSampledRegression.cs" />
   </ItemGroup>
