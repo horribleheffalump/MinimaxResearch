@@ -53,7 +53,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ContinuousVectorModel.cs" />
     <Compile Include="DiscreteVectorModel.cs" />
     <Compile Include="DiscreteScalarModel.cs" />
     <Compile Include="Utils.cs" />
