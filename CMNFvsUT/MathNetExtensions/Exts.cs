@@ -326,5 +326,22 @@ namespace MathNetExtensions
         {
             return Matrix<double>.Build.DenseDiagonal(val.Length, val.Length, (i) => val[i]);
         }
+        public static bool InBounds(this Vector<double> x, Vector<double> lower, Vector<double> upper)
+        {
+            if ((x.Count != lower.Count) || (lower.Count != upper.Count))
+            {
+                throw new ArgumentException("Vector sizes must agree");
+            }
+
+            for (int i = 0; i < x.Count; i++)
+            {
+                if (double.IsNaN(x[i])) return false;
+                if (double.IsNaN(lower[i])) return false;
+                if (double.IsNaN(upper[i])) return false;
+                if (lower[i] > x[i]) return false;
+                if (x[i] > upper[i]) return false;
+            }
+            return true;
+        }
     }
 }
