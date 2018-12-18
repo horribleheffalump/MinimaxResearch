@@ -48,15 +48,10 @@ namespace CMNF
             Vector<double>[] y_mod = new Vector<double>[n];
 
             //Parallel.For(0, n, new ParallelOptions() {MaxDegreeOfParallelism = System.Environment.ProcessorCount }, i =>
+            RandomVector<Normal> xHatDistr = new RandomVector<Normal>(xHat_, kHat_);
             for (int i = 0; i < n; i++)
             {
-                double[] x_arr = new double[xHat_.Count];
-                for (int j = 0; j < xHat_.Count; j++)
-                {
-                    x_arr[j] = Normal.Sample(xHat_[j], Math.Sqrt(kHat_[j, j]));
-                }
-                x_mod[i] = Exts.Vector(x_arr);
-
+                x_mod[i] = xHatDistr.Sample();
                 if (t > 0)
                 {
                     x_mod[i] = Phi1(t, x_mod[i]) + Phi2(t, x_mod[i]) * W(t);
