@@ -169,6 +169,25 @@ namespace TestEnvironments
                     };
                     Filters[j] = MCMNF;
                 }
+                if (filters[j].type == FilterType.ACMNF)
+                {
+                    ACMNFWrapper ACMNF = new ACMNFWrapper
+                    {
+                        FileName = filters[j].fileName,
+                        T = T,
+                        X0Hat = X0Hat,
+                        Models = models,
+                        Xi = Xi,
+                        Zeta = Zeta,
+                        Phi1 = Phi1,
+                        Phi2 = Phi2,
+                        Psi1 = Psi1,
+                        Psi2 = Psi2,
+                        W = W,
+                        Nu = Nu
+                    };
+                    Filters[j] = ACMNF;
+                }
                 if (new[] { FilterType.UKFNoOptimization, FilterType.UKFIntegral, FilterType.UKFIntegralRandomShoot, FilterType.UKFStepwise, FilterType.UKFStepwiseRandomShoot }.Contains(filters[j].type))
                 {
                     UKFWrapper UKF = new UKFWrapper
@@ -775,7 +794,7 @@ namespace TestEnvironments
 
     }
 
-    public enum FilterType { CMNF, MCMNF, UKFNoOptimization, UKFIntegral, UKFIntegralRandomShoot, UKFStepwise, UKFStepwiseRandomShoot };
+    public enum FilterType { CMNF, MCMNF, ACMNF, UKFNoOptimization, UKFIntegral, UKFIntegralRandomShoot, UKFStepwise, UKFStepwiseRandomShoot };
 
     [Serializable]
     public class FilterQualityInfo

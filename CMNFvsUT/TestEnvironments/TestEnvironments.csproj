@@ -100,6 +100,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Filters\BasicFilter.cs" />
+    <Compile Include="Filters\ACMNFWrapper.cs" />
     <Compile Include="Filters\CMNFWrapper.cs" />
     <Compile Include="Filters\MCMNFWrapper.cs" />
     <Compile Include="Filters\UKFWrapper.cs" />
