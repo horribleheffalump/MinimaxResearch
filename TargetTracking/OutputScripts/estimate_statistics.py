@@ -25,6 +25,8 @@ for i in range (0,5):
 
     t, x, Dx, xhat_1, mErr_1, DErr_1, DErrTheor_1, xhat_2, mErr_2, DErr_2, DErrTheor_2, xhat_3, mErr_3, DErr_3, DErrTheor_3 = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14), unpack=True, dtype=float)
 
+    #, xhat_4, mErr_4, DErr_4, DErrTheor_4 
+
     from pylab import *
     
     f = plt.figure(num=None, figsize=cm2inch((12,9)), dpi=200)
@@ -33,14 +35,17 @@ for i in range (0,5):
 
     T = 150
 
-    ax.plot(t[0:T], mErr_1[0:T], c = 'k')
-    ax.plot(t[0:T], DErr_1[0:T], c = 'r')
+    #ax.plot(t[1:T], mErr_1[1:T], c = 'k')
+    #ax.plot(t[1:T], DErr_1[1:T], c = 'r')
 
-    ax.plot(t[0:T], mErr_2[0:T], c = 'k')
-    ax.plot(t[0:T], DErr_2[0:T], c = 'g')
+    #ax.plot(t[1:T], mErr_2[1:T], c = 'k')
+    ax.plot(t[1:T], DErr_2[1:T], c = 'g')
 
-    ax.plot(t[0:T], mErr_3[0:T], c = 'k')
-    ax.plot(t[0:T], DErr_3[0:T], c = 'b')
+    #ax.plot(t[1:T], mErr_3[1:T], c = 'k')
+    ax.plot(t[1:T], DErr_3[1:T], c = 'b')
+
+    #ax.plot(t[1:T], mErr_4[1:T], c = 'k')
+    #ax.plot(t[1:T], DErr_4[1:T], c = 'orange')
 
     plt.savefig(outputfilename)
 

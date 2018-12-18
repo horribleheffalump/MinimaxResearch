@@ -22,20 +22,20 @@ def cm2inch(*tupl):
 
 for i in range (0,10):
     inputfilename = "D:/results/cont_a_1.0_two/TargetTracking_sample_"+str(i)+".txt"
-    outputfilename = "D:/results/cont_a_1.0_two/TargetTracking_sample_" + str(i) + ".png"
+    outputfilename = "D:/results/cont_a_1.0_two/TargetTracking_errorsample_" + str(i) + ".png"
 
-    t, x, err_1, err_2, err_3, err_4 = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,1,2,3,4,5), unpack=True, dtype=float)
+    t, x, err_1, err_2, err_3= np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,1,2,3,4), unpack=True, dtype=float)
     from pylab import *
 
     f = plt.figure(num=None, figsize=cm2inch((12,9)), dpi=200)
     plt.subplots_adjust(left=0.06, bottom=0.07, right=0.98, top=0.95, wspace=0.1)
     ax1 = plt.subplot(111)
 
-    ax1.plot(t, x, 'k', label='x')
-    ax1.plot(t, x-err_1, 'r', label='CMNF', linewidth=2.0)
-    ax1.plot(t, x-err_2, 'g', label='MCMNF', linewidth=2.0)
-    ax1.plot(t, x-err_3, 'b', label='UKF')
-    ax1.plot(t, x-err_4, 'orange', label='ACMNF')
+    #ax1.plot(t, x, 'k', label='x')
+    #ax1.plot(t, err_1, 'r', label='CMNF', linewidth=2.0)
+    ax1.plot(t, err_2, 'g', label='MCMNF', linewidth=2.0)
+    ax1.plot(t, err_3, 'b', label='UKF')
+    #ax1.plot(t, err_4, 'orange', label='ACMNF')
 
     ax1.legend()
 

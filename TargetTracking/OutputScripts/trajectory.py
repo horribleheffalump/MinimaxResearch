@@ -40,9 +40,10 @@ plt.plot(data_stateX[1], data_stateY[1], 'k', linewidth = 3.0)
 #plt.plot(data_stateX[1]-data_stateX[3], data_stateY[1]-data_stateY[3], 'g')
 #plt.plot(data_stateX[1]-data_stateX[4], data_stateY[1]-data_stateY[4], 'b')
 
-plt.scatter(data_stateX[1]-data_stateX[2], data_stateY[1]-data_stateY[2], c = 'r')
-plt.scatter(data_stateX[1]-data_stateX[3], data_stateY[1]-data_stateY[3], c = 'g')
+plt.scatter(data_stateX[1]-data_stateX[2], data_stateY[1]-data_stateY[2], c = 'r', linewidth=2.0)
+plt.scatter(data_stateX[1]-data_stateX[3], data_stateY[1]-data_stateY[3], c = 'g', linewidth=2.0)
 plt.scatter(data_stateX[1]-data_stateX[4], data_stateY[1]-data_stateY[4], c = 'b')
+plt.scatter(data_stateX[1]-data_stateX[5], data_stateY[1]-data_stateY[5], c = 'orange')
 
 
 def pol2cart(rho, phi):

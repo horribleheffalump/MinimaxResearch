@@ -21,9 +21,11 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="error_sample.py" />
     <Compile Include="estimate_sample.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="bounds.py" />
     <Compile Include="estimate_statistics.py">
       <SubType>Code</SubType>
     </Compile>
