@@ -17,13 +17,13 @@ namespace TestEnvironments
             TestFileName = "TestSimpleIdentification";
 
 
-            Vector<double> mW = Exts.Vector(0, 0); Matrix<double> dW = Exts.Diag(0, 4.0);
-            Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(0.0004);
+            Vector<double> mW = Exts.Vector(0, 0); Matrix<double> dW = Exts.Diag(0, 1.0);
+            Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(1.0);
             Vector<double> mEta = Exts.Vector(0, 0.0); Matrix<double> dEta = Exts.Diag(0.27, 0);
             Func<int, Vector<double>, Vector<double>> phi1 = (s, x) => Exts.Vector(x[0], x[0] * x[1]);
             Func<int, Vector<double>, Matrix<double>> phi2 = (s, x) => Exts.Diag(0.0, 1.0);
             Func<int, Vector<double>, Vector<double>> psi1 = (s, x) => Exts.Vector(x[1]);
-            Func<int, Vector<double>, Matrix<double>> psi2 = (s, x) => Exts.Matrix(1.0);
+            Func<int, Vector<double>, Matrix<double>> psi2 = (s, x) => Exts.Matrix(0.1);
 
             RandomVector<Normal> NormalW = new RandomVector<Normal>(mW, dW);
             RandomVector<Normal> NormalNu = new RandomVector<Normal>(mNu, dNu);

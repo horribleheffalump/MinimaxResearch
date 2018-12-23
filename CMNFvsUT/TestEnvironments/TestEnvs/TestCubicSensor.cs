@@ -85,8 +85,8 @@ namespace TestEnvironments
             
 
             Xi = (s, x) => phi(s, x) + mW;
-            //Zeta = (s, x, y, k) => y - psi(s, x) - mNu;
-            Zeta = (s, x, y, k) => k * dpsi(s,x).Transpose() * (dpsi(s,x) * k * dpsi(s,x).Transpose() + dNu ).PseudoInverse() * (y - psi(s, x) - mNu);
+            Zeta = (s, x, y, k) => y - psi(s, x) - mNu;
+            //Zeta = (s, x, y, k) => k * dpsi(s,x).Transpose() * (dpsi(s,x) * k * dpsi(s,x).Transpose() + dNu ).PseudoInverse() * (y - psi(s, x) - mNu);
             W = (s) => Exts.Vector(NormalW[0].Sample());
             Nu = (s) => Exts.Vector(NormalNu[0].Sample());
             DW = dW;
