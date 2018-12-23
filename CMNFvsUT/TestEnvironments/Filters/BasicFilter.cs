@@ -15,7 +15,7 @@ namespace TestEnvironments
         public abstract void InitializeAndTrain();
         public abstract (Vector<double>, Matrix<double>) Step(int t, Vector<double> y, Vector<double> xHat, Matrix<double> kHat);
 
-        public abstract void SaveParams();
-        public abstract void LoadParams();
+        public virtual void SaveParams() { }
+        public virtual void LoadParams() { }
     }
 }

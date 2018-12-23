@@ -15,7 +15,6 @@ namespace TestEnvironments
         public int N;
         public int T;
         public Vector<double> X0Hat;
-        public DiscreteVectorModel[] Models;
         public Func<int, Vector<double>, Vector<double>> Xi;
         public Func<int, Vector<double>, Vector<double>, Matrix<double>, Vector<double>> Zeta;
         public Func<int, Vector<double>, Vector<double>> Phi1;
@@ -37,14 +36,6 @@ namespace TestEnvironments
         public override (Vector<double>, Matrix<double>) Step(int t, Vector<double> y, Vector<double> xHat, Matrix<double> kHat)
         {
             return MCMNF.Step(t, y, xHat, kHat, N);
-        }
-
-        public override void SaveParams()
-        {
-        }
-
-        public override void LoadParams()
-        {
         }
     }
 }
