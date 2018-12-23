@@ -33,7 +33,7 @@ namespace TestEnvironments
 
         public override void Initialize()
         {
-            FilterName = "ResamplingCMNF";
+            FilterName = "RCMNF";
             RCMNF = new ResamplingCMNFilter(Xi, Zeta, Phi1, Phi2, Psi1, Psi2, W, Nu, DNu);
             RCMNF.Initialize(N, X0, X0Hat);
         }

@@ -26,6 +26,7 @@ namespace TestEnvironments
 
         public override void Initialize()
         {
+            FilterName = "MCMNF";
             MCMNF = new ModifiedCMNFilter(Xi, Zeta, Phi1, Phi2, Psi1, Psi2, W, Nu);
         }
         public override void InitializeAndTrain()

@@ -354,11 +354,6 @@ namespace TestEnvironments
             }
 
             DiscreteVectorModel modelEst = ModelGenerator();
-            //DiscreteVectorModel modelEst = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-            //for (int s = 1; s < T; s++)
-            //{
-            //    modelEst.Step();
-            //}
 
             int dimX = modelEst.Trajectory[1][0].Count;
             int dimY = modelEst.Trajectory[1][1].Count;
@@ -367,13 +362,26 @@ namespace TestEnvironments
             {
                 using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName_state.Replace("{0}", k.ToString())))
                 {
-                    outputfile.Close();
+                    outputfile.Write(string.Format(provider, "{0} {1}",
+                        "t", "x"
+                        ));
+                    for (int j = 0; j < Filters.Count(); j++)
+                    {
+                        outputfile.Write(string.Format(provider, " {0}",
+                            Filters[j].FilterName + "_Error"
+                            ));
+                    }
+                    outputfile.WriteLine(); outputfile.Close();
                 }
             }
             for (int k = 0; k < dimY; k++)
             {
                 using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName_obs.Replace("{0}", k.ToString())))
                 {
+                    outputfile.Write(string.Format(provider, "{0} {1}",
+                         "t", "y"
+                    ));
+                    outputfile.WriteLine();
                     outputfile.Close();
                 }
             }
@@ -538,7 +546,7 @@ namespace TestEnvironments
 
             if (parallel)
             {
-                AsyncCalculatorPlanner acp = new MathNetExtensions.AsyncCalculatorPlanner(N, parallel_degree, () => CalculateBundle(n, new ProcessInfo(T, Filters.Count(), X0Hat, DX0Hat)));
+                AsyncCalculatorPlanner acp = new MathNetExtensions.AsyncCalculatorPlanner(N, parallel_degree, () => CalculateBundle(n, new ProcessInfo(T, Filters.Select(f => f.FilterName).ToArray(), X0Hat, DX0Hat)));
                 processInfos = acp.DoCalculate().Select(x => x as ProcessInfo).ToList();
             }
             else
@@ -546,7 +554,7 @@ namespace TestEnvironments
                 for (int m = 0; m < N; m++)
                 {
                     Console.WriteLine($"GenerateBundle {m}");
-                    ProcessInfo p = new ProcessInfo(T, Filters.Count(), X0Hat, DX0Hat);
+                    ProcessInfo p = new ProcessInfo(T, Filters.Select(f => f.FilterName).ToArray(), X0Hat, DX0Hat);
                     p = CalculateBundle(n, p);
                     processInfos.Add(p);
                 }
@@ -587,7 +595,11 @@ namespace TestEnvironments
                 {
                     ProcessInfo p = ProcessInfo.LoadFromFile(f);
                     pinfos.Add(p);
-                    result += $"succeded, trajectories count: {p.Count}";
+                    result += $"succeded, trajectories count: {p.Count};";
+                    foreach (var filter in p.FilterQualityInfos)
+                    {
+                        result += $" {filter.FilterName} ({filter.Count});";
+                    }
                 }
                 catch (Exception e)
                 {
@@ -598,8 +610,13 @@ namespace TestEnvironments
             if (pinfos.Count > 0)
             {
                 ProcessInfo totalProcessInfo = new ProcessInfo(pinfos.ToArray());
-                Console.WriteLine($"Aggregated data. Trajectories count: {totalProcessInfo.Count}");
-
+                string result = $"Aggregated data. Trajectories count: {totalProcessInfo.Count}";
+                foreach (var filter in totalProcessInfo.FilterQualityInfos)
+                {
+                    result += $" {filter.FilterName} ({filter.Count});";
+                }
+                Console.WriteLine("----------------");
+                Console.WriteLine(result);
                 if (doSaveText)
                 {
                     string fileName = Path.Combine(outputFolderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
@@ -749,11 +766,22 @@ namespace TestEnvironments
         /// </summary>
         /// <param name="scriptName">Python script file path</param>
         /// <param name="scriptParamsTemplates">Script parameters templates array ({0} - number of state vector component)</param>
-        private void RunScript(string scriptName, string[] scriptParamsTemplates)
+        public void RunScript(string scriptName, string[] scriptParamsTemplates)
         {
             for (int i = 0; i < X0Hat.Count; i++)
             {
                 Python.RunScript(scriptName, scriptParamsTemplates.Select(s => s.Replace("{0}", i.ToString())).ToArray());
+            }
+            //Python.RunScript(Path.Combine(Settings.Default.ScriptsFolder, "estimate.py"), new string[] { Settings.Default.OutputFolder, "test1_estimateAvg_0.txt", "test1_estimateAvg_0.pdf" });
+            //Python.RunScript(Path.Combine(Settings.Default.ScriptsFolder, "estimate.py"), new string[] { Settings.Default.OutputFolder, "test1_estimateAvg_1.txt", "test1_estimateAvg_1.pdf" });
+
+        }
+
+        public void RunScript(string scriptName, string scriptParam)
+        {
+            for (int i = 0; i < X0Hat.Count; i++)
+            {
+                Python.RunScript(scriptName, new string[] { scriptParam});
             }
             //Python.RunScript(Path.Combine(Settings.Default.ScriptsFolder, "estimate.py"), new string[] { Settings.Default.OutputFolder, "test1_estimateAvg_0.txt", "test1_estimateAvg_0.pdf" });
             //Python.RunScript(Path.Combine(Settings.Default.ScriptsFolder, "estimate.py"), new string[] { Settings.Default.OutputFolder, "test1_estimateAvg_1.txt", "test1_estimateAvg_1.pdf" });
@@ -813,20 +841,24 @@ namespace TestEnvironments
     [Serializable]
     public class FilterQualityInfo
     {
+        public int Count;
+        public string FilterName;
         public Matrix<double>[] mError;
         public Matrix<double>[] DError;
         public Matrix<double>[] mxHat;
         public Matrix<double>[] mKHat;
 
-        public FilterQualityInfo(int T, Vector<double> X0Hat, Matrix<double> DX0Hat)
+        public FilterQualityInfo(string FilterName, int T, Vector<double> X0Hat, Matrix<double> DX0Hat)
         {
+            Count = 0;
+            this.FilterName = FilterName;
             mError = Exts.ZerosArrayOfShape(X0Hat.ToColumnMatrix(), T);
             DError = Exts.ZerosArrayOfShape(DX0Hat, T);
             mxHat = Exts.ZerosArrayOfShape(X0Hat.ToColumnMatrix(), T);
             mKHat = Exts.ZerosArrayOfShape(DX0Hat, T);
         }
 
-        public FilterQualityInfo(int T, Matrix<double> X0Hat, Matrix<double> DX0Hat) : this(T, X0Hat.Column(0), DX0Hat) { }
+        public FilterQualityInfo(string FilterName, int T, Matrix<double> X0Hat, Matrix<double> DX0Hat) : this(FilterName, T, X0Hat.Column(0), DX0Hat) { }
 
     }
 
@@ -837,15 +869,15 @@ namespace TestEnvironments
         public Matrix<double>[] mx;
         public Matrix<double>[] Dx;
         public FilterQualityInfo[] FilterQualityInfos;
-        public ProcessInfo(int T, int FiltersCount, Vector<double> X0Hat, Matrix<double> DX0Hat)
+        public ProcessInfo(int T, string[] Filters, Vector<double> X0Hat, Matrix<double> DX0Hat)
         {
             Count = 0;
             mx = Exts.ZerosArrayOfShape(X0Hat.ToColumnMatrix(), T);
             Dx = Exts.ZerosArrayOfShape(DX0Hat, T);
-            FilterQualityInfos = new FilterQualityInfo[FiltersCount];
-            for (int j = 0; j < FiltersCount; j++)
+            FilterQualityInfos = new FilterQualityInfo[Filters.Length];
+            for (int j = 0; j < Filters.Length; j++)
             {
-                FilterQualityInfos[j] = new FilterQualityInfo(T, X0Hat, DX0Hat);
+                FilterQualityInfos[j] = new FilterQualityInfo(Filters[j], T, X0Hat, DX0Hat);
             }
 
 
@@ -872,11 +904,12 @@ namespace TestEnvironments
             FilterQualityInfos = new FilterQualityInfo[infos[0].FilterQualityInfos.Count()];
             for (int j = 0; j < FilterQualityInfos.Count(); j++)
             {
-                FilterQualityInfos[j] = new FilterQualityInfo(infos[0].FilterQualityInfos[j].mError.Length, infos[0].FilterQualityInfos[j].mError[0], infos[0].FilterQualityInfos[j].DError[0]);
-                FilterQualityInfos[j].mError = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].mError).ToArray(), TrCounts);
-                FilterQualityInfos[j].DError = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].DError).ToArray(), TrCounts);
-                FilterQualityInfos[j].mxHat = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].mxHat).ToArray(), TrCounts);
-                FilterQualityInfos[j].mKHat = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].mKHat).ToArray(), TrCounts);
+                FilterQualityInfos[j] = new FilterQualityInfo(infos[0].FilterQualityInfos[j].FilterName, infos[0].FilterQualityInfos[j].mError.Length, infos[0].FilterQualityInfos[j].mError[0], infos[0].FilterQualityInfos[j].DError[0]);
+                double[] FTrCounts = infos.Select(i => (double)i.FilterQualityInfos[j].Count).ToArray();
+                FilterQualityInfos[j].mError = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].mError).ToArray(), FTrCounts);
+                FilterQualityInfos[j].DError = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].DError).ToArray(), FTrCounts);
+                FilterQualityInfos[j].mxHat = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].mxHat).ToArray(), FTrCounts);
+                FilterQualityInfos[j].mKHat = Exts.Average(infos.Select(i => i.FilterQualityInfos[j].mKHat).ToArray(), FTrCounts);
             }
         }
 
@@ -899,6 +932,16 @@ namespace TestEnvironments
             {
                 using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString())))
                 {
+                    outputfile.Write(string.Format(provider, "{0} {1} {2}",
+                        "t", "mx", "Dx"
+                        ));
+                    for (int j = 0; j < FilterQualityInfos.Count(); j++)
+                    {
+                        outputfile.Write(string.Format(provider, " {0} {1} {2} {3}",
+                        FilterQualityInfos[j].FilterName+"_mxHat", FilterQualityInfos[j].FilterName + "_mError", FilterQualityInfos[j].FilterName+"_DError", FilterQualityInfos[j].FilterName + "_mKHat"
+                        ));
+                    }
+                    outputfile.WriteLine();
                     outputfile.Close();
                 }
             }

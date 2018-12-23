@@ -36,6 +36,7 @@ namespace TestEnvironments
 
         public override void InitializeAndTrain()
         {
+            FilterName = "EKF";
             Initialize();
         }
 

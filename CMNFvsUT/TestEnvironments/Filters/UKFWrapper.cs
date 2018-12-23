@@ -35,6 +35,7 @@ namespace TestEnvironments
 
         public override void Initialize()
         {
+            FilterName = "UKF";
             if (doOptimize)
             {
                 if (doOptimizeWithRandomShoot)

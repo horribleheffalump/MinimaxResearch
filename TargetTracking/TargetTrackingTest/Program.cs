@@ -4,6 +4,7 @@ using MathNetExtensions;
 using NonlinearSystem;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -164,8 +165,10 @@ namespace TargetTrackingTest
 
             int N = (int)(T / h_obs);
 
-            string CMNFFileName = "d:\\results\\cont_million\\cmnf.params";
-            string UKFFileName = "d:\\results\\cont_million\\ukf.params";
+            string folder = "d:\\results\\cont_EKF\\";
+
+            string CMNFFileName = Path.Combine(folder, "cmnf.params");
+            string UKFFileName = Path.Combine(folder, "ukf.params");
             List<(FilterType, string)> filters = new List<(FilterType, string)>
             {
                 (FilterType.CMNF, CMNFFileName),
@@ -250,11 +253,17 @@ namespace TargetTrackingTest
                 return model;
             };
 
+
             bool doCalculateFilter = true;
             testEnv.Initialize(N, 1000, 100, "d:\\results\\cont_EKF\\", filters, doCalculateFilter, !doCalculateFilter, ModelGenerator);
             //testEnv.GenerateBundleSamples(50, 1000, "d:\\results\\cont\\");
             testEnv.GenerateOne("d:\\results\\cont_EKF\\");
+            testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "estimate_sample.py"), folder);
+            testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "trajectory.py"), folder);
+
+            
             testEnv.GenerateBundles(1, 1000, "d:\\results\\cont_EKF\\", false, 4);
+            testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "estimate_statistics.py"), folder);
 
             //ContinuousVectorModel model = new ContinuousVectorModel(h_state, h_obs, Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
             ////for (double s = 0; s < T; s += h_state)

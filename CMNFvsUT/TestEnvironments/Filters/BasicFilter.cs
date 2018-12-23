@@ -10,6 +10,7 @@ namespace TestEnvironments
     [Serializable]
     public abstract class BasicFilter
     {
+        public string FilterName;
         public string FileName;
         public abstract void Initialize();
         public abstract void InitializeAndTrain();

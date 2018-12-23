@@ -1,45 +1,37 @@
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib import rc
-rc('font',**{'family':'serif'})
-rc('text', usetex=True)
-rc('text.latex',unicode=True)
-rc('text.latex',preamble=r'\usepackage[T2A]{fontenc}')
-rc('text.latex',preamble=r'\usepackage[utf8]{inputenc}')
-rc('text.latex',preamble=r'\usepackage[russian]{babel}')
+import pandas as pd
 import pylab
 import sys
 import os
+
+#folder = "D:/results/cont_EKF/"
+folder = sys.argv[1]
 #from multiplypoints import *
+colormap = {'CMNF': 'red', 'UKF': 'blue', 'MCMNF': 'green', 'RCMNF': 'orange', 'EKF': 'yellow'}
 
-def cm2inch(*tupl):
-    inch = 2.54
-    if isinstance(tupl[0], tuple):
-        return tuple(i/inch for i in tupl[0])
-    else:
-        return tuple(i/inch for i in tupl)
 
-for i in range (0,10):
-    inputfilename = "D:/results/cont_a_1.0_two/TargetTracking_sample_"+str(i)+".txt"
-    outputfilename = "D:/results/cont_a_1.0_two/TargetTracking_sample_" + str(i) + ".png"
+for i in range (0,5):
+    inputfilename = folder + "TargetTracking_sample_"+str(i)+".txt"
+    outputfilename = folder + "TargetTracking_sample_" + str(i) + ".png"
 
-    t, x, err_1, err_2, err_3, err_4 = np.loadtxt(inputfilename, delimiter = ' ', usecols=(0,1,2,3,4,5), unpack=True, dtype=float)
-    from pylab import *
+    data = pd.read_csv(inputfilename, delimiter = " ", dtype=float, engine='python')
 
-    f = plt.figure(num=None, figsize=cm2inch((12,9)), dpi=200)
-    plt.subplots_adjust(left=0.06, bottom=0.07, right=0.98, top=0.95, wspace=0.1)
+    f = plt.figure()
     ax1 = plt.subplot(111)
+    
+    plotcols = [s for s in data.columns if "_Error" in s]
 
-    ax1.plot(t, x, 'k', label='x')
-    ax1.plot(t, x-err_1, 'r', label='CMNF', linewidth=2.0)
-    ax1.plot(t, x-err_2, 'g', label='MCMNF', linewidth=2.0)
-    ax1.plot(t, x-err_3, 'b', label='UKF')
-    ax1.plot(t, x-err_4, 'orange', label='ACMNF')
+    ax1.plot(data['t'], data['x'], 'k', label='x')
+
+    for p in plotcols:
+        filtname = p.replace("_Error","")
+        ax1.plot(data['t'], data['x']-data[p], c=colormap[filtname], label=filtname)
+
 
     ax1.legend()
 
-    plt.tight_layout()
     #plt.show()    
     plt.savefig(outputfilename)
 

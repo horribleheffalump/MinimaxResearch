@@ -25,6 +25,7 @@ namespace TestEnvironments
 
         public override void Initialize()
         {
+            FilterName = "CMNF";
             CMNF = new CMNFilter(Xi, Zeta);
         }
 
