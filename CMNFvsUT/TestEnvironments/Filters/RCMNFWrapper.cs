@@ -14,9 +14,9 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace TestEnvironments
 {
-    public class ACMNFWrapper: BasicFilter
+    public class RCMNFWrapper: BasicFilter
     {
-        private AdaptiveCMNFilter ACMNF;
+        private ResamplingCMNFilter RCMNF;
         public int N;
         public int T;
         public Func<Vector<double>> X0;
@@ -33,8 +33,9 @@ namespace TestEnvironments
 
         public override void Initialize()
         {
-            ACMNF = new AdaptiveCMNFilter(Xi, Zeta, Phi1, Phi2, Psi1, Psi2, W, Nu, DNu);
-            ACMNF.Initialize(N, X0, X0Hat);
+            FilterName = "ResamplingCMNF";
+            RCMNF = new ResamplingCMNFilter(Xi, Zeta, Phi1, Phi2, Psi1, Psi2, W, Nu, DNu);
+            RCMNF.Initialize(N, X0, X0Hat);
         }
 
         public override void InitializeAndTrain()
@@ -44,7 +45,7 @@ namespace TestEnvironments
 
         public override (Vector<double>, Matrix<double>) Step(int t, Vector<double> y, Vector<double> xHat, Matrix<double> kHat)
         {
-            return ACMNF.Step(t, y, xHat, kHat);
+            return RCMNF.Step(t, y, xHat, kHat);
         }
 
     }

@@ -165,9 +165,9 @@ namespace TestEnvironments
                     };
                     Filters[j] = MCMNF;
                 }
-                if (filters[j].type == FilterType.ACMNF)
+                if (filters[j].type == FilterType.RCMNF)
                 {
-                    ACMNFWrapper ACMNF = new ACMNFWrapper
+                    RCMNFWrapper ACMNF = new RCMNFWrapper
                     {
                         FileName = filters[j].fileName,
                         T = T,
@@ -808,7 +808,7 @@ namespace TestEnvironments
 
     }
 
-    public enum FilterType { CMNF, MCMNF, ACMNF, UKFNoOptimization, UKFIntegral, UKFIntegralRandomShoot, UKFStepwise, UKFStepwiseRandomShoot, EKF };
+    public enum FilterType { CMNF, MCMNF, RCMNF, UKFNoOptimization, UKFIntegral, UKFIntegralRandomShoot, UKFStepwise, UKFStepwiseRandomShoot, EKF };
 
     [Serializable]
     public class FilterQualityInfo

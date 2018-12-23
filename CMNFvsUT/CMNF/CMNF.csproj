@@ -53,7 +53,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ACMNVectorFilter.cs" />
+    <Compile Include="RCMNVectorFilter.cs" />
     <Compile Include="MCMNVectorFilter.cs" />
     <Compile Include="CMNVectorFilter.cs" />
     <Compile Include="CMNScalarFilter.cs" />

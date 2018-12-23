@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace CMNF
 {
-    public class AdaptiveCMNFilter
+    public class ResamplingCMNFilter
     {
         private Func<int, Vector<double>, Vector<double>> Phi1; // Phi1(t, X)
         private Func<int, Vector<double>, Matrix<double>> Phi2;
@@ -30,7 +30,7 @@ namespace CMNF
 
         Vector<double>[] xHat;
 
-        public AdaptiveCMNFilter(Func<int, Vector<double>, Vector<double>> xi,
+        public ResamplingCMNFilter(Func<int, Vector<double>, Vector<double>> xi,
                                     Func<int, Vector<double>, Vector<double>, Matrix<double>, Vector<double>> zeta,
                                     Func<int, Vector<double>, Vector<double>> phi1,
                                     Func<int, Vector<double>, Matrix<double>> phi2,
