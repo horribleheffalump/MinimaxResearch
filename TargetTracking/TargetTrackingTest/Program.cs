@@ -106,13 +106,14 @@ namespace TargetTrackingTest
             //double Alpha_t = 0.1;
             //double Beta_t = 2;
             //double Gamma_t = -0.005;
+            //double Alpha_n = 0.05;
             double Alpha_n = 0.05;
-            double Beta_n = 1.0;
-            double Gamma_n = 0.02;
+            double Beta_n = 5.0;
+            double Gamma_n = 2.0;
 
 
-            Vector<double> mEta = Exts.Vector(200000, 200000, 450, 10 * Math.PI / 180, Gamma_n / Alpha_n);
-            Matrix<double> dEta = Exts.Diag(Math.Pow(2000, 2), Math.Pow(2000, 2), Math.Pow(100, 2), Math.Pow(15 * Math.PI / 180, 2), Math.Pow(Beta_n, 2) / 2 / Alpha_n);
+            Vector<double> mEta = Exts.Vector(30000, 40000, 400, 10 * Math.PI / 180, Gamma_n / Alpha_n);
+            Matrix<double> dEta = Exts.Diag(Math.Pow(2000, 2), Math.Pow(2000, 2), Math.Pow(115, 2), Math.Pow(15 * Math.PI / 180, 2), Math.Pow(Beta_n, 2) / 2 / Alpha_n);
             //Matrix<double> dEta = Exts.Diag(0.0, 0.0, 0.0, 0.0, 0.0);
 
             Vector<double> mW = Exts.Vector(0, 0, 0, 0, 0);
@@ -137,18 +138,24 @@ namespace TargetTrackingTest
             Normal NormalW = new Normal(mW[4], Math.Sqrt(dW[4, 4]));
             RandomVector<Normal> NormalNu = new RandomVector<Normal>(mNu, dNu);
             RandomVector<Normal> NormalEta = new RandomVector<Normal>(mEta, dEta);
+            ContinuousUniform UniformEtaV = new ContinuousUniform(200, 600);
 
             Func<Vector<double>> W;
             Func<Vector<double>> Nu;
             Func<Vector<double>> X0;
             W = () => Exts.Vector(0, 0, 0, 0, NormalW.Sample());
             Nu = () => NormalNu.Sample();
-            X0 = () => NormalEta.Sample();
+            X0 = () =>
+            {
+                var x = NormalEta.Sample();
+                x[2] = UniformEtaV.Sample();
+                return x;
+            };
             //X0 = () => mEta;
 
-            double h_state = 0.01;
-            double h_obs = 1.0;
-            double T = 150.0 + h_state / 2;
+            double h_state = 0.1;
+            double h_obs = 0.1;
+            double T = 20.0 + h_state / 2;
 
             #endregion
 
@@ -157,13 +164,14 @@ namespace TargetTrackingTest
 
             int N = (int)(T / h_obs);
 
-            string CMNFFileName = "d:\\results\\cont_a_1.0_two\\cmnf.params";
-            string UKFFileName = "d:\\results\\cont_a_1.0_two\\ukf.params";
+            string CMNFFileName = "d:\\results\\cont_million\\cmnf.params";
+            string UKFFileName = "d:\\results\\cont_million\\ukf.params";
             List<(FilterType, string)> filters = new List<(FilterType, string)>
             {
                 (FilterType.CMNF, CMNFFileName),
-                (FilterType.MCMNF, string.Empty),
-                (FilterType.UKFNoOptimization, UKFFileName)
+                //(FilterType.MCMNF, string.Empty),
+                (FilterType.UKFNoOptimization, UKFFileName),
+                (FilterType.EKF, string.Empty)
             };
 
             //Func<int, Vector<double>, Vector<double>> Phi1_discr = (i, x) => x + h_obs * Phi1(x);
@@ -180,6 +188,21 @@ namespace TargetTrackingTest
             Func<int, Vector<double>, Vector<double>> Psi1_discr = (i, x) => Psi1(x);
             Func<int, Vector<double>, Matrix<double>> Psi2_discr = (i, x) => Psi2();
 
+            Func<Vector<double>, Matrix<double>> dPhi = (x) => Matrix<double>.Build.Dense(5, 5, new double[5 * 5] {
+                0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0,
+                Math.Cos(x[3]), Math.Sin(x[3]), 0, -x[4] / Math.Pow(x[2], 2), 0,
+                -x[2] * Math.Sin(x[3]), x[2] * Math.Cos(x[3]), 0, 0, 0,
+                0, 0, 0, 1.0 / x[2], -Alpha_n
+            }); // Column-major order
+            Func<Vector<double>, Matrix<double>> dPsi = (x) => Matrix<double>.Build.Dense(4, 5, new double[5 * 4] {
+                -x[1] / (x[0]*x[0] + x[1] * x[1]), x[0] / Math.Sqrt(x[0] * x[0] + x[1] * x[1]), -x[1]/ (x[0] * x[0] + x[1] * x[1]), x[0]/ Math.Sqrt(x[0] * x[0] + x[1] * x[1]),
+                 x[0] / (x[0]*x[0] + x[1] * x[1]), x[1] / Math.Sqrt(x[0] * x[0] + x[1] * x[1]),  x[0]/ (x[0] * x[0] + x[1] * x[1]), x[1]/ Math.Sqrt(x[0] * x[0] + x[1] * x[1]),
+                0, 0, 0, 0,
+                0, 0, 0, 0,
+                0, 0, 0, 0
+            }); // Column-major order
+
             TestEnvironmentVector testEnv = new TestEnvironmentVector()
             {
                 TestName = "Target tracking",
@@ -188,8 +211,10 @@ namespace TargetTrackingTest
                 Phi2 = Phi2_discr,
                 Psi1 = Psi1_discr,
                 Psi2 = Psi2_discr,
+                dPhi = (i, x) => dPhi(x),
+                dPsi = (i, x) => dPsi(x),
                 Xi = (i, x) => Phi1_discr(i, x) + Phi2_discr(i, x) * mW,
-                Zeta = (i, x, y, k) => y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu,
+                Zeta = (i, x, y, k) => (y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu).Stack(Utils.pol2cart(Exts.Vector(y[0], y[1]))).Stack(Utils.pol2cart(Exts.Vector(y[2], y[3]))),
                 W = (i) => W(),
                 Nu = (i) => Nu(),
                 DW = dW,
@@ -226,9 +251,10 @@ namespace TargetTrackingTest
             };
 
             bool doCalculateFilter = true;
-            testEnv.Initialize(N, 100, 100, "d:\\results\\cont_a_1.0_two\\", filters, doCalculateFilter, !doCalculateFilter, ModelGenerator);
-            testEnv.GenerateBundles(1, 100, "d:\\results\\cont_a_1.0_two\\", false);
-            testEnv.GenerateOne("d:\\results\\cont_a_1.0_two\\");
+            testEnv.Initialize(N, 1000, 100, "d:\\results\\cont_EKF\\", filters, doCalculateFilter, !doCalculateFilter, ModelGenerator);
+            //testEnv.GenerateBundleSamples(50, 1000, "d:\\results\\cont\\");
+            testEnv.GenerateOne("d:\\results\\cont_EKF\\");
+            testEnv.GenerateBundles(1, 1000, "d:\\results\\cont_EKF\\", false, 4);
 
             //ContinuousVectorModel model = new ContinuousVectorModel(h_state, h_obs, Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
             ////for (double s = 0; s < T; s += h_state)

@@ -34,6 +34,8 @@ namespace TestEnvironments
         public Func<int, Vector<double>, Matrix<double>> Phi2;
         public Func<int, Vector<double>, Vector<double>> Psi1;
         public Func<int, Vector<double>, Matrix<double>> Psi2;
+        public Func<int, Vector<double>, Matrix<double>> dPhi;
+        public Func<int, Vector<double>, Matrix<double>> dPsi;
 
         //public string[] Phi1_latex;
         //public string[][] Phi2_latex;
@@ -120,11 +122,6 @@ namespace TestEnvironments
                     if (i % 1000 == 0) // inform every 1000-th trajectory
                         Console.WriteLine($"model {i}");
                     models[i] = this.ModelGenerator();
-                    //models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-                    //for (int s = 1; s < T; s++)
-                    //{
-                    //    models[i].Step();
-                    //}
                 }
             }
             Filters = new BasicFilter[filters.Count()];
@@ -157,7 +154,6 @@ namespace TestEnvironments
                         T = T,
                         N = nTrain,
                         X0Hat = X0Hat,
-                        Models = models,
                         Xi = Xi,
                         Zeta = Zeta,
                         Phi1 = Phi1,
@@ -175,8 +171,9 @@ namespace TestEnvironments
                     {
                         FileName = filters[j].fileName,
                         T = T,
+                        N = nMCMNF,
+                        X0 = X0,
                         X0Hat = X0Hat,
-                        Models = models,
                         Xi = Xi,
                         Zeta = Zeta,
                         Phi1 = Phi1,
@@ -184,7 +181,8 @@ namespace TestEnvironments
                         Psi1 = Psi1,
                         Psi2 = Psi2,
                         W = W,
-                        Nu = Nu
+                        Nu = Nu,
+                        DNu = DNu
                     };
                     Filters[j] = ACMNF;
                 }
@@ -229,6 +227,27 @@ namespace TestEnvironments
 
                     Filters[j] = UKF;
                 }
+                if (filters[j].type == FilterType.EKF)
+                {
+                    EKFWrapper EKF = new EKFWrapper
+                    {
+                        FileName = filters[j].fileName,
+                        T = T,
+                        Phi1 = Phi1,
+                        Phi2 = Phi2,
+                        Psi1 = Psi1,
+                        Psi2 = Psi2,
+                        dPhi = dPhi,
+                        dPsi = dPsi,
+                        MW = MW,
+                        DW = DW,
+                        MNu = MNu,
+                        DNu = DNu,
+                        outputFolder = outputFolder
+                    };
+                    Filters[j] = EKF;
+                }
+
             }
 
 
@@ -647,18 +666,13 @@ namespace TestEnvironments
 
         private ProcessInfo CalculateBundle(int n, ProcessInfo processInfo)
         {
-            //Console.WriteLine($"GenerateBundle {m}");
+            Console.WriteLine($"GenerateBundle parallel");
             DiscreteVectorModel[] modelsEst = new DiscreteVectorModel[n];
             for (int i = 0; i < n; i++)
             {
-                //if (i % 1000 == 0) // inform every 1000-th trajectory
-                //    Console.WriteLine($"model {i}");
+                if (i % 1000 == 0) // inform every 1000-th trajectory
+                    Console.WriteLine($"model {i}");
                 modelsEst[i] = ModelGenerator();
-                //modelsEst[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-                //for (int s = 1; s < T; s++)
-                //{
-                //    modelsEst[i].Step();
-                //}
             }
 
             Vector<double>[][] xHat = new Vector<double>[Filters.Count()][];
@@ -794,7 +808,7 @@ namespace TestEnvironments
 
     }
 
-    public enum FilterType { CMNF, MCMNF, ACMNF, UKFNoOptimization, UKFIntegral, UKFIntegralRandomShoot, UKFStepwise, UKFStepwiseRandomShoot };
+    public enum FilterType { CMNF, MCMNF, ACMNF, UKFNoOptimization, UKFIntegral, UKFIntegralRandomShoot, UKFStepwise, UKFStepwiseRandomShoot, EKF };
 
     [Serializable]
     public class FilterQualityInfo
