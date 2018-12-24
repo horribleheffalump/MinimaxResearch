@@ -63,6 +63,12 @@
     <Compile Include="pics_AiT\pic14_sampled_hist_MCMNF.py" />
     <Compile Include="pics_AiT\pic15_sampled_estimate_statistics_MCMNF.py" />
     <Compile Include="pics_IEEPR\cubic_estimate_statistics_MCMNF.py" />
+    <Compile Include="pics_IEEPR\cubic.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="pics_IEEPR\identfication.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="pics_IEEPR\multiplypoints.py" />
     <Compile Include="polar.py">
       <SubType>Code</SubType>
