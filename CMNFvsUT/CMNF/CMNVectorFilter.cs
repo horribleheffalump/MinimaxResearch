@@ -116,6 +116,48 @@ namespace CMNF
                 KHat.Add(t, kHat);
                 //KHat.Add(t, Exts.Cov(x, x) - Exts.Cov(x, xiHat) * F - Exts.Cov(x.Subtract(xTilde), zetaTilde) * H);
                 // KHat.Add(t, cov(x, x) - cov(x, xiHat) * F - cov(x - xTilde, zetaTilde) * H);
+
+                Matrix<double> I = Matrix<double>.Build.DenseIdentity(CovXiHat.RowCount);
+
+                //Console.WriteLine();
+                //Console.WriteLine($"cov_xi_{t} = {CovXiHat.ToMatlab()}");
+                //Console.WriteLine();
+                //Console.WriteLine($"inv_by_cov_xi_{t} = {(InvCovXiHat * CovXiHat).ToMatlab()}");
+                //Console.WriteLine();
+                //Console.WriteLine($"cov_zeta_{t} = {CovZetaTilde.ToMatlab()}");
+                //Console.WriteLine();
+                //Console.WriteLine($"inv_by_cov_zeta_{t} = {(InvCovZetaTilde * CovZetaTilde).ToMatlab()}");
+                //Console.WriteLine();
+
+                //Console.WriteLine();
+                //Console.WriteLine($"$cov(\\hat{{\\xi}}_{{{t}}}, \\hat{{\\xi}}_{{{t}}}) = {CovXiHat.ToLatex("E3")}$");
+                //Console.WriteLine();
+                //Console.WriteLine($"$cov(\\hat{{\\xi}}_{{{t}}}, \\hat{{\\xi}}_{{{t}}}) \\cdot (cov(\\hat{{\\xi}}_{{{t}}}, \\hat{{\\xi}}_{{{t}}}))^{{-1}}  = {(InvCovXiHat * CovXiHat).ToLatex("F3")}$");
+                //Console.WriteLine();
+                //double diff_xi = (I - InvCovXiHat * CovXiHat).L2Norm();
+                //Console.WriteLine($"$|| I - cov(\\hat{{\\xi}}_{{{t}}}, \\hat{{\\xi}}_{{{t}}}) \\cdot (cov(\\hat{{\\xi}}_{{{t}}}, \\hat{{\\xi}}_{{{t}}}))^{{-1}}||  = {diff_xi}$");
+                //Console.WriteLine();
+                //if (diff_xi > 0.001)
+                //    Console.WriteLine("!!!");
+
+                //Matrix<double> II = Matrix<double>.Build.DenseIdentity(CovZetaTilde.RowCount);
+
+                //Console.WriteLine($"$cov(\\tilde{{\\zeta}}_{{{t}}}, \\tilde{{\\zeta}}_{{{t}}}) = {CovZetaTilde.ToLatex("E3")}$");
+                //Console.WriteLine();
+                //Console.WriteLine($"$cov(\\tilde{{\\zeta}}_{{{t}}}, \\tilde{{\\zeta}}_{{{t}}}) \\cdot (cov(\\tilde{{\\zeta}}_{{{t}}}, \\tilde{{\\zeta}}_{{{t}}}))^{{-1}}  = {(InvCovZetaTilde * CovZetaTilde).ToLatex("F3")}$");
+                //Console.WriteLine();
+                //double diff_zeta = (II - InvCovZetaTilde * CovZetaTilde).L2Norm();
+                //Console.WriteLine($"$|| I - cov(\\tilde{{\\zeta}}_{{{t}}}, \\tilde{{\\zeta}}_{{{t}}}) \\cdot (cov(\\tilde{{\\zeta}}_{{{t}}}, \\tilde{{\\zeta}}_{{{t}}}))^{{-1}}||  = {diff_zeta}$");
+                //Console.WriteLine();
+                //if (diff_zeta > 0.001)
+                //    Console.WriteLine("!!!");
+
+                //Console.WriteLine($"$F_{{{t}}} = {F.ToLatex()}$");
+                //Console.WriteLine($"$f_{{{t}}} = {f.ToLatex()}$");
+                //Console.WriteLine($"$H_{{{t}}} = {H.ToLatex()}$");
+                //Console.WriteLine($"$h_{{{t}}} = {h.ToLatex()}$");
+                //Console.WriteLine($"$\\tilde{{K}}_{{{t}}} = {kTilde.ToLatex()}$");
+                //Console.WriteLine($"$\\hat{{K}}_{{{t}}} = {kHat.ToLatex()}$");
                 Console.WriteLine($"CMNF estimate parameters for t={t}, done in {(DateTime.Now - startiteration).ToString(@"hh\:mm\:ss\.fff")}");
                 x = null;
                 y = null;

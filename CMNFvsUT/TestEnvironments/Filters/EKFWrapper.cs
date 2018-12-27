@@ -28,10 +28,11 @@ namespace TestEnvironments
         public Matrix<double> DNu;
 
         public string outputFolder;
+        public Func<int, Vector<double>, Matrix<double>, (Vector<double>, Matrix<double>)> Predict;
 
         public override void Initialize()
         {
-            EKF = new ExtendedKalmanFilter(Phi1, Phi2, Psi1, Psi2, dPhi, dPsi, MW, DW, MNu, DNu);
+            EKF = new ExtendedKalmanFilter(Phi1, Phi2, Psi1, Psi2, dPhi, dPsi, MW, DW, MNu, DNu, Predict);
         }
 
         public override void InitializeAndTrain()

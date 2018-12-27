@@ -6,8 +6,12 @@ import pylab
 import sys
 import os
 
-#folder = "D:/results/cont_EKF/"
-folder = sys.argv[1]
+
+if (len(sys.argv)) > 1:
+    folder = sys.argv[1]
+else:
+    folder = "D:/results/cont_EKF/"
+
 #inputfilename = sys.argv[1] 
 #outputfilename = sys.argv[2]
 colormap = {'CMNF': 'red', 'UKF': 'blue', 'MCMNF': 'green', 'RCMNF': 'orange', 'EKF': 'yellow'}
@@ -24,12 +28,12 @@ for i in range (0,5):
     f = plt.figure()
     ax = plt.subplot(111)
 
-    T = 150
+    T = int(data['t'].max())
 
     
     protocols = [s.replace("_mError","") for s in data.columns if "_mError" in s]
 
-    ax.plot(data['t'][1:T], np.sqrt(data['Dx'][1:T]), c = 'k', linestyle=':', label = 'Dx')
+    #ax.plot(data['t'][1:T], np.sqrt(data['Dx'][1:T]), c = 'k', linestyle=':', label = 'Dx')
 
     for p in protocols:
         ax.plot(data['t'][1:T], data[p+'_mError'][1:T], c=colormap[p],  linestyle=':', linewidth=1.0, label = 'E ' + p)

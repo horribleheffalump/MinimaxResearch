@@ -61,6 +61,8 @@ namespace TestEnvironments
         public Func<int, Vector<double>, Vector<double>> Xi;
         public Func<int, Vector<double>, Vector<double>, Matrix<double>, Vector<double>> Zeta;
 
+        public Func<int, Vector<double>, Matrix<double>, (Vector<double>, Matrix<double>)> Predict;
+
         public Func<DiscreteVectorModel> ModelGenerator;
         //private NumberFormatInfo provider;
 
@@ -243,6 +245,7 @@ namespace TestEnvironments
                         DW = DW,
                         MNu = MNu,
                         DNu = DNu,
+                        Predict = Predict,
                         outputFolder = outputFolder
                     };
                     Filters[j] = EKF;
@@ -295,11 +298,6 @@ namespace TestEnvironments
                     Console.WriteLine($"model {i}");
                 //Console.WriteLine($"model {i}");
                 models[i] = ModelGenerator();
-                //models[i] = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-                //for (int s = 1; s < T; s++)
-                //{
-                //    models[i].Step();
-                //}
             }
 
             for (int k = 0; k < models[0].State.Count; k++)

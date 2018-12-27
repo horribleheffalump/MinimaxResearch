@@ -65,6 +65,7 @@ namespace TestEnvironments
             //Vector<double> mEta = Exts.Vector(0.1); Matrix<double> dEta = Exts.Diag(1.16); // FOR IEOPR
             Func<int, Vector<double>, Vector<double>> phi = (s, x) => Exts.Vector(x[0] / (1 + x[0] * x[0]));
             Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(Math.Pow(x[0], 3) + Math.Pow(x[0], 1));
+
             Func<int, Vector<double>, Matrix<double>> dpsi = (s, x) => Exts.Matrix(3.0 * Math.Pow(x[0], 2) + 1.0);
 
             //Phi1_latex = new string[] { @"\frac{x_t}{1 + x_t^2}"};
@@ -82,7 +83,9 @@ namespace TestEnvironments
 
             Phi1 = phi;
             Psi1 = psi;
-            
+
+            dPhi = (s, x) => Exts.Diag(0.9);
+            dPsi = (s, x) => Exts.Diag(1.0);
 
             Xi = (s, x) => phi(s, x) + mW;
             Zeta = (s, x, y, k) => y - psi(s, x) - mNu;

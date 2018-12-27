@@ -6,8 +6,11 @@ import pylab
 import sys
 import os
 
-#folder = "D:/results/cont_EKF/"
-folder = sys.argv[1]
+if (len(sys.argv)) > 1:
+    folder = sys.argv[1]
+else:
+    folder = "D:/results/cont_EKF/"
+
 #from multiplypoints import *
 colormap = {'CMNF': 'red', 'UKF': 'blue', 'MCMNF': 'green', 'RCMNF': 'orange', 'EKF': 'yellow'}
 

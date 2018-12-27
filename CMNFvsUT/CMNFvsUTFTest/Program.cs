@@ -33,17 +33,23 @@ namespace CMNFvsUTFTest
             [Option('e', "test-count", Required = false, HelpText = "Number of trajectoris in the test set for dynamic models")]
             public int TestCount { get; set; }
 
-            [Option('E', "bundle-count", Required = false, Default = 1, HelpText = "Number of bundles of trajectoris in the test set for dynamic models")]
+            [Option('N', "bundle-count", Required = false, Default = 1, HelpText = "Number of bundles of trajectoris in the test set for dynamic models")]
             public int BundleCount { get; set; }
 
             [Option('U', "UKF", Required = false, Default = false, HelpText = "Do calculate Unscented Kalman Filter")]
             public bool UKF { get; set; }
+
+            [Option('E', "EKF", Required = false, Default = false, HelpText = "Do calculate Extended Kalman Filter")]
+            public bool EKF { get; set; }
 
             [Option("UKF-stepwise", Required = false, Default = false, HelpText = "Do calculate Unscented Kalman Filter with stepwise parameter estimation")]
             public bool UKFStepwise { get; set; }
 
             [Option("UKF-randomshoot", Required = false, Default = false, HelpText = "Do optimize Unscented Kalman Filter parameters with random shoot method")]
             public bool UKFRandomShoot { get; set; }
+
+            [Option("UKF-nooptimization", Required = false, Default = false, HelpText = "Do not optimize Unscented Kalman Filter parameters, use defaults")]
+            public bool UKFNoOptimization { get; set; }
 
             [Option('C', "CMNF", Required = false, Default = false, HelpText = "Do calculate conditionally minimax nonlinear filter")]
             public bool CMNF { get; set; }
@@ -417,17 +423,25 @@ namespace CMNFvsUTFTest
                 if (o.MCMNF) filters.Add((FilterType.MCMNF, string.Empty));
                 if (o.UKF)
                 {
-                    if (o.UKFStepwise)
+                    if (o.UKFNoOptimization)
                     {
-                        if (o.UKFRandomShoot) filters.Add((FilterType.UKFStepwiseRandomShoot, o.UKFFileName));
-                        else filters.Add((FilterType.UKFStepwise, o.UKFFileName));
+                        filters.Add((FilterType.UKFNoOptimization, string.Empty));
                     }
                     else
                     {
-                        if (o.UKFRandomShoot) filters.Add((FilterType.UKFIntegralRandomShoot, o.UKFFileName));
-                        else filters.Add((FilterType.UKFIntegral, o.UKFFileName));
+                        if (o.UKFStepwise)
+                        {
+                            if (o.UKFRandomShoot) filters.Add((FilterType.UKFStepwiseRandomShoot, o.UKFFileName));
+                            else filters.Add((FilterType.UKFStepwise, o.UKFFileName));
+                        }
+                        else
+                        {
+                            if (o.UKFRandomShoot) filters.Add((FilterType.UKFIntegralRandomShoot, o.UKFFileName));
+                            else filters.Add((FilterType.UKFIntegral, o.UKFFileName));
+                        }
                     }
                 }
+                if (o.EKF) filters.Add((FilterType.EKF, string.Empty));
 
                 using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(Path.Combine(o.OutputFolder, "parameters.txt"), true))
                 {
