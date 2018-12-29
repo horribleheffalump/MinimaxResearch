@@ -301,25 +301,42 @@ namespace TargetTrackingTest
 
             Func<DiscreteVectorModel> ModelGenerator = () =>
             {
-                int n = 0;
-                double h_tolerance = h_state / 2.0;
-                double t_nextobservation = h_obs;
-                Vector<double> State = X0();
-                Vector<double> Obs;
-                DiscreteVectorModel model = new DiscreteVectorModel(Phi1_discr, Phi2_discr, Psi1_discr, Psi2_discr, (i) => W(), (i) => Nu(), X0(), true);
-                for (double s = h_state; s < T; s += h_state)
+                DiscreteVectorModel model = null; 
+                bool modelOK = false;
+                while (!modelOK)
                 {
-                    if (s > 0)
-                    {
-                        State = State + h_state * Phi1(State) + Math.Sqrt(h_state) * Phi2() * W();
-                    }
-                    if (Math.Abs(s - t_nextobservation) < h_tolerance)
-                    {
-                        Obs = Psi1(State) + Psi2() * Nu();
-                        t_nextobservation += h_obs;
+                    int n = 0;
+                    double h_tolerance = h_state / 2.0;
+                    double t_nextobservation = h_obs;
+                    Vector<double> State = X0();
+                    Vector<double> Obs;
 
-                        n++;
-                        model.Trajectory.Add(n, new Vector<double>[] { State, Obs });
+                    modelOK = true;
+                    model = new DiscreteVectorModel(Phi1_discr, Phi2_discr, Psi1_discr, Psi2_discr, (i) => W(), (i) => Nu(), X0(), true);
+                    for (double s = h_state; s < T; s += h_state)
+                    {
+                        if (s > 0)
+                        {
+                            State = State + h_state * Phi1(State) + Math.Sqrt(h_state) * Phi2() * W();
+                            if (State[1] < 0) // if y<0 - we are underground, do not take this trajectory
+                            {
+                                modelOK = false;
+                            }
+                        }
+                        if (Math.Abs(s - t_nextobservation) < h_tolerance)
+                        {
+                            Obs = Psi1(State) + Psi2() * Nu();
+                            t_nextobservation += h_obs;
+
+                            n++;
+                            model.Trajectory.Add(n, new Vector<double>[] { State, Obs });
+
+                            if (Obs[0] < 0 || Obs[2] < 0 || Obs[1] < 20000 || Obs[3] < 20000)
+                            {
+                                modelOK = false;
+                            }
+
+                        }
                     }
                 }
                 return model;
@@ -329,16 +346,16 @@ namespace TargetTrackingTest
             bool doCalculateFilter = true;
             testEnv.Initialize(N, 1000, 100, "d:\\results\\cont_EKF\\", filters, doCalculateFilter, !doCalculateFilter, ModelGenerator);
             //testEnv.GenerateBundleSamples(50, 1000, "d:\\results\\cont\\");
-            for (int i = 0; i < 1000; i++)
-            {
-                testEnv.GenerateOne("d:\\results\\cont_EKF\\", i);
-            }
+            //for (int i = 0; i < 1000; i++)
+            //{
+            //    testEnv.GenerateOne("d:\\results\\cont_EKF\\", i);
+            //}
             //testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "estimate_sample.py"), folder);
             //testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "trajectory.py"), folder);
 
 
-            //testEnv.GenerateBundles(1, 1000, "d:\\results\\cont_EKF\\", false, 4);
-            //testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "estimate_statistics.py"), folder);
+            testEnv.GenerateBundles(1, 1000, "d:\\results\\cont_EKF\\", false, 4);
+            testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "estimate_statistics.py"), folder);
 
             //ContinuousVectorModel model = new ContinuousVectorModel(h_state, h_obs, Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
             ////for (double s = 0; s < T; s += h_state)

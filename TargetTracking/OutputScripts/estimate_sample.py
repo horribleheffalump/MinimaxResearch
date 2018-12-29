@@ -16,8 +16,8 @@ colormap = {'CMNF': 'red', 'UKF': 'blue', 'MCMNF': 'green', 'RCMNF': 'orange', '
 
 
 for i in range (0,5):
-    inputfilename = folder + "TargetTracking_sample_"+str(i)+".txt"
-    outputfilename = folder + "TargetTracking_sample_" + str(i) + ".png"
+    inputfilename = folder + "TargetTracking_sample_611_"+str(i)+".txt"
+    outputfilename = folder + "TargetTracking_sample_611_" + str(i) + ".png"
 
     data = pd.read_csv(inputfilename, delimiter = " ", dtype=float, engine='python')
 
