@@ -151,7 +151,7 @@ namespace TargetTrackingTest
             //discretize
 
 
-            double h_state = 1.0;
+            double h_state = 0.01;
             double h_obs = 1.0;
             double T = 300.0 + h_state / 2;
 
@@ -318,10 +318,10 @@ namespace TargetTrackingTest
                         if (s > 0)
                         {
                             State = State + h_state * Phi1(State) + Math.Sqrt(h_state) * Phi2() * W();
-                            if (State[1] < 0) // if y<0 - we are underground, do not take this trajectory
-                            {
-                                modelOK = false;
-                            }
+                            //if (State[1] < 0) // 
+                            //{
+                            //    modelOK = false;
+                            //}
                         }
                         if (Math.Abs(s - t_nextobservation) < h_tolerance)
                         {
@@ -331,10 +331,10 @@ namespace TargetTrackingTest
                             n++;
                             model.Trajectory.Add(n, new Vector<double>[] { State, Obs });
 
-                            if (Obs[0] < 0 || Obs[2] < 0 || Obs[1] < 20000 || Obs[3] < 20000)
-                            {
-                                modelOK = false;
-                            }
+                            //if (Obs[0] < 0 || Obs[2] < 0 || Obs[1] < 20000 || Obs[3] < 20000)
+                            //{
+                            //    modelOK = false;
+                            //}
 
                         }
                     }
@@ -343,18 +343,20 @@ namespace TargetTrackingTest
             };
 
 
-            bool doCalculateFilter = true;
-            testEnv.Initialize(N, 1000, 100, "d:\\results\\cont_EKF\\", filters, doCalculateFilter, !doCalculateFilter, ModelGenerator);
-            //testEnv.GenerateBundleSamples(50, 1000, "d:\\results\\cont\\");
-            //for (int i = 0; i < 1000; i++)
+            bool doCalculateFilter = false;
+            testEnv.Initialize(N, 10000, 100, "d:\\results\\cont_EKF\\", filters, doCalculateFilter, !doCalculateFilter, ModelGenerator);
+            testEnv.Sifter = (x) => Math.Sqrt(x[0] * x[0] + x[1] * x[1]) > 1000.0;
+            //testEnv.GenerateBundleSamples(50, 1000, "d:\\results\\cont_EKF\\");
+            //for (int i = 0; i < 10; i++)
             //{
             //    testEnv.GenerateOne("d:\\results\\cont_EKF\\", i);
             //}
+            //testEnv.GenerateOne("d:\\results\\cont_EKF\\");
             //testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "estimate_sample.py"), folder);
             //testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "trajectory.py"), folder);
 
 
-            testEnv.GenerateBundles(1, 1000, "d:\\results\\cont_EKF\\", false, 4);
+            testEnv.GenerateBundles(4, 10000, "d:\\results\\cont_EKF\\", true, 4);
             testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "estimate_statistics.py"), folder);
 
             //ContinuousVectorModel model = new ContinuousVectorModel(h_state, h_obs, Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
