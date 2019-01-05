@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace MathNetExtensions
 {
-    public static class Exts
+    public static partial class Exts
     {
         public static T[] GetRow<T>(this T[,] x, int row)
         {
