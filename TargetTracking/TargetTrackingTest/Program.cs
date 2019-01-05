@@ -115,7 +115,7 @@ namespace TargetTrackingTest
             Vector<double> mW = Exts.Vector(0, 0, 0, 0, 0);
             Matrix<double> dW = Exts.Diag(0, 0, 0, 0, Math.Pow(Beta_n, 2));
 
-            Vector<double> X_R1 = Exts.Vector(20000, 0);
+            Vector<double> X_R1 = Exts.Vector(-10000, 10000);
 
 
             Func<Vector<double>, Vector<double>> Phi1 = (x) => Exts.Vector(x[2] * Math.Cos(x[3]), x[2] * Math.Sin(x[3]), 0, x[4] / x[2], -Alpha_n * x[4] + Gamma_n);
@@ -139,14 +139,15 @@ namespace TargetTrackingTest
             Func<Vector<double>> X0;
             W = () => Exts.Vector(0, 0, 0, 0, NormalW.Sample());
             Nu = () => NormalNu.Sample();
+            //W = () => Exts.Vector(0, 0, 0, 0, 0);
+            //Nu = () => Exts.Vector(0, 0, 0, 0);
             X0 = () =>
             {
                 var x = NormalEta.Sample();
                 x[2] = UniformEtaV.Sample();
                 return x;
             };
-
-
+            //X0 = () => mEta;
 
             //discretize
 
@@ -266,7 +267,7 @@ namespace TargetTrackingTest
 
             int N = (int)(T / h_obs);
 
-            string folder = "d:\\results\\cont_EKF\\";
+            string folder = "d:\\results\\cont\\";
 
             string CMNFFileName = Path.Combine(folder, "cmnf.params");
             string UKFFileName = Path.Combine(folder, "ukf.params");
@@ -274,7 +275,7 @@ namespace TargetTrackingTest
             filters.Add((FilterType.CMNF, CMNFFileName));
             //filters.Add((FilterType.MCMNF, string.Empty));
             filters.Add((FilterType.UKFNoOptimization, UKFFileName));
-            //filters.Add((FilterType.EKF, string.Empty));
+            filters.Add((FilterType.EKF, string.Empty));
 
             TestEnvironmentVector testEnv = new TestEnvironmentVector()
             {
@@ -284,11 +285,11 @@ namespace TargetTrackingTest
                 Phi2 = Phi2_discr,
                 Psi1 = Psi1_discr,
                 Psi2 = Psi2_discr,
-                dPhi = (i, x) => dPhi(x) * h_obs,
-                dPsi = (i, x) => dPsi(x) * h_obs,
+                dPhi = (i, x) => dPhi(x),
+                dPsi = (i, x) => dPsi(x),
                 Xi = (i, x) => Phi1_discr(i, x) + Phi2_discr(i, x) * mW,
-                //Zeta = (i, x, y, k) => (y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu).Stack(Utils.pol2cart(Exts.Vector(y[0], y[1]))).Stack(Utils.pol2cart(Exts.Vector(y[2], y[3]))),
-                Zeta = (i, x, y, k) => (y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu),
+                Zeta = (i, x, y, k) => (y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu).Stack(Utils.pol2cart(Exts.Vector(y[0], y[1]))).Stack(Utils.pol2cart(Exts.Vector(y[2], y[3]))),
+                //Zeta = (i, x, y, k) => (y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu),
                 W = (i) => W(),
                 Nu = (i) => Nu(),
                 DW = dW,
@@ -313,50 +314,60 @@ namespace TargetTrackingTest
 
                     modelOK = true;
                     model = new DiscreteVectorModel(Phi1_discr, Phi2_discr, Psi1_discr, Psi2_discr, (i) => W(), (i) => Nu(), X0(), true);
-                    for (double s = h_state; s < T; s += h_state)
+                    for (double s = 0; s < T; s += h_obs)
                     {
-                        if (s > 0)
-                        {
-                            State = State + h_state * Phi1(State) + Math.Sqrt(h_state) * Phi2() * W();
-                            //if (State[1] < 0) // 
-                            //{
-                            //    modelOK = false;
-                            //}
-                        }
-                        if (Math.Abs(s - t_nextobservation) < h_tolerance)
-                        {
-                            Obs = Psi1(State) + Psi2() * Nu();
-                            t_nextobservation += h_obs;
-
-                            n++;
-                            model.Trajectory.Add(n, new Vector<double>[] { State, Obs });
-
-                            //if (Obs[0] < 0 || Obs[2] < 0 || Obs[1] < 20000 || Obs[3] < 20000)
-                            //{
-                            //    modelOK = false;
-                            //}
-
-                        }
+                        model.Step();
                     }
+                    //for (double s = h_state; s < T; s += h_state)
+                    //{
+                    //    if (s > 0)
+                    //    {
+                    //        State = State + h_state * Phi1(State) + Math.Sqrt(h_state) * Phi2() * W();
+                    //        //if (State[1] < 0) // 
+                    //        //{
+                    //        //    modelOK = false;
+                    //        //}
+                    //    }
+                    //    if (Math.Abs(s - t_nextobservation) < h_tolerance)
+                    //    {
+                    //        Obs = Psi1(State) + Psi2() * Nu();
+                    //        t_nextobservation += h_obs;
+
+                    //        n++;
+                    //        model.Trajectory.Add(n, new Vector<double>[] { State, Obs });
+
+                    //        //if (Obs[0] < 0 || Obs[2] < 0 || Obs[1] < 20000 || Obs[3] < 20000)
+                    //        //{
+                    //        //    modelOK = false;
+                    //        //}
+
+                    //    }
+                    //}
                 }
                 return model;
             };
 
+            //double[] rand = new double[16];
+            //(new Normal(0, 1)).Samples(rand);
+            //Matrix<double> test = Matrix<double>.Build.DenseIdentity(4) + Matrix<double>.Build.Dense(4,4, rand);
+            //Console.WriteLine(test.ToLatex());
+            //Console.WriteLine((test * test.Inverse()).ToLatex());
+            //Console.WriteLine((test.Inverse() * test).ToLatex());
 
-            bool doCalculateFilter = false;
-            testEnv.Initialize(N, 10000, 100, "d:\\results\\cont_EKF\\", filters, doCalculateFilter, !doCalculateFilter, ModelGenerator);
+            bool doCalculateFilter = true;
+            testEnv.Initialize(N, 1000, 100, "d:\\results\\cont\\", filters, doCalculateFilter, !doCalculateFilter, ModelGenerator);
             testEnv.Sifter = (x) => Math.Sqrt(x[0] * x[0] + x[1] * x[1]) > 1000.0;
-            //testEnv.GenerateBundleSamples(50, 1000, "d:\\results\\cont_EKF\\");
+            //testEnv.GenerateBundleSamples(50, 1000, "d:\\results\\cont\\");
             //for (int i = 0; i < 10; i++)
             //{
-            //    testEnv.GenerateOne("d:\\results\\cont_EKF\\", i);
+            //    testEnv.GenerateOne("d:\\results\\cont\\", i);
             //}
-            //testEnv.GenerateOne("d:\\results\\cont_EKF\\");
-            //testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "estimate_sample.py"), folder);
-            //testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "trajectory.py"), folder);
+            testEnv.GenerateOne("d:\\results\\cont\\");
+            testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "estimate_sample.py"), folder);
+            testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "trajectory.py"), folder);
 
 
-            testEnv.GenerateBundles(4, 10000, "d:\\results\\cont_EKF\\", true, 4);
+            testEnv.GenerateBundles(1, 1000, "d:\\results\\cont\\", false, 1);
             testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "estimate_statistics.py"), folder);
 
             //ContinuousVectorModel model = new ContinuousVectorModel(h_state, h_obs, Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);

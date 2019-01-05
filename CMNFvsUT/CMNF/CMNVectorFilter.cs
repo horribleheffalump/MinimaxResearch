@@ -38,25 +38,31 @@ namespace CMNF
 
         public void EstimateParameters(DiscreteVectorModel[] models, Vector<double> xhat0, int T)
         {
-            int n = models.Count();
+            Func<Vector<double>, bool> Sifter = (x) => Math.Sqrt(x[0] * x[0] + x[1] * x[1]) > 1000.0;
 
-            Vector<double>[] xHat = Enumerable.Repeat(xhat0, n).ToArray();
+            int n_total = models.Count();
+
+            Vector<double>[] xHat = Enumerable.Repeat(xhat0, n_total).ToArray();
+            //bool[] inUse = Enumerable.Repeat(true, n_total).ToArray();
             Console.WriteLine($"CMNF estimate parameters start");
             DateTime start = DateTime.Now;
             for (int t = 1; t < T; t++) // start from 1 because for 0 we do not have observations
             {
+                //int n = inUse.Where(e => e).Count();
                 DateTime startiteration = DateTime.Now;
-                Vector<double>[] x = new Vector<double>[n];
-                Vector<double>[] y = new Vector<double>[n];
-                Vector<double>[] xiHat = new Vector<double>[n];
-                for (int i = 0; i < n; i++) 
+                Vector<double>[] x = new Vector<double>[n_total];
+                Vector<double>[] y = new Vector<double>[n_total];
+                Vector<double>[] xiHat = new Vector<double>[n_total];
+                //int k = 0;
+                for (int i = 0; i < n_total; i++)
                 {
-                    //models[i].Step();
-                    //x[i] = models[i].State;
-                    //y[i] = models[i].Obs;
-                    x[i] = models[i].Trajectory[t][0];
-                    y[i] = models[i].Trajectory[t][1];
-                    xiHat[i] = Xi(t, xHat[i]);
+                    //if (inUse[i])
+                    //{
+                        x[i] = models[i].Trajectory[t][0];
+                        y[i] = models[i].Trajectory[t][1];
+                        xiHat[i] = Xi(t, xHat[i]);
+                       // k++;
+                    //}
                 }
 
                 Matrix<double> CovXiHat = Exts.Cov(xiHat, xiHat);
@@ -64,7 +70,8 @@ namespace CMNF
                 if (CovXiHat.FrobeniusNorm() > 0)
                     try
                     {
-                        InvCovXiHat = CovXiHat.PseudoInverse();
+                        //InvCovXiHat = CovXiHat.PseudoInverse();
+                        InvCovXiHat = CovXiHat.Inverse(1e-32, 1e-32);
                     }
                     catch (Exception e)
                     {
@@ -76,9 +83,9 @@ namespace CMNF
                 Vector<double> f = x.Average() - F * xiHat.Average();
                 Matrix<double> kTilde = Exts.Cov(x, x) - Exts.Cov(x, xiHat) * F.Transpose();
 
-                Vector<double>[] xTilde = new Vector<double>[n];
-                Vector<double>[] zetaTilde = new Vector<double>[n];
-                for (int i = 0; i < n; i++)
+                Vector<double>[] xTilde = new Vector<double>[n_total];
+                Vector<double>[] zetaTilde = new Vector<double>[n_total];
+                for (int i = 0; i < n_total; i++)
                 {
                     xTilde[i] = F * xiHat[i] + f;
                     zetaTilde[i] = Zeta(t, xTilde[i], y[i], kTilde);
@@ -89,7 +96,8 @@ namespace CMNF
                 Matrix<double> InvCovZetaTilde = Matrix<double>.Build.Dense(CovZetaTilde.RowCount, CovZetaTilde.ColumnCount, 0.0);
                 try
                 {
-                    InvCovZetaTilde = CovZetaTilde.PseudoInverse();
+                    //InvCovZetaTilde = CovZetaTilde.PseudoInverse();
+                    InvCovZetaTilde = CovZetaTilde.Inverse(1e-32, 1e-32);
                 }
                 catch (Exception e)
                 {
@@ -101,10 +109,17 @@ namespace CMNF
                 Vector<double> h = -H * zetaTilde.Average();
 
                 Matrix<double> kHat = kTilde - Exts.Cov(x.Subtract(xTilde), zetaTilde) * H.Transpose();
-                for (int i = 0; i < n; i++)
+
+                //k = 0;
+                for (int i = 0; i < n_total; i++)
                 {
-                    //xHat[i] = F* xiHat[i] +f + H * zetaTilde[i] + h;
-                    xHat[i] = xTilde[i] + H * zetaTilde[i] + h;
+
+                    //if (inUse[i])
+                    //{
+                        xHat[i] = xTilde[i] + H * zetaTilde[i] + h;
+                    //    inUse[i] = !Sifter(x[k] - xHat[k]);
+                    //    k++;
+                    //}
                 }
                 FHat.Add(t, F);
                 fHat.Add(t, f);

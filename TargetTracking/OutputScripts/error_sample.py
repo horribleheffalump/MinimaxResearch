@@ -7,11 +7,14 @@ import sys
 import os
 #from multiplypoints import *
 
-#folder = "D:/results/cont_EKF/"
+#folder = "D:/results/cont/"
 folder = sys.argv[1]
 
 colormap = {'CMNF': 'red', 'UKF': 'blue', 'MCMNF': 'green', 'RCMNF': 'orange', 'EKF': 'yellow'}
-folder = "D:/results/cont_EKF/"
+if (len(sys.argv)) > 1:
+    folder = sys.argv[1]
+else:
+    folder = "D:/results/cont/"
 for i in range (0,5):
     inputfilename = folder + "TargetTracking_sample_"+str(i)+".txt"
     outputfilename = folder + "TargetTracking_errorsample_" + str(i) + ".png"

@@ -9,7 +9,7 @@ import os
 if (len(sys.argv)) > 1:
     folder = sys.argv[1]
 else:
-    folder = "D:/results/cont_EKF/"
+    folder = "D:/results/cont/"
 
 #from multiplypoints import *
 colormap = {'CMNF': 'red', 'UKF': 'blue', 'MCMNF': 'green', 'RCMNF': 'orange', 'EKF': 'yellow'}

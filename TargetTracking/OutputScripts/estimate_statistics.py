@@ -10,7 +10,7 @@ import os
 if (len(sys.argv)) > 1:
     folder = sys.argv[1]
 else:
-    folder = "D:/results/cont_EKF/"
+    folder = "D:/results/cont/"
 
 #inputfilename = sys.argv[1] 
 #outputfilename = sys.argv[2]

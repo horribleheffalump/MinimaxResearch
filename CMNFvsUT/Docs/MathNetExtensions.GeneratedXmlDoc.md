@@ -1,5 +1,19 @@
 # MathNetExtensions #
 
+#### Method Exts.Inverse(MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double,System.Double,System.Int32)
+
+ Inverts a matrix using Jacobi method 
+
+|Name | Description |
+|-----|------|
+|x: |Square matrix to invert|
+|tol1: |upper bound of off - diagonal elements (default 1e-32)|
+|tol2: |lower bound of diagonal non-zero elements (default 1e-32)|
+**Returns**: 
+
+
+
+---
 ## Type RandomOptimizer
 
  Random shoot optimizer: inputs of the objective function are randomly sampled and the best sample is chosen as optimal 

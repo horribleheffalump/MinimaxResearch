@@ -32,12 +32,12 @@ namespace TestEnvironments
 
         public override void Initialize()
         {
+            FilterName = "EKF";
             EKF = new ExtendedKalmanFilter(Phi1, Phi2, Psi1, Psi2, dPhi, dPsi, MW, DW, MNu, DNu, Predict);
         }
 
         public override void InitializeAndTrain()
         {
-            FilterName = "EKF";
             Initialize();
         }
 

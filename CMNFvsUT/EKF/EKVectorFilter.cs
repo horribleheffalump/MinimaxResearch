@@ -106,7 +106,7 @@ namespace EKF
             Matrix<double> H = dPsi(t, xTilde);
             Matrix<double> R = Psi2(t, xTilde) * DNu * Psi2(t, xTilde).Transpose();
             Matrix<double> I = Matrix<double>.Build.DenseIdentity(xTilde.Count);
-            Matrix<double> K = kTilde * H.Transpose() * (H * kTilde * H.Transpose() + R).PseudoInverse();
+            Matrix<double> K = kTilde * H.Transpose() * (H * kTilde * H.Transpose() + R).Inverse(1e-10, 1e-10);
             Vector<double> xHat__ = xTilde + K * (y - Psi1(t, xTilde) - Psi2(t, xTilde) * MNu);
             Matrix<double> kHat = (I - K * H) * kTilde;
             return (xHat__, kHat);
