@@ -5,13 +5,12 @@ import pandas as pd
 import sys
 import os
 import glob
+from colormap import *
 
 if (len(sys.argv)) > 1:
     folder = sys.argv[1]
 else:
     folder = "D:/results/cont/"
-
-colormap = {'CMNF': 'red', 'UKF': 'blue', 'MCMNF': 'green', 'RCMNF': 'orange', 'EKF': 'yellow'}
 
 for file in glob.glob(folder + "TargetTracking_sample*_0.txt"):
     if file.find('_obs') < 0 :

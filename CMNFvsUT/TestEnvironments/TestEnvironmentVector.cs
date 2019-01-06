@@ -63,6 +63,8 @@ namespace TestEnvironments
 
         public Func<int, Vector<double>, Matrix<double>, (Vector<double>, Matrix<double>)> Predict;
 
+        public Func<int, Vector<double>, Vector<double>, Matrix<double>, (Vector<double>, Matrix<double>)> DummyEstimate;
+
         public Func<DiscreteVectorModel> ModelGenerator;
         //private NumberFormatInfo provider;
 
@@ -130,6 +132,15 @@ namespace TestEnvironments
             Filters = new BasicFilter[filters.Count()];
             for (int j = 0; j < filters.Count(); j++)
             {
+                if (filters[j].type == FilterType.Dummy)
+                {
+                    DummyFilter dummy = new DummyFilter
+                    {
+                        FileName = filters[j].fileName,
+                        StepFunction = DummyEstimate
+                    };
+                    Filters[j] = dummy;
+                }
                 if (filters[j].type == FilterType.CMNF)
                 {
                     CMNFWrapper CMNF = new CMNFWrapper

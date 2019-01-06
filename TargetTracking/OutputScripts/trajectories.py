@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 import sys
 import os
+from colormap import *
 
 if (len(sys.argv)) > 1:
     folder = sys.argv[1]
@@ -11,7 +12,6 @@ else:
     folder = "D:/results/cont/"
 #folder = sys.argv[1]
 
-colormap = {'CMNF': 'red', 'UKF': 'blue', 'MCMNF': 'green', 'RCMNF': 'orange', 'EKF': 'yellow'}
 for i in range(0, 1000):
 
     outputfilename = folder + "Trajectory" + str(i) + ".png"

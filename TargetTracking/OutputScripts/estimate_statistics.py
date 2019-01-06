@@ -5,7 +5,7 @@ import pandas as pd
 import pylab
 import sys
 import os
-
+from colormap import *
 
 if (len(sys.argv)) > 1:
     folder = sys.argv[1]
@@ -14,7 +14,7 @@ else:
 
 #inputfilename = sys.argv[1] 
 #outputfilename = sys.argv[2]
-colormap = {'CMNF': 'red', 'UKF': 'blue', 'MCMNF': 'green', 'RCMNF': 'orange', 'EKF': 'yellow'}
+
 l = ['x', 'y', 'V', 'angle', 'a']
 for i in range (0,5):
     inputfilename = folder + "TargetTracking_average_" + str(i) + ".txt"

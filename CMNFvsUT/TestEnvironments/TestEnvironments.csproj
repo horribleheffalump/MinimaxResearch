@@ -99,6 +99,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Filters\DummyFilter.cs" />
     <Compile Include="SingleFilterInfo.cs" />
     <Compile Include="SingleTrajectoryInfo.cs" />
     <Compile Include="FilterQualityInfo.cs" />

@@ -5,6 +5,7 @@ import pandas as pd
 import pylab
 import sys
 import os
+from colormap import *
 
 if (len(sys.argv)) > 1:
     folder = sys.argv[1]
@@ -12,7 +13,7 @@ else:
     folder = "D:/results/cont/"
 
 #from multiplypoints import *
-colormap = {'CMNF': 'red', 'UKF': 'blue', 'MCMNF': 'green', 'RCMNF': 'orange', 'EKF': 'yellow'}
+
 
 
 for i in range(0,5):

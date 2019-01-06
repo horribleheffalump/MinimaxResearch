@@ -21,6 +21,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="colormap.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="error_sample.py" />
     <Compile Include="estimate_sample.py">
       <SubType>Code</SubType>

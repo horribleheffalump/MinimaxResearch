@@ -197,6 +197,13 @@ namespace TargetTrackingTest
                 }
                 return (xx, PP);
             };
+
+            Func<int, Vector<double>, Vector<double>, Matrix<double>, (Vector<double>, Matrix<double>)> DummyEstimate = (i, y, x, P) =>
+            {
+                
+                return ((0.5 * (Utils.pol2cart(Exts.Vector(y[0], y[1])) + X_R1 + Utils.pol2cart(Exts.Vector(y[2], y[3])) + X_R2)).Stack(Exts.Vector(0,0,0)), P);
+            };
+
             #endregion
 
             #region test model for EKF
@@ -276,6 +283,7 @@ namespace TargetTrackingTest
             //filters.Add((FilterType.MCMNF, string.Empty));
             filters.Add((FilterType.UKFNoOptimization, UKFFileName));
             filters.Add((FilterType.EKF, string.Empty));
+            filters.Add((FilterType.Dummy, string.Empty));
 
             TestEnvironmentVector testEnv = new TestEnvironmentVector()
             {
@@ -288,7 +296,7 @@ namespace TargetTrackingTest
                 dPhi = (i, x) => dPhi(x),
                 dPsi = (i, x) => dPsi(x),
                 Xi = (i, x) => Phi1_discr(i, x) + Phi2_discr(i, x) * mW,
-                Zeta = (i, x, y, k) => (y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu).Stack(Utils.pol2cart(Exts.Vector(y[0], y[1]))).Stack(Utils.pol2cart(Exts.Vector(y[2], y[3]))),
+                Zeta = (i, x, y, k) => (y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu).Stack(Utils.pol2cart(Exts.Vector(y[0], y[1]))+X_R1).Stack(Utils.pol2cart(Exts.Vector(y[2], y[3]))+X_R2),
                 //Zeta = (i, x, y, k) => (y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu),
                 W = (i) => W(),
                 Nu = (i) => Nu(),
@@ -297,7 +305,8 @@ namespace TargetTrackingTest
                 X0 = () => X0(),
                 X0Hat = mEta,
                 DX0Hat = dEta,
-                Predict = Ricatti
+                Predict = Ricatti,
+                DummyEstimate = DummyEstimate
             };
 
             Func<DiscreteVectorModel> ModelGenerator = () =>
@@ -314,35 +323,35 @@ namespace TargetTrackingTest
 
                     modelOK = true;
                     model = new DiscreteVectorModel(Phi1_discr, Phi2_discr, Psi1_discr, Psi2_discr, (i) => W(), (i) => Nu(), X0(), true);
-                    for (double s = 0; s < T; s += h_obs)
-                    {
-                        model.Step();
-                    }
-                    //for (double s = h_state; s < T; s += h_state)
+                    //for (double s = 0; s < T; s += h_obs)
                     //{
-                    //    if (s > 0)
-                    //    {
-                    //        State = State + h_state * Phi1(State) + Math.Sqrt(h_state) * Phi2() * W();
-                    //        //if (State[1] < 0) // 
-                    //        //{
-                    //        //    modelOK = false;
-                    //        //}
-                    //    }
-                    //    if (Math.Abs(s - t_nextobservation) < h_tolerance)
-                    //    {
-                    //        Obs = Psi1(State) + Psi2() * Nu();
-                    //        t_nextobservation += h_obs;
-
-                    //        n++;
-                    //        model.Trajectory.Add(n, new Vector<double>[] { State, Obs });
-
-                    //        //if (Obs[0] < 0 || Obs[2] < 0 || Obs[1] < 20000 || Obs[3] < 20000)
-                    //        //{
-                    //        //    modelOK = false;
-                    //        //}
-
-                    //    }
+                    //    model.Step();
                     //}
+                    for (double s = h_state; s < T; s += h_state)
+                    {
+                        if (s > 0)
+                        {
+                            State = State + h_state * Phi1(State) + Math.Sqrt(h_state) * Phi2() * W();
+                            //if (State[1] < 0) // 
+                            //{
+                            //    modelOK = false;
+                            //}
+                        }
+                        if (Math.Abs(s - t_nextobservation) < h_tolerance)
+                        {
+                            Obs = Psi1(State) + Psi2() * Nu();
+                            t_nextobservation += h_obs;
+
+                            n++;
+                            model.Trajectory.Add(n, new Vector<double>[] { State, Obs });
+
+                            //if (Obs[0] < 0 || Obs[2] < 0 || Obs[1] < 20000 || Obs[3] < 20000)
+                            //{
+                            //    modelOK = false;
+                            //}
+
+                        }
+                    }
                 }
                 return model;
             };
