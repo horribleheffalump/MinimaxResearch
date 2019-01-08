@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TestEnvironments
 {
-    public enum FilterType {Dummy, CMNF, MCMNF, RCMNF, UKFNoOptimization, UKFIntegral, UKFIntegralRandomShoot, UKFStepwise, UKFStepwiseRandomShoot, EKF };
+    public enum FilterType {Dummy, CMNF, BCMNF, MCMNF, RCMNF, UKFNoOptimization, UKFIntegral, UKFIntegralRandomShoot, UKFStepwise, UKFStepwiseRandomShoot, EKF };
 
     [Serializable]
     public class FilterQualityInfo

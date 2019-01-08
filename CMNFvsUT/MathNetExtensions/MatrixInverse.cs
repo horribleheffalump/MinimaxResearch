@@ -16,7 +16,7 @@ namespace MathNetExtensions
         /// <param name="tol1">upper bound of off - diagonal elements (default 1e-32)</param>
         /// <param name="tol2">lower bound of diagonal non-zero elements (default 1e-32)</param>
         /// <returns></returns>
-        public static Matrix<double> Inverse(this Matrix<double> x, double tol1 = 1e-32, double tol2 = 1e-32, int maxiter = 1000)
+        public static Matrix<double> Inverse(this Matrix<double> x, double tol1 = 1e-32, double tol2 = 1e-32, int maxiter = 10000)
         {
             int iter = 0;
             int N = x.RowCount;

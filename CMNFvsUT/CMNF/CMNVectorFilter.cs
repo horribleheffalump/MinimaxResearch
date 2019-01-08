@@ -15,7 +15,7 @@ namespace CMNF
     {
         Func<int, Vector<double>, Vector<double>> Xi;
         Func<int, Vector<double>, Vector<double>, Matrix<double>, Vector<double>> Zeta;
- 
+
         public Dictionary<int, Matrix<double>> FHat;
         public Dictionary<int, Vector<double>> fHat;
         public Dictionary<int, Matrix<double>> HHat;
@@ -38,7 +38,7 @@ namespace CMNF
 
         public void EstimateParameters(DiscreteVectorModel[] models, Vector<double> xhat0, int T)
         {
-            Func<Vector<double>, bool> Sifter = (x) => Math.Sqrt(x[0] * x[0] + x[1] * x[1]) > 1000.0;
+            //Func<Vector<double>, bool> Sifter = (x) => Math.Sqrt(x[0] * x[0] + x[1] * x[1]) > 1000.0;
 
             int n_total = models.Count();
 
@@ -58,10 +58,10 @@ namespace CMNF
                 {
                     //if (inUse[i])
                     //{
-                        x[i] = models[i].Trajectory[t][0];
-                        y[i] = models[i].Trajectory[t][1];
-                        xiHat[i] = Xi(t, xHat[i]);
-                       // k++;
+                    x[i] = models[i].Trajectory[t][0];
+                    y[i] = models[i].Trajectory[t][1];
+                    xiHat[i] = Xi(t, xHat[i]);
+                    // k++;
                     //}
                 }
 
@@ -70,8 +70,8 @@ namespace CMNF
                 if (CovXiHat.FrobeniusNorm() > 0)
                     try
                     {
-                        //InvCovXiHat = CovXiHat.PseudoInverse();
-                        InvCovXiHat = CovXiHat.Inverse(1e-32, 1e-32);
+                        InvCovXiHat = CovXiHat.PseudoInverse();
+                        //InvCovXiHat = CovXiHat.Inverse(1e-32, 1e-32);
                     }
                     catch (Exception e)
                     {
@@ -81,14 +81,18 @@ namespace CMNF
                     }
                 Matrix<double> F = Exts.Cov(x, xiHat) * InvCovXiHat;
                 Vector<double> f = x.Average() - F * xiHat.Average();
-                Matrix<double> kTilde = Exts.Cov(x, x) - Exts.Cov(x, xiHat) * F.Transpose();
+                Matrix<double> kTilde = Exts.Cov(x, x) - F * Exts.Cov(x, xiHat).Transpose();
 
                 Vector<double>[] xTilde = new Vector<double>[n_total];
                 Vector<double>[] zetaTilde = new Vector<double>[n_total];
+                Vector<double>[] delta_x_xTilde = new Vector<double>[n_total];
+                Matrix<double>[] delta_by_zetaTilde = new Matrix<double>[n_total];
                 for (int i = 0; i < n_total; i++)
                 {
                     xTilde[i] = F * xiHat[i] + f;
                     zetaTilde[i] = Zeta(t, xTilde[i], y[i], kTilde);
+                    delta_x_xTilde[i] = x[i] - xTilde[i];
+                    delta_by_zetaTilde[i] = delta_x_xTilde[i].ToColumnMatrix() * zetaTilde[i].ToRowMatrix();
                 }
 
 
@@ -96,8 +100,8 @@ namespace CMNF
                 Matrix<double> InvCovZetaTilde = Matrix<double>.Build.Dense(CovZetaTilde.RowCount, CovZetaTilde.ColumnCount, 0.0);
                 try
                 {
-                    //InvCovZetaTilde = CovZetaTilde.PseudoInverse();
-                    InvCovZetaTilde = CovZetaTilde.Inverse(1e-32, 1e-32);
+                    InvCovZetaTilde = CovZetaTilde.PseudoInverse();
+                    //InvCovZetaTilde = CovZetaTilde.Inverse(1e-32, 1e-32);
                 }
                 catch (Exception e)
                 {
@@ -105,10 +109,11 @@ namespace CMNF
                     Console.WriteLine(CovZetaTilde.ToString());
                     Console.WriteLine(e.Message);
                 }
-                Matrix<double> H = Exts.Cov(x.Subtract(xTilde), zetaTilde) * InvCovZetaTilde;
-                Vector<double> h = -H * zetaTilde.Average();
+                var delta_x = x.Subtract(xTilde);
+                Matrix<double> H = delta_by_zetaTilde.Average() * InvCovZetaTilde;
+                Vector<double> h = - H * zetaTilde.Average();
 
-                Matrix<double> kHat = kTilde - Exts.Cov(x.Subtract(xTilde), zetaTilde) * H.Transpose();
+                Matrix<double> kHat = kTilde - Exts.Cov(delta_x, zetaTilde) * H.Transpose();
 
                 //k = 0;
                 for (int i = 0; i < n_total; i++)
@@ -116,7 +121,7 @@ namespace CMNF
 
                     //if (inUse[i])
                     //{
-                        xHat[i] = xTilde[i] + H * zetaTilde[i] + h;
+                    xHat[i] = xTilde[i] + H * zetaTilde[i] + h;
                     //    inUse[i] = !Sifter(x[k] - xHat[k]);
                     //    k++;
                     //}

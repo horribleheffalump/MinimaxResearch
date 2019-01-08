@@ -126,6 +126,7 @@ namespace TargetTrackingTest
             Vector<double> X_R2 = Exts.Vector(0, 0);
             Vector<double> mNu = Exts.Vector(0, 0, 0, 0);
             Matrix<double> dNu = Exts.Diag(Math.Pow(0.1 * Math.PI / 180, 2), Math.Pow(50, 2), Math.Pow(0.1 * Math.PI / 180, 2), Math.Pow(50, 2));
+            //Matrix<double> dNu = Exts.Diag(Math.Pow(0.01 * Math.PI / 180, 2), Math.Pow(0.01, 2), Math.Pow(0.01 * Math.PI / 180, 2), Math.Pow(0.01, 2));
             Func<Vector<double>, Vector<double>> Psi1 = (x) => Exts.Stack(Utils.cart2pol(Exts.Vector(x[0], x[1]) - X_R1), Utils.cart2pol(Exts.Vector(x[0], x[1]) - X_R2));
             Func<Matrix<double>> Psi2 = () => Exts.Diag(1.0, 1.0, 1.0, 1.0);
 
@@ -152,9 +153,9 @@ namespace TargetTrackingTest
             //discretize
 
 
-            double h_state = 0.01;
+            double h_state = 0.0001;
             double h_obs = 1.0;
-            double T = 300.0 + h_state / 2;
+            double T = 50.0 + h_state / 2;
 
 
             //Func<int, Vector<double>, Vector<double>> Phi1_discr = (i, x) => x + h_obs * Phi1(x);
@@ -200,8 +201,14 @@ namespace TargetTrackingTest
 
             Func<int, Vector<double>, Vector<double>, Matrix<double>, (Vector<double>, Matrix<double>)> DummyEstimate = (i, y, x, P) =>
             {
-                
-                return ((0.5 * (Utils.pol2cart(Exts.Vector(y[0], y[1])) + X_R1 + Utils.pol2cart(Exts.Vector(y[2], y[3])) + X_R2)).Stack(Exts.Vector(0,0,0)), P);
+                Vector<double> xx = x;
+                Matrix<double> PP = P;
+                for (double s = h_state; s < h_obs + h_state / 2; s += h_state)
+                {
+                    PP += h_state * (dPhi(xx) * PP + PP * dPhi(xx).Transpose() + Phi2() * dW * Phi2().Transpose());
+                    xx += h_state * (Phi1(xx) + Phi2() * mW);
+                }
+                return ((0.5 * (Utils.pol2cart(Exts.Vector(y[0], y[1])) + X_R1 + Utils.pol2cart(Exts.Vector(y[2], y[3])) + X_R2)).Stack(Exts.Vector(xx[2], xx[3], xx[4])), PP);
             };
 
             #endregion
@@ -277,12 +284,14 @@ namespace TargetTrackingTest
             string folder = "d:\\results\\cont\\";
 
             string CMNFFileName = Path.Combine(folder, "cmnf.params");
+            string BCMNFFileName = Path.Combine(folder, "bcmnf.params");
             string UKFFileName = Path.Combine(folder, "ukf.params");
             List<(FilterType, string)> filters = new List<(FilterType, string)>();
+            filters.Add((FilterType.BCMNF, BCMNFFileName));
             filters.Add((FilterType.CMNF, CMNFFileName));
             //filters.Add((FilterType.MCMNF, string.Empty));
-            filters.Add((FilterType.UKFNoOptimization, UKFFileName));
-            filters.Add((FilterType.EKF, string.Empty));
+            //filters.Add((FilterType.UKFNoOptimization, UKFFileName));
+            //filters.Add((FilterType.EKF, string.Empty));
             filters.Add((FilterType.Dummy, string.Empty));
 
             TestEnvironmentVector testEnv = new TestEnvironmentVector()
@@ -296,8 +305,10 @@ namespace TargetTrackingTest
                 dPhi = (i, x) => dPhi(x),
                 dPsi = (i, x) => dPsi(x),
                 Xi = (i, x) => Phi1_discr(i, x) + Phi2_discr(i, x) * mW,
-                Zeta = (i, x, y, k) => (y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu).Stack(Utils.pol2cart(Exts.Vector(y[0], y[1]))+X_R1).Stack(Utils.pol2cart(Exts.Vector(y[2], y[3]))+X_R2),
-                //Zeta = (i, x, y, k) => (y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu),
+                //Zeta = (i, x, y, k) => (y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu).Stack(Utils.pol2cart(Exts.Vector(y[0], y[1]))+X_R1).Stack(Utils.pol2cart(Exts.Vector(y[2], y[3]))+X_R2),
+                Zeta = (i, x, y, k) => (y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu),
+                Alpha = (i, x) => Phi1_discr(i, x) + Phi2_discr(i, x) * mW,
+                Gamma = (i, x, y) => (y).Stack(Utils.pol2cart(Exts.Vector(y[0], y[1])) + X_R1).Stack(Utils.pol2cart(Exts.Vector(y[2], y[3])) + X_R2),
                 W = (i) => W(),
                 Nu = (i) => Nu(),
                 DW = dW,
@@ -364,7 +375,7 @@ namespace TargetTrackingTest
             //Console.WriteLine((test.Inverse() * test).ToLatex());
 
             bool doCalculateFilter = true;
-            testEnv.Initialize(N, 1000, 100, "d:\\results\\cont\\", filters, doCalculateFilter, !doCalculateFilter, ModelGenerator);
+            testEnv.Initialize(N, 10000, 100, "d:\\results\\cont\\", filters, doCalculateFilter, !doCalculateFilter, ModelGenerator);
             testEnv.Sifter = (x) => Math.Sqrt(x[0] * x[0] + x[1] * x[1]) > 1000.0;
             //testEnv.GenerateBundleSamples(50, 1000, "d:\\results\\cont\\");
             //for (int i = 0; i < 10; i++)
@@ -376,8 +387,8 @@ namespace TargetTrackingTest
             testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "trajectory.py"), folder);
 
 
-            testEnv.GenerateBundles(1, 1000, "d:\\results\\cont\\", false, 1);
-            testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "estimate_statistics.py"), folder);
+            //testEnv.GenerateBundles(1, 10000, "d:\\results\\cont\\", false, 1);
+            //testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "estimate_statistics.py"), folder);
 
             //ContinuousVectorModel model = new ContinuousVectorModel(h_state, h_obs, Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
             ////for (double s = 0; s < T; s += h_state)

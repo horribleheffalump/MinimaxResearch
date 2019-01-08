@@ -61,6 +61,9 @@ namespace TestEnvironments
         public Func<int, Vector<double>, Vector<double>> Xi;
         public Func<int, Vector<double>, Vector<double>, Matrix<double>, Vector<double>> Zeta;
 
+        public Func<int, Vector<double>, Vector<double>> Alpha;
+        public Func<int, Vector<double>, Vector<double>, Vector<double>> Gamma;
+
         public Func<int, Vector<double>, Matrix<double>, (Vector<double>, Matrix<double>)> Predict;
 
         public Func<int, Vector<double>, Vector<double>, Matrix<double>, (Vector<double>, Matrix<double>)> DummyEstimate;
@@ -153,6 +156,19 @@ namespace TestEnvironments
                         Zeta = Zeta
                     };
                     Filters[j] = CMNF;
+                }
+                if (filters[j].type == FilterType.BCMNF)
+                {
+                    BCMNFWrapper BCMNF = new BCMNFWrapper
+                    {
+                        FileName = filters[j].fileName,
+                        T = T,
+                        X0Hat = X0Hat,
+                        Models = models,
+                        Alpha = Alpha,
+                        Gamma = Gamma
+                    };
+                    Filters[j] = BCMNF;
                 }
                 if (filters[j].type == FilterType.MCMNF)
                 {
