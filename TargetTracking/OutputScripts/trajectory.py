@@ -30,7 +30,7 @@ for file in glob.glob(folder + "TargetTracking_sample*_0.txt"):
 
     
         protocols = [s.replace("_Error","") for s in data_stateX.columns if "_Error" in s]
-        #protocols=['UKF']
+        #protocols=['BCMNF', 'Dummy']
 
         for p in protocols:
             ax.plot(data_stateX['x'] - data_stateX[p + '_Error'], data_stateY['x'] - data_stateY[p + '_Error'], c=colormap[p],  linestyle='-', linewidth=1.5, label=p)

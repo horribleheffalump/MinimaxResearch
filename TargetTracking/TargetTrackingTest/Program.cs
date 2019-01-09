@@ -153,9 +153,9 @@ namespace TargetTrackingTest
             //discretize
 
 
-            double h_state = 0.0001;
+            double h_state = 0.1;
             double h_obs = 1.0;
-            double T = 50.0 + h_state / 2;
+            double T = 300.0 + h_state / 2;
 
 
             //Func<int, Vector<double>, Vector<double>> Phi1_discr = (i, x) => x + h_obs * Phi1(x);
@@ -290,9 +290,9 @@ namespace TargetTrackingTest
             filters.Add((FilterType.BCMNF, BCMNFFileName));
             filters.Add((FilterType.CMNF, CMNFFileName));
             //filters.Add((FilterType.MCMNF, string.Empty));
-            //filters.Add((FilterType.UKFNoOptimization, UKFFileName));
+            filters.Add((FilterType.UKFNoOptimization, UKFFileName));
             //filters.Add((FilterType.EKF, string.Empty));
-            filters.Add((FilterType.Dummy, string.Empty));
+           filters.Add((FilterType.Dummy, string.Empty));
 
             TestEnvironmentVector testEnv = new TestEnvironmentVector()
             {
@@ -309,6 +309,7 @@ namespace TargetTrackingTest
                 Zeta = (i, x, y, k) => (y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu),
                 Alpha = (i, x) => Phi1_discr(i, x) + Phi2_discr(i, x) * mW,
                 Gamma = (i, x, y) => (y).Stack(Utils.pol2cart(Exts.Vector(y[0], y[1])) + X_R1).Stack(Utils.pol2cart(Exts.Vector(y[2], y[3])) + X_R2),
+                //Gamma = (i, x, y) => y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu,
                 W = (i) => W(),
                 Nu = (i) => Nu(),
                 DW = dW,
@@ -387,8 +388,8 @@ namespace TargetTrackingTest
             testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "trajectory.py"), folder);
 
 
-            //testEnv.GenerateBundles(1, 10000, "d:\\results\\cont\\", false, 1);
-            //testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "estimate_statistics.py"), folder);
+            testEnv.GenerateBundles(1, 1000, "d:\\results\\cont\\", false, 1);
+            testEnv.RunScript(Path.Combine("..\\..\\..\\OutputScripts\\", "estimate_statistics.py"), folder);
 
             //ContinuousVectorModel model = new ContinuousVectorModel(h_state, h_obs, Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
             ////for (double s = 0; s < T; s += h_state)

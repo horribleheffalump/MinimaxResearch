@@ -73,8 +73,8 @@ namespace CMNF
                 Matrix<double> covXGamma = Exts.Cov(x, gamma);
                 Matrix<double> covGammaAlpha = Exts.Cov(gamma, alpha);
 
-                //Matrix<double> invCovAlphaAlpha = covAlphaAlpha.Inverse(1e-32, 1e-32);
-                Matrix<double> invCovAlphaAlpha = covAlphaAlpha.PseudoInverse();
+                Matrix<double> invCovAlphaAlpha = covAlphaAlpha.Inverse(1e-32, 1e-32);
+                //Matrix<double> invCovAlphaAlpha = covAlphaAlpha.PseudoInverse();
 
 
                 Matrix<double> F = covXAlpha * invCovAlphaAlpha;
@@ -87,8 +87,8 @@ namespace CMNF
                 Matrix<double> kTildeXGamma = covXGamma - F * covGammaAlpha.Transpose();
                 Matrix<double> kTildeGammaGamma = covGammaGamma - H * covGammaAlpha.Transpose();
 
-                //Matrix<double> invKTildeGammaGamma = kTildeGammaGamma.Inverse(1e-32, 1e-32);
-                Matrix<double> invKTildeGammaGamma = kTildeGammaGamma.PseudoInverse();
+                Matrix<double> invKTildeGammaGamma = kTildeGammaGamma.Inverse(1e-32, 1e-32);
+                //Matrix<double> invKTildeGammaGamma = kTildeGammaGamma.PseudoInverse();
 
                 Matrix<double> Gain = kTildeXGamma * invKTildeGammaGamma;
 
@@ -96,8 +96,7 @@ namespace CMNF
 
                 for (int i = 0; i < n_total; i++)
                 {
-                    var xTilde = F * alpha[i] + f;
-                    xHat[i] = xTilde + Gain * (gamma[i] - H * xTilde - h);
+                    xHat[i] = F * alpha[i] + f + Gain * (gamma[i] - H * alpha[i] - h);
                 }
                 FHat.Add(t, F);
                 fHat.Add(t, f);
@@ -122,8 +121,9 @@ namespace CMNF
 
         public (Vector<double>, Matrix<double>) Step(int t, Vector<double> y, Vector<double> xHat_)
         {
-            Vector<double> xTilde = FHat[t] * Alpha(t, xHat_) + fHat[t];
-            Vector<double> xHat = xTilde + GainHat[t] *(Gamma(t, xHat_, y) - HHat[t] * xTilde - hHat[t]);
+            Vector<double> alpha = Alpha(t, xHat_);
+            Vector<double> xTilde = FHat[t] * alpha + fHat[t];
+            Vector<double> xHat = xTilde + GainHat[t] *(Gamma(t, xHat_, y) - HHat[t] * alpha - hHat[t]);
             return (xHat, KHat[t]);
         }
     }

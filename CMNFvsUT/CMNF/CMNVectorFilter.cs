@@ -111,7 +111,7 @@ namespace CMNF
                 }
                 var delta_x = x.Subtract(xTilde);
                 Matrix<double> H = delta_by_zetaTilde.Average() * InvCovZetaTilde;
-                Vector<double> h = - H * zetaTilde.Average();
+                Vector<double> h = -H * zetaTilde.Average();
 
                 Matrix<double> kHat = kTilde - Exts.Cov(delta_x, zetaTilde) * H.Transpose();
 
