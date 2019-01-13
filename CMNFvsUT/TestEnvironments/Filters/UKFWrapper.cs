@@ -39,9 +39,17 @@ namespace TestEnvironments
             if (doOptimize)
             {
                 if (doOptimizeWithRandomShoot)
+                {
                     UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.RandomShoot);
+                    if (doCalculateUKFStepwise) FilterName = "UKFOptRandomStepwise";
+                    else FilterName = "UKFOptRandomIntegral";
+                }
                 else
+                {
                     UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.NelderMeed);
+                    if (doCalculateUKFStepwise) FilterName = "UKFOptNMStepwise";
+                    else FilterName = "UKFOptNMIntegral";
+                }
             }
             else
                 UKF = new UKFilter(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.NoOptimization);

@@ -10,7 +10,7 @@ from colormap import *
 if (len(sys.argv)) > 1:
     folder = sys.argv[1]
 else:
-    folder = "D:/results/cont/"
+    folder = "D:/results/test_0.1/"
 
 for file in glob.glob(folder + "TargetTracking_sample*_0.txt"):
     if file.find('_obs') < 0 :
@@ -30,7 +30,7 @@ for file in glob.glob(folder + "TargetTracking_sample*_0.txt"):
 
     
         protocols = [s.replace("_Error","") for s in data_stateX.columns if "_Error" in s]
-        #protocols=['BCMNF', 'Dummy']
+        protocols = ['BCMNF', 'UKF', 'Dummy']
 
         for p in protocols:
             ax.plot(data_stateX['x'] - data_stateX[p + '_Error'], data_stateY['x'] - data_stateY[p + '_Error'], c=colormap[p],  linestyle='-', linewidth=1.5, label=p)
@@ -50,7 +50,7 @@ for file in glob.glob(folder + "TargetTracking_sample*_0.txt"):
         #filenameRho = folder + 'TargetTracking_sample_obs_1.txt'
         #data_stateRho = pd.read_csv(filenameRho, delimiter = " ", dtype=float, engine='python')
 
-        #X_R1 = [20000, 0];
+        X_R1 = [-10000, 10000];
         #Xobs, Yobs = pol2cart(data_stateRho['y'], data_statePhi['y'])
         #plt.scatter(Xobs+X_R1[0],Yobs+X_R1[1], c='orange')
 
@@ -60,13 +60,13 @@ for file in glob.glob(folder + "TargetTracking_sample*_0.txt"):
         #filenameRho = folder + 'TargetTracking_sample_obs_3.txt'
         #data_stateRho = pd.read_csv(filenameRho, delimiter = " ", dtype=float, engine='python')
 
-        #X_R2 = [0, 0];
+        X_R2 = [0, 0];
         #Xobs, Yobs = pol2cart(data_stateRho['y'], data_statePhi['y'])
         #plt.scatter(Xobs+X_R2[0],Yobs+X_R2[1], c='cyan')
 
         #radars
-        #plt.scatter(X_R1[0], X_R1[1], c='red', s=10)
-        #plt.scatter(X_R2[0], X_R2[1], c='red', s=10)
+        plt.scatter(X_R1[0], X_R1[1], c='red', s=10)
+        plt.scatter(X_R2[0], X_R2[1], c='red', s=10)
 
         #plt.show()
 

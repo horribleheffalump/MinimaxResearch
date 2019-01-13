@@ -557,6 +557,7 @@ namespace TestEnvironments
             {
                 xHat[j] = Exts.ArrayOf(X0Hat, n);
                 KHat[j] = Exts.ArrayOf(DX0Hat, n);
+                processInfo.FilterQualityInfos[j].Count = n;
             }
             Console.WriteLine($"calculate estimates");
             for (int t = 1; t < T; t++)
@@ -588,6 +589,7 @@ namespace TestEnvironments
             processInfo.Count = n;
             return processInfo;
         }
+
         private ProcessInfo CalculateBundle(int n, ProcessInfo processInfo, Func<Vector<double>, bool> SiftCriterion, string FileNameStateTemplate, string FileNameObsTemplate)
         {
             DiscreteVectorModel[] modelsEst = new DiscreteVectorModel[n];

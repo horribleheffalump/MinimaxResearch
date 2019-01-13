@@ -190,10 +190,10 @@ namespace UKF
                     break;
                 case UTDefinitionType.ImplicitAlphaBetaKappa:
                     n = 3;
-                    lowerBound = Exts.Vector(0, 0, 0);
+                    lowerBound = Exts.Vector(0, 0, -5);
                     upperBound = Exts.Vector(5, 5, 5);
                     //initialGuess = Exts.Vector(1, 2, 1);
-                    initialGuess = Exts.Vector(3, 2, 1);
+                    initialGuess = Exts.Vector(0.5, 2, -2);
                     filename = filename.Replace("{type}", "ImplicitABK"); break;
                 case UTDefinitionType.Explicit:
                     n = 4;
@@ -262,7 +262,7 @@ namespace UKF
                     argmin = OptimumRandom.argmin;
                     break;
                 case OptimizationMethod.NelderMeed:
-                    NelderMeadSimplex optimizer = new NelderMeadSimplex(1e-3, 1000);
+                    NelderMeadSimplex optimizer = new NelderMeadSimplex(1e-4, 1000);
                     var objective = ObjectiveFunction.Value((x) => CalculateSampleCriterion(Phi, Psi, Rw, Rnu, Crit, x, T, models, xhat0, DX0Hat));
                     //try
                     //{
@@ -340,7 +340,7 @@ namespace UKF
                     argmin = OptimumRandom.argmin;
                     break;
                 case OptimizationMethod.NelderMeed:
-                    NelderMeadSimplex optimizer = new NelderMeadSimplex(1e-3, 1000);
+                    NelderMeadSimplex optimizer = new NelderMeadSimplex(1e-4, 1000);
                     var objective = ObjectiveFunction.Value((x) => CalculateSampleCriterion(Phi1, Phi2, Psi1, Psi2, Mw, Rw, Mnu, Rnu, Crit, x, T, models, xhat0, DX0Hat));
                     //try
                     //{
@@ -420,7 +420,7 @@ namespace UKF
             Console.WriteLine($"UKF estimate parameters start");
             DateTime start = DateTime.Now;
 
-            for (int t = 0; t < T; t++)
+            for (int t = 1; t < T; t++)
             //Parallel.For(0, T, new ParallelOptions() { MaxDegreeOfParallelism = System.Environment.ProcessorCount }, t =>
             {
                 DateTime startiteration = DateTime.Now;
@@ -435,7 +435,7 @@ namespace UKF
                         argmin = OptimumRandom.argmin;
                         break;
                     case OptimizationMethod.NelderMeed:
-                        NelderMeadSimplex optimizer = new NelderMeadSimplex(1e-3, 1000);
+                        NelderMeadSimplex optimizer = new NelderMeadSimplex(1e-6, 1000);
                         var objective = ObjectiveFunction.Value((x) => CalculateSampleStepwiseCriterion(Phi1, Phi2, Psi1, Psi2, Mw, Rw, Mnu, Rnu, Crit, x, t, models, xHatU, PHatU));
                         var optimumNM = optimizer.FindMinimum(objective, Exts.Stack(initialGuess, initialGuess));
                         min = optimumNM.FunctionInfoAtMinimum.Value;
@@ -594,7 +594,8 @@ namespace UKF
                                                      )
         {
             (UTParams p1, UTParams p2) = SampleVectorToUTParams(P, xHat[0].Count);
-            return CalculateStepwiseCriterionValue(Phi1, Phi2, Psi1, Psi2, Mw, Rw, Mnu, Rnu, Crit, p1, p2, t, models, xHat, PHat);
+            var result = CalculateStepwiseCriterionValue(Phi1, Phi2, Psi1, Psi2, Mw, Rw, Mnu, Rnu, Crit, p1, p2, t, models, xHat, PHat);
+            return result;
         }
 
 
@@ -640,7 +641,7 @@ namespace UKF
 
 
 
-                for (int t = 0; t < T; t++)
+                for (int t = 1; t < T; t++)
                 {
                     for (int i = 0; i < N; i++)
                     {
@@ -708,7 +709,7 @@ namespace UKF
 
 
 
-                for (int t = 0; t < T; t++)
+                for (int t = 1; t < T; t++)
                 {
                     for (int i = 0; i < N; i++)
                     {
@@ -721,7 +722,10 @@ namespace UKF
                     crit = Crit(errorUPow2);
                 }
             }
-            catch { crit = double.MaxValue; }
+            catch (Exception e)
+            {
+                crit = double.MaxValue;
+            }
             return crit;
         }
 
@@ -779,7 +783,10 @@ namespace UKF
 
                 crit = Crit(errorUPow2);
             }
-            catch { crit = double.MaxValue; }
+            catch (Exception e)
+            {
+                crit = double.MaxValue;
+            }
             return crit;
         }
 
