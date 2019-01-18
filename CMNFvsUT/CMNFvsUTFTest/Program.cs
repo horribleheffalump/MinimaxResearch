@@ -36,23 +36,42 @@ namespace CMNFvsUTFTest
             [Option('N', "bundle-count", Required = false, Default = 1, HelpText = "Number of bundles of trajectoris in the test set for dynamic models")]
             public int BundleCount { get; set; }
 
-            [Option('U', "UKF", Required = false, Default = false, HelpText = "Do calculate Unscented Kalman Filter")]
-            public bool UKF { get; set; }
-
             [Option('E', "EKF", Required = false, Default = false, HelpText = "Do calculate Extended Kalman Filter")]
             public bool EKF { get; set; }
 
-            [Option("UKF-stepwise", Required = false, Default = false, HelpText = "Do calculate Unscented Kalman Filter with stepwise parameter estimation")]
-            public bool UKFStepwise { get; set; }
+            [Option('U', "UKF", Required = false, Default = false, HelpText = "Do calculate Unscented Kalman Filter, default parameters with no optimization")]
+            public bool UKF { get; set; }
+            [Option("UKF-file", Required = false, HelpText = "File name to save/load parameters of UKF filter")]
+            public string UKFFileName { get; set; }
 
-            [Option("UKF-randomshoot", Required = false, Default = false, HelpText = "Do optimize Unscented Kalman Filter parameters with random shoot method")]
-            public bool UKFRandomShoot { get; set; }
+            [Option("UKF-integral-randomshoot", Required = false, Default = false, HelpText = "Do calculate Unscented Kalman Filter, integral parameter optimization with random shooting")]
+            public bool UKFIntegralRandomShoot { get; set; }
+            [Option("UKF-integral-randomshoot-file", Required = false, HelpText = "File name to save/load parameters of trained UKF filter")]
+            public string UKFIntegralRandomShootFileName { get; set; }
 
-            [Option("UKF-nooptimization", Required = false, Default = false, HelpText = "Do not optimize Unscented Kalman Filter parameters, use defaults")]
-            public bool UKFNoOptimization { get; set; }
+            [Option("UKF-integral-NelderMead", Required = false, Default = false, HelpText = "Do calculate Unscented Kalman Filter, integral parameter optimization with Nelder-Mead method")]
+            public bool UKFIntegralNelderMead { get; set; }
+            [Option("UKF-integral-NelderMead-file", Required = false, HelpText = "File name to save/load parameters of trained UKF filter")]
+            public string UKFIntegralNelderMeadFileName { get; set; }
+
+            [Option("UKF-stepwise-randomshoot", Required = false, Default = false, HelpText = "Do calculate Unscented Kalman Filter, stepwise parameter optimization with random shooting")]
+            public bool UKFStepwiseRandomShoot { get; set; }
+            [Option("UKF-stepwise-randomshoot-file", Required = false, HelpText = "File name to save/load parameters of trained UKF filter")]
+            public string UKFStepwiseRandomShootFileName { get; set; }
+
+            [Option("UKF-stepwise-NelderMead", Required = false, Default = false, HelpText = "Do calculate Unscented Kalman Filter, stepwise parameter optimization with Nelder-Mead method")]
+            public bool UKFStepwiseNelderMead { get; set; }
+            [Option("UKF-stepwise-NelderMead-file", Required = false, HelpText = "File name to save/load parameters of trained UKF filter")]
+            public string UKFStepwiseNelderMeadFileName { get; set; }
 
             [Option('C', "CMNF", Required = false, Default = false, HelpText = "Do calculate conditionally minimax nonlinear filter")]
             public bool CMNF { get; set; }
+
+            [Option('B', "BCMNF", Required = false, Default = false, HelpText = "Do calculate another conditionally minimax nonlinear filter")]
+            public bool BCMNF { get; set; }
+            [Option("BCMNF-file", Required = false, HelpText = "File name to save/load parameters of trained another CMNF filter")]
+            public string BCMNFFileName { get; set; }
+
 
             [Option('M', "MCMNF", Required = false, Default = false, HelpText = "Do calculate modified conditionally minimax nonlinear filter")]
             public bool MCMNF { get; set; }
@@ -81,7 +100,7 @@ namespace CMNFvsUTFTest
             [Option('q', "templates-folder", Required = false, HelpText = "Folder where the latex templates are stored")]
             public string TemplatesFolder { get; set; }
 
-            [Option('B', "bulk", Required = false, Default = false, HelpText = "Bulk output of the state process trajectories bundle")]
+            [Option("bulk", Required = false, Default = false, HelpText = "Bulk output of the state process trajectories bundle")]
             public bool Bulk { get; set; }
 
             [Option('G', "generate-samples", Required = false, Default = 0, HelpText = "Number of single trajectories to generate")]
@@ -96,8 +115,8 @@ namespace CMNFvsUTFTest
             [Option('d', "degree-parallelism", Required = false, Default = 1, HelpText = "Maximum degreee of parallelism")]
             public int ParallelismDegree { get; set; }
 
-            [Option("UKF-file", Required = false, HelpText = "File name to save/load parameters of trained UKF filter")]
-            public string UKFFileName { get; set; }
+            [Option('D', "Dummy", Required = false, Default = false, HelpText = "Do calculate dummuy filter")]
+            public bool Dummy { get; set; }
 
             [Option("CMNF-file", Required = false, HelpText = "File name to save/load parameters of trained CMNF filter")]
             public string CMNFFileName { get; set; }
@@ -223,9 +242,9 @@ namespace CMNFvsUTFTest
                 {
                     int N = o.N;
 
-                    //Vector<double> mX = Exts.Vector(300, 400); Matrix<double> KX = Exts.Diag(30 * 30, 30 * 30);
+                    Vector<double> mX = Exts.Vector(30, 40); Matrix<double> KX = Exts.Diag(30 * 30, 30 * 30);
                     //Vector<double> mX = Exts.Vector(30000, 40000); Matrix<double> KX = Exts.Diag(100 * 100, 100 * 100);
-                    Vector<double> mX = Exts.Vector(30000, 40000); Matrix<double> KX = Exts.Diag(4500 * 4500, 4500 * 4500);
+                    //Vector<double> mX = Exts.Vector(30000, 40000); Matrix<double> KX = Exts.Diag(4500 * 4500, 4500 * 4500);
                     Vector<double> mNu = Exts.Vector(0, 0); Matrix<double> KNu = Exts.Diag(Math.Pow(5 * Math.PI / 180.0, 2.0), 30 * 30);
                     Normal[] NormalX = new Normal[2] { new Normal(mX[0], Math.Sqrt(KX[0, 0])), new Normal(mX[1], Math.Sqrt(KX[1, 1])) };
                     Normal[] NormalNu = new Normal[2] { new Normal(mNu[0], Math.Sqrt(KNu[0, 0])), new Normal(mNu[1], Math.Sqrt(KNu[1, 1])) }; ;
@@ -418,30 +437,39 @@ namespace CMNFvsUTFTest
                     testEnv = new TestSimpleIdentification();
                 }
 
+                string CMNFFileName = Path.Combine(o.OutputFolder, "cmnf.params");
+                if (!string.IsNullOrWhiteSpace(o.CMNFFileName)) CMNFFileName = o.CMNFFileName;
+                string BCMNFFileName = Path.Combine(o.OutputFolder, "bcmnf.params");
+                if (!string.IsNullOrWhiteSpace(o.BCMNFFileName)) BCMNFFileName = o.BCMNFFileName;
+
+                string UKFFileName = Path.Combine(o.OutputFolder, "ukf.params");
+                if (!string.IsNullOrWhiteSpace(o.UKFFileName)) UKFFileName = o.UKFFileName;
+                string UKFOptStepwiseNMFileName = Path.Combine(o.OutputFolder, "ukfoptstepwiseNM.params");
+                if (!string.IsNullOrWhiteSpace(o.UKFStepwiseNelderMeadFileName)) UKFOptStepwiseNMFileName = o.UKFStepwiseNelderMeadFileName;
+                string UKFOptIntegralNMFileName = Path.Combine(o.OutputFolder, "ukfoptintegralNM.params");
+                if (!string.IsNullOrWhiteSpace(o.UKFIntegralNelderMeadFileName)) UKFOptIntegralNMFileName = o.UKFIntegralNelderMeadFileName;
+                string UKFOptStepwiseRandFileName = Path.Combine(o.OutputFolder, "ukfoptstepwiserand.params");
+                if (!string.IsNullOrWhiteSpace(o.UKFStepwiseRandomShootFileName)) UKFOptStepwiseRandFileName = o.UKFStepwiseRandomShootFileName;
+                string UKFOptIntegralRandFileName = Path.Combine(o.OutputFolder, "ukfoptintegralrand.params");
+                if (!string.IsNullOrWhiteSpace(o.UKFIntegralRandomShootFileName)) UKFOptIntegralRandFileName = o.UKFIntegralRandomShootFileName;
+
                 List<(FilterType, string)> filters = new List<(FilterType, string)>();
-                if (o.CMNF) filters.Add((FilterType.CMNF, o.CMNFFileName));
-                if (o.MCMNF) filters.Add((FilterType.MCMNF, string.Empty));
-                if (o.UKF)
+                if (o.CMNF) filters.Add((FilterType.CMNF, CMNFFileName));
+                if (o.BCMNF)
                 {
-                    if (o.UKFNoOptimization)
-                    {
-                        filters.Add((FilterType.UKFNoOptimization, string.Empty));
-                    }
-                    else
-                    {
-                        if (o.UKFStepwise)
-                        {
-                            if (o.UKFRandomShoot) filters.Add((FilterType.UKFStepwiseRandomShoot, o.UKFFileName));
-                            else filters.Add((FilterType.UKFStepwise, o.UKFFileName));
-                        }
-                        else
-                        {
-                            if (o.UKFRandomShoot) filters.Add((FilterType.UKFIntegralRandomShoot, o.UKFFileName));
-                            else filters.Add((FilterType.UKFIntegral, o.UKFFileName));
-                        }
-                    }
+                    testEnv.Alpha = testEnv.Xi;
+                    testEnv.Gamma = (t, x, y) => y;
+                    filters.Add((FilterType.BCMNF, BCMNFFileName));
                 }
+                if (o.MCMNF) filters.Add((FilterType.MCMNF, string.Empty));
+
+                if (o.UKF) filters.Add((FilterType.UKFNoOptimization, UKFFileName));
+                if (o.UKFStepwiseNelderMead) filters.Add((FilterType.UKFStepwise, UKFOptStepwiseNMFileName));
+                if (o.UKFIntegralNelderMead) filters.Add((FilterType.UKFIntegral, UKFOptIntegralNMFileName));
+                if (o.UKFStepwiseRandomShoot) filters.Add((FilterType.UKFStepwiseRandomShoot, UKFOptStepwiseRandFileName));
+                if (o.UKFIntegralRandomShoot) filters.Add((FilterType.UKFIntegralRandomShoot, UKFOptIntegralRandFileName));
                 if (o.EKF) filters.Add((FilterType.EKF, string.Empty));
+                if (o.Dummy) filters.Add((FilterType.Dummy, string.Empty));
 
                 using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(Path.Combine(o.OutputFolder, "parameters.txt"), true))
                 {
@@ -454,6 +482,7 @@ namespace CMNFvsUTFTest
                 else
                 {
                     testEnv.Initialize(o.T, o.TrainCount, o.MCMNFTrainCount, o.OutputFolder, filters, o.Save, o.Load);
+
                     if (o.Aggregate)
                     {
                         testEnv.Aggregate(o.OutputFolder, o.OutputFolder, !o.NoBin, !o.NoText);
