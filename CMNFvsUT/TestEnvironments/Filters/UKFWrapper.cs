@@ -103,6 +103,38 @@ namespace TestEnvironments
                 stream.Close();
             }
         }
+
+        public override void SaveParamsText()
+        {
+            using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(Path.Combine(outputFolder, FilterName + "_EstimateParams.txt")))
+            {
+
+                if (UKF.utParamsForecast != null)
+                {
+                    outputfile.WriteLine("Integral");
+                    outputfile.Write(UKF.utParamsForecast.ToString());
+                    outputfile.Write("      ");
+                    outputfile.Write(UKF.utParamsCorrection.ToString());
+                    outputfile.WriteLine(string.Empty);
+                }
+                if (UKF.utParamsForecastStepwise != null)
+                {
+                    outputfile.WriteLine("Stepwise");
+                    for (int i = 1; i < UKF.utParamsForecastStepwise.Length; i++)
+                    {
+                        outputfile.Write($"{i}");
+                        outputfile.Write("      ");
+                        outputfile.Write(UKF.utParamsForecastStepwise[i].ToString());
+                        outputfile.Write("      ");
+                        outputfile.Write(UKF.utParamsCorrectionStepwise[i].ToString());
+                        outputfile.WriteLine(string.Empty);
+                    }
+                }
+                outputfile.Close();
+            }
+        }
+
+
         public override void LoadParams()
         {
             UKFilterParams p;
