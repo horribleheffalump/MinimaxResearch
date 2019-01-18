@@ -124,6 +124,11 @@ namespace UKF
     [Serializable]
     public class UTParams
     {
+        double alpha0 = double.NaN;
+        double alpha = double.NaN;
+        double beta = double.NaN;
+        double kappa = double.NaN;
+
         public double Lambda;
         public double[] Wm;
         public double[] Wc;
@@ -150,12 +155,13 @@ namespace UKF
         /// <param name="alpha0">Alpha0 - weight of the central points for both sample mean and cov </param>
         public void SetUTParams(int L, double alpha0)
         {
+            this.alpha0 = alpha0;
             Lambda = 2.0 / (1 - alpha0) - L;
             //Wm = Vector<double>.Build.Dense(2 * L + 1, (1.0 - alpha0) / 4.0);
             Wm = Enumerable.Repeat((1.0 - alpha0) / 4.0, 2 * L + 1).ToArray();
             Wm[0] = alpha0;
             //Wc = Vector<double>.Build.Dense(2 * L + 1, (1.0 - alpha0) / 4.0);
-            Wc = Enumerable.Repeat((1.0 - alpha0) / 4.0, 2 * L + 1).ToArray(); 
+            Wc = Enumerable.Repeat((1.0 - alpha0) / 4.0, 2 * L + 1).ToArray();
             Wc[0] = alpha0;
         }
 
@@ -168,6 +174,10 @@ namespace UKF
         /// <param name="kappa">Kappa - is a secondary scaling parameter</param>
         public void SetUTParams(int L, double alpha, double beta, double kappa)
         {
+            this.alpha = alpha;
+            this.beta = beta;
+            this.kappa = kappa;
+
             Lambda = Math.Pow(alpha, 2.0) * (L + kappa) - L;
             //Wm = Vector<double>.Build.Dense(2 * L + 1, 0.5 / (Lambda + L));
             Wm = Enumerable.Repeat(0.5 / (Lambda + L), 2 * L + 1).ToArray();
@@ -207,6 +217,16 @@ namespace UKF
             {
                 return new double[4] { Lambda, Wm[0], Wc[0], Wm[1] };
             }
+        }
+
+        public override string ToString()
+        {
+            if (!double.IsNaN(alpha0))
+                return $"alpha0={alpha0}";
+            else if (!double.IsNaN(alpha))
+                return $"alpha = {alpha}, beta = {beta}, kappa = {kappa}";
+            else
+                return $"Lambda = {Lambda}, Wm[0] = {Wm[0]}, Wc[0] = {Wc[0]}, Wm[1] = {Wm[1]}";
         }
     }
 
