@@ -61,8 +61,7 @@ namespace TestEnvironments
 
             Vector<double> mW = Exts.Vector(0); Matrix<double> dW = Exts.Diag(_dw);
             Vector<double> mNu = Exts.Vector(0); Matrix<double> dNu = Exts.Diag(_dnu);
-            Vector<double> mEta = Exts.Vector(0.1); Matrix<double> dEta = Exts.Diag(1); // FOR AIT
-            //Vector<double> mEta = Exts.Vector(0.1); Matrix<double> dEta = Exts.Diag(1.16); // FOR IEOPR
+            Vector<double> mEta = Exts.Vector(0.1); Matrix<double> dEta = Exts.Diag(1.16);
             Func<int, Vector<double>, Vector<double>> phi = (s, x) => Exts.Vector(x[0] / (1 + x[0] * x[0]));
             Func<int, Vector<double>, Vector<double>> psi = (s, x) => Exts.Vector(Math.Pow(x[0], 3) + Math.Pow(x[0], 1));
 
