@@ -84,6 +84,19 @@ namespace TestEnvironments
                 MW = W(0) * 0.0;
             if (MNu == null)
                 MNu = Nu(0) * 0.0;
+
+            if (ModelGenerator == null)
+            {
+                ModelGenerator = () =>
+                {
+                    DiscreteVectorModel model = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
+                    for (int s = 1; s <= T; s++)
+                    {
+                        model.Step();
+                    }
+                    return model;
+                };
+            }
         }
 
         /// <summary>
@@ -95,24 +108,8 @@ namespace TestEnvironments
         /// <param name="doCalculateUKFStepwise"></param>
         /// <param name="outputFolder"></param>
         //public void Initialize(int t, int n, bool doCalculateUKF, bool doCalculateUKFStepwise, bool doOptimizeWithRandomShoot, string outputFolder)
-        public void Initialize(int t, int n, int nMCMNF, string outputFolder, List<(FilterType type, string fileName)> filters, bool save = false, bool load = false, Func<DiscreteVectorModel> ModelGenerator = null)
+        public void Initialize(int t, int n, int nMCMNF, string outputFolder, List<(FilterType type, string fileName)> filters, bool save = false, bool load = false)
         {
-            if (ModelGenerator == null)
-            {
-                this.ModelGenerator = () =>
-                       {
-                           DiscreteVectorModel model = new DiscreteVectorModel(Phi1, Phi2, Psi1, Psi2, W, Nu, X0(), true);
-                           for (int s = 1; s <= T; s++)
-                           {
-                               model.Step();
-                           }
-                           return model;
-                       };
-            }
-            else
-            {
-                this.ModelGenerator = ModelGenerator;
-            }
             Console.WriteLine("Init");
             NumberFormatInfo provider = new NumberFormatInfo();
             provider.NumberDecimalSeparator = ".";
@@ -294,7 +291,10 @@ namespace TestEnvironments
                     f.InitializeAndTrain();
                 }
                 if (save)
+                {
                     f.SaveParams();
+                    f.SaveParamsText();
+                }
             }
             models = null;
             //GC.Collect();

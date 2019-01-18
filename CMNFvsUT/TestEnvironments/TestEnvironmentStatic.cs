@@ -7,6 +7,7 @@ using MathNet.Numerics.LinearAlgebra;
 using NonlinearSystem;
 using UKF;
 using MathNetExtensions;
+using System.IO;
 
 namespace TestEnvironments
 {
@@ -86,6 +87,11 @@ namespace TestEnvironments
 
             utStaticEstimate = new UTStaticEstimate(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.NelderMeed);
             utStaticEstimate.EstimateParameters(Phi, x => x.Trace(), X, Y, MX, KX, KNu, outputFolder);
+            using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(Path.Combine(outputFolder, "UTStaticEstimateParams.txt")))
+            {
+                outputfile.WriteLine(utStaticEstimate.utParams.ToString());
+                outputfile.Close();
+            }
         }
 
         public void GenerateBundle(int n,
