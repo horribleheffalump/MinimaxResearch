@@ -63,47 +63,48 @@ namespace MathNetExtensions
             return mx;
         }
 
-        public static Matrix<double>[] Average(this Matrix<double>[,] x, int axis = 0)
-        {
-            var width = x.GetLength(0);
-            var height = x.GetLength(1);
+        // commented because needs to be tested after changing the second for loop (start from 0, not from 1)
+        //public static Matrix<double>[] Average(this Matrix<double>[,] x, int axis = 0)
+        //{
+        //    var width = x.GetLength(0);
+        //    var height = x.GetLength(1);
 
-            Matrix<double>[] mx = new Matrix<double>[x.GetLength(axis)];
+        //    Matrix<double>[] mx = new Matrix<double>[x.GetLength(axis)];
 
-            if (axis == 0)
-            {
-                mx = x.GetRow(0);
-                for (int i = 1; i < height; i++)
-                {
-                    Matrix<double>[] r = x.GetRow(i);
-                    for (int j = 1; j < width; j++)
-                    {
-                        mx[j] = mx[j] + r[j];
-                    }
-                }
-                for (int j = 1; j < width; j++)
-                {
-                    mx[j] = mx[j] / height;
-                }
-            }
-            else
-            {
-                mx = x.GetCol(0);
-                for (int j = 1; j < width; j++)
-                {
-                    Matrix<double>[] c = x.GetCol(j);
-                    for (int i = 1; i < height; i++)
-                    {
-                        mx[i] = mx[i] + c[i];
-                    }
-                }
-                for (int i = 1; i < height; i++)
-                {
-                    mx[i] = mx[i] / width;
-                }
-            }
-            return mx;
-        }
+        //    if (axis == 0)
+        //    {
+        //        mx = x.GetRow(0);
+        //        for (int i = 1; i < height; i++)
+        //        {
+        //            Matrix<double>[] r = x.GetRow(i);
+        //            for (int j = 1; j < width; j++)
+        //            {
+        //                mx[j] = mx[j] + r[j];
+        //            }
+        //        }
+        //        for (int j = 0; j < width; j++)
+        //        {
+        //            mx[j] = mx[j] / height;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        mx = x.GetCol(0);
+        //        for (int j = 1; j < width; j++)
+        //        {
+        //            Matrix<double>[] c = x.GetCol(j);
+        //            for (int i = 1; i < height; i++)
+        //            {
+        //                mx[i] = mx[i] + c[i];
+        //            }
+        //        }
+        //        for (int i = 0; i < height; i++)
+        //        {
+        //            mx[i] = mx[i] / width;
+        //        }
+        //    }
+        //    return mx;
+        //}
 
         public static Matrix<double>[] Average(this Matrix<double>[][] x, double[] weights = null)
         {
@@ -117,7 +118,7 @@ namespace MathNetExtensions
             for (int i = 0; i < x[0].Length; i++)
             {
                 mx[i] = ZeroOfShape(x[0][i]);
-                for (int j = 1; j < x.Length; j++)
+                for (int j = 0; j < x.Length; j++)
                 {
                     mx[i] = mx[i] + x[j][i] * coeffs[j];
                 }
@@ -125,47 +126,48 @@ namespace MathNetExtensions
             return mx;
         }
 
-        public static Vector<double>[] Average(this Vector<double>[,] x, int axis = 0) // TODO: the same code for Matrix and Vector - NOT COOL!!!
-        {
-            var width = x.GetLength(0);
-            var height = x.GetLength(1);
+        // commented because needs to be tested after changing the second for loop (start from 0, not from 1)
+        //public static Vector<double>[] Average(this Vector<double>[,] x, int axis = 0) // TODO: the same code for Matrix and Vector - NOT COOL!!!
+        //{
+        //    var width = x.GetLength(0);
+        //    var height = x.GetLength(1);
 
-            Vector<double>[] mx = new Vector<double>[x.GetLength(axis)];
+        //    Vector<double>[] mx = new Vector<double>[x.GetLength(axis)];
 
-            if (axis == 0)
-            {
-                mx = x.GetRow(0);
-                for (int i = 1; i < height; i++)
-                {
-                    Vector<double>[] r = x.GetRow(i);
-                    for (int j = 1; j < width; j++)
-                    {
-                        mx[j] = mx[j] + r[j];
-                    }
-                }
-                for (int j = 1; j < width; j++)
-                {
-                    mx[j] = mx[j] / height;
-                }
-            }
-            else
-            {
-                mx = x.GetCol(0);
-                for (int j = 1; j < width; j++)
-                {
-                    Vector<double>[] c = x.GetCol(j);
-                    for (int i = 1; i < height; i++)
-                    {
-                        mx[i] = mx[i] + c[i];
-                    }
-                }
-                for (int i = 1; i < height; i++)
-                {
-                    mx[i] = mx[i] / width;
-                }
-            }
-            return mx;
-        }
+        //    if (axis == 0)
+        //    {
+        //        mx = x.GetRow(0);
+        //        for (int i = 1; i < height; i++)
+        //        {
+        //            Vector<double>[] r = x.GetRow(i);
+        //            for (int j = 1; j < width; j++)
+        //            {
+        //                mx[j] = mx[j] + r[j];
+        //            }
+        //        }
+        //        for (int j = 0; j < width; j++)
+        //        {
+        //            mx[j] = mx[j] / height;
+        //        }
+        //    }
+        //    else
+        //    {
+        //        mx = x.GetCol(0);
+        //        for (int j = 1; j < width; j++)
+        //        {
+        //            Vector<double>[] c = x.GetCol(j);
+        //            for (int i = 1; i < height; i++)
+        //            {
+        //                mx[i] = mx[i] + c[i];
+        //            }
+        //        }
+        //        for (int i = 0; i < height; i++)
+        //        {
+        //            mx[i] = mx[i] / width;
+        //        }
+        //    }
+        //    return mx;
+        //}
 
         public static Vector<double>[] Average(this Vector<double>[][] x, double[] weights = null)
         {
@@ -179,7 +181,7 @@ namespace MathNetExtensions
             for (int i = 0; i < x[0].Length; i++)
             {
                 mx[i] = ZeroOfShape(x[0][i]);
-                for (int j = 1; j < x.Length; j++)
+                for (int j = 0; j < x.Length; j++)
                 {
                     mx[i] = mx[i] + x[j][i] * coeffs[j];
                 }
