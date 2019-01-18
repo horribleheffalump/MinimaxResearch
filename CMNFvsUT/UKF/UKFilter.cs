@@ -190,16 +190,15 @@ namespace UKF
                     break;
                 case UTDefinitionType.ImplicitAlphaBetaKappa:
                     n = 3;
-                    lowerBound = Exts.Vector(0, 0, -5);
-                    upperBound = Exts.Vector(5, 5, 5);
-                    //initialGuess = Exts.Vector(1, 2, 1);
-                    initialGuess = Exts.Vector(0.5, 2, -2);
+                    lowerBound = Exts.Vector(0, 0, 3.0 - xhat0.Count - 2.0);
+                    upperBound = Exts.Vector(5, 5, 3.0 - xhat0.Count + 2.0);
+                    initialGuess = Exts.Vector(0.5, 2.0, 3.0 - xhat0.Count);
                     filename = filename.Replace("{type}", "ImplicitABK"); break;
                 case UTDefinitionType.Explicit:
                     n = 4;
                     lowerBound = Exts.Vector(-10, -10, -10, -10);
                     upperBound = Exts.Vector(10, 10, 10, 10);
-                    initialGuess = Exts.Vector((new UTParams(xhat0.Count, 1, 2, 1)).Params);
+                    initialGuess = Exts.Vector((new UTParams(xhat0.Count, 0.5, 2.0, 3.0 - xhat0.Count)).Params);
                     filename = filename.Replace("{type}", "Explicit"); break;
                 default:
                     n = 0;
@@ -262,20 +261,20 @@ namespace UKF
                     argmin = OptimumRandom.argmin;
                     break;
                 case OptimizationMethod.NelderMeed:
-                    NelderMeadSimplex optimizer = new NelderMeadSimplex(1e-4, 1000);
+                    NelderMeadSimplex optimizer = new NelderMeadSimplex(1e-3, 100);
                     var objective = ObjectiveFunction.Value((x) => CalculateSampleCriterion(Phi, Psi, Rw, Rnu, Crit, x, T, models, xhat0, DX0Hat));
-                    //try
-                    //{
-                    var optimumNM = optimizer.FindMinimum(objective, Exts.Stack(initialGuess, initialGuess));
-                    min = optimumNM.FunctionInfoAtMinimum.Value;
-                    argmin = optimumNM.MinimizingPoint;
-                    //}
-                    //catch
-                    //{
-                    //    var OptimumRandom_ = RandomOptimizer.Minimize((x) => CalculateSampleCriterion(Phi, Psi, Rw, Rnu, Crit, x, T, models, xhat0, DX0Hat), Exts.Stack(lowerBound, lowerBound), Exts.Stack(upperBound, upperBound), 100, 100, filename);
-                    //    min = OptimumRandom_.min;
-                    //    argmin = OptimumRandom_.argmin;
-                    //}
+                    try
+                    {
+                        var optimumNM = optimizer.FindMinimum(objective, Exts.Stack(initialGuess, initialGuess));
+                        min = optimumNM.FunctionInfoAtMinimum.Value;
+                        argmin = optimumNM.MinimizingPoint;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"Optimizer faild, using the initail guess ({e.Message})");
+                        argmin = Exts.Stack(initialGuess, initialGuess);
+                    }
+
                     break;
 
             }
@@ -340,20 +339,19 @@ namespace UKF
                     argmin = OptimumRandom.argmin;
                     break;
                 case OptimizationMethod.NelderMeed:
-                    NelderMeadSimplex optimizer = new NelderMeadSimplex(1e-4, 1000);
+                    NelderMeadSimplex optimizer = new NelderMeadSimplex(1e-3, 100);
                     var objective = ObjectiveFunction.Value((x) => CalculateSampleCriterion(Phi1, Phi2, Psi1, Psi2, Mw, Rw, Mnu, Rnu, Crit, x, T, models, xhat0, DX0Hat));
-                    //try
-                    //{
-                    var optimumNM = optimizer.FindMinimum(objective, Exts.Stack(initialGuess, initialGuess));
-                    min = optimumNM.FunctionInfoAtMinimum.Value;
-                    argmin = optimumNM.MinimizingPoint;
-                    //}
-                    //catch
-                    //{
-                    //    var OptimumRandom_ = RandomOptimizer.Minimize((x) => CalculateSampleCriterion(Phi, Psi, Rw, Rnu, Crit, x, T, models, xhat0, DX0Hat), Exts.Stack(lowerBound, lowerBound), Exts.Stack(upperBound, upperBound), 100, 100, filename);
-                    //    min = OptimumRandom_.min;
-                    //    argmin = OptimumRandom_.argmin;
-                    //}
+                    try
+                    {
+                        var optimumNM = optimizer.FindMinimum(objective, Exts.Stack(initialGuess, initialGuess));
+                        min = optimumNM.FunctionInfoAtMinimum.Value;
+                        argmin = optimumNM.MinimizingPoint;
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"Optimizer faild, using the initail guess ({e.Message})");
+                        argmin = Exts.Stack(initialGuess, initialGuess);
+                    }
                     break;
                 default: // no optimization by default
                     break;
@@ -435,11 +433,19 @@ namespace UKF
                         argmin = OptimumRandom.argmin;
                         break;
                     case OptimizationMethod.NelderMeed:
-                        NelderMeadSimplex optimizer = new NelderMeadSimplex(1e-6, 1000);
+                        NelderMeadSimplex optimizer = new NelderMeadSimplex(1e-3, 100);
                         var objective = ObjectiveFunction.Value((x) => CalculateSampleStepwiseCriterion(Phi1, Phi2, Psi1, Psi2, Mw, Rw, Mnu, Rnu, Crit, x, t, models, xHatU, PHatU));
-                        var optimumNM = optimizer.FindMinimum(objective, Exts.Stack(initialGuess, initialGuess));
-                        min = optimumNM.FunctionInfoAtMinimum.Value;
-                        argmin = optimumNM.MinimizingPoint;
+                        try
+                        {
+                            var optimumNM = optimizer.FindMinimum(objective, Exts.Stack(initialGuess, initialGuess));
+                            min = optimumNM.FunctionInfoAtMinimum.Value;
+                            argmin = optimumNM.MinimizingPoint;
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine($"Optimizer faild, using the initail guess ({e.Message})");
+                            argmin = Exts.Stack(initialGuess, initialGuess);
+                        }
                         break;
                 }
                 pForecast[t] = new UTParams(xhat0.Count, argmin.Take(n).ToArray());
@@ -450,7 +456,7 @@ namespace UKF
                 }
                 Console.WriteLine($"UKF estimate parameters for t={t}, done in {(DateTime.Now - startiteration).ToString(@"hh\:mm\:ss\.fff")}");
             }
-                //    });
+            //    });
             DateTime finish = DateTime.Now;
             Console.WriteLine($"UKF estimate parameters finished in {(finish - start).ToString(@"hh\:mm\:ss\.fff")}");
             return (min, pForecast, pCorrect);

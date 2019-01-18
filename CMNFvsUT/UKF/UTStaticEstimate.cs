@@ -137,15 +137,15 @@ namespace UKF
                     break;
                 case UTDefinitionType.ImplicitAlphaBetaKappa:
                     n = 3;
-                    lowerBound = Exts.Vector(0, 0, 0);
-                    upperBound = Exts.Vector(5, 5, 5);
-                    initialGuess = Exts.Vector(1, 2, 1);
+                    lowerBound = Exts.Vector(0, 0, 3.0 - mX.Count - 2.0);
+                    upperBound = Exts.Vector(5, 5, 3.0 - mX.Count + 2.0);
+                    initialGuess = Exts.Vector(0.5, 2.0, 3.0 - mX.Count);
                     filename = filename.Replace("{type}", "ImplicitABK"); break;
                 case UTDefinitionType.Explicit:
                     n = 4;
                     lowerBound = Exts.Vector(-10, -10, -10, -10);
                     upperBound = Exts.Vector(10, 10, 10, 10);
-                    initialGuess = Exts.Vector((new UTParams(mX.Count, 1, 2, 1)).Params);
+                    initialGuess = Exts.Vector((new UTParams(mX.Count, 0.5, 2.0, 3.0 - mX.Count)).Params);
                     filename = filename.Replace("{type}", "Explicit"); break;
                 default:
                     n = 0;
@@ -161,7 +161,7 @@ namespace UKF
             switch (method)
             {
                 case OptimizationMethod.RandomShoot:
-                    var OptimumRandom = RandomOptimizer.Minimize((p) => CalculateSampleCriterion(Phi, Crit, p, X, Y, mX, KX, KNu), lowerBound, upperBound, 100, 100, filename);
+                    var OptimumRandom = RandomOptimizer.Minimize((p) => CalculateSampleCriterion(Phi, Crit, p, X, Y, mX, KX, KNu), lowerBound, upperBound, 1000, 1000, filename);
                     min = OptimumRandom.min;
                     argmin = OptimumRandom.argmin;
                     break;
