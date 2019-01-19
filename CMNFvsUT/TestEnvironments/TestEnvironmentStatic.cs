@@ -87,6 +87,7 @@ namespace TestEnvironments
 
             utStaticEstimate = new UTStaticEstimate(UTDefinitionType.ImplicitAlphaBetaKappa, OptimizationMethod.NelderMeed);
             utStaticEstimate.EstimateParameters(Phi, x => x.Trace(), X, Y, MX, KX, KNu, outputFolder);
+            //utStaticEstimate.utParams = new UTParams(2, 0.5, 2.0, 1.0);
             using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(Path.Combine(outputFolder, "UTStaticEstimateParams.txt")))
             {
                 outputfile.WriteLine(utStaticEstimate.utParams.ToString());

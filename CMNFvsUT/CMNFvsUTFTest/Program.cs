@@ -242,7 +242,7 @@ namespace CMNFvsUTFTest
                 {
                     int N = o.N;
 
-                    Vector<double> mX = Exts.Vector(30, 40); Matrix<double> KX = Exts.Diag(30 * 30, 30 * 30);
+                    Vector<double> mX = Exts.Vector(300, 400); Matrix<double> KX = Exts.Diag(30 * 30, 30 * 30);
                     //Vector<double> mX = Exts.Vector(30000, 40000); Matrix<double> KX = Exts.Diag(100 * 100, 100 * 100);
                     //Vector<double> mX = Exts.Vector(30000, 40000); Matrix<double> KX = Exts.Diag(4500 * 4500, 4500 * 4500);
                     Vector<double> mNu = Exts.Vector(0, 0); Matrix<double> KNu = Exts.Diag(Math.Pow(5 * Math.PI / 180.0, 2.0), 30 * 30);
