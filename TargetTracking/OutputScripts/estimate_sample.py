@@ -10,7 +10,7 @@ from colormap import *
 if (len(sys.argv)) > 1:
     folder = sys.argv[1]
 else:
-    folder = "D:/results/cont/"
+    folder = "D:/results/test_ekf/"
 
 #from multiplypoints import *
 

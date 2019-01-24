@@ -32,10 +32,17 @@
     <Compile Include="estimate_statistics.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="pics_CDC\estimate_statistics.py" />
+    <Compile Include="pics_CDC\path.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="trajectories.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="trajectory.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="pics_CDC\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
