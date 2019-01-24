@@ -39,6 +39,9 @@
     <Compile Include="findspike.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="arctantests.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="pics_AiT\multiplypoints.py" />
     <Compile Include="pics_AiT\pic01_surface.py" />
     <Compile Include="pics_AiT\pic02a_cubicsensor_func.py" />
