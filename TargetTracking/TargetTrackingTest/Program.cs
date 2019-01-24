@@ -134,10 +134,13 @@ namespace TargetTrackingTest
             [Option("no-python", Required = false, Default = false, HelpText = "Do not process the generated data")]
             public bool NoPython { get; set; }
 
+            [Option("DX0", Required = false, Default = 2000, HelpText = "Starting point Cartesian coordinates standard deviation")]
+            public double DX0 { get; set; }
+
         }
 
         static void Main(string[] args)
-        {
+        { 
             CommandLine.Parser.Default.ParseArguments<Options>(args).WithParsed<Options>(opts => Run(opts, args));
         }
 
@@ -212,7 +215,8 @@ namespace TargetTrackingTest
 
             //Vector<double> mEta = Exts.Vector(30000, 40000, 400, 10 * Math.PI / 180, Gamma_n / Alpha_n);
             Vector<double> mEta = Exts.Vector(0, 25000, 400, 10 * Math.PI / 180, Gamma_n / Alpha_n);
-            Matrix<double> dEta = Exts.Diag(Math.Pow(2000, 2), Math.Pow(2000, 2), Math.Pow(115, 2), Math.Pow(15 * Math.PI / 180, 2), Math.Pow(Beta_n, 2) / 2 / Alpha_n);
+            Matrix<double> dEta = Exts.Diag(Math.Pow(o.DX0, 2), Math.Pow(o.DX0, 2), Math.Pow(115, 2), Math.Pow(15 * Math.PI / 180, 2), Math.Pow(Beta_n, 2) / 2 / Alpha_n);
+            //Matrix<double> dEta = Exts.Diag(Math.Pow(2, 2), Math.Pow(2, 2), Math.Pow(1, 2), Math.Pow(0.15 * Math.PI / 180, 2), 0.01 * Math.Pow(Beta_n, 2) / 2 / Alpha_n);
 
             Vector<double> mW = Exts.Vector(0, 0, 0, 0, 0);
             Matrix<double> dW = Exts.Diag(0, 0, 0, 0, Math.Pow(Beta_n, 2));
@@ -281,14 +285,22 @@ namespace TargetTrackingTest
                 -x[2] * Math.Sin(x[3]), x[2] * Math.Cos(x[3]), 0, 0, 0,
                 0, 0, 0, 1.0 / x[2], -Alpha_n
             }); // Column-major order
-            Func<Vector<double>, Matrix<double>> dPsi = (x) => Matrix<double>.Build.Dense(4, 5, new double[5 * 4] {
-                -x[1] / (x[0]*x[0] + x[1] * x[1]), x[0] / Math.Sqrt(x[0] * x[0] + x[1] * x[1]), -x[1]/ (x[0] * x[0] + x[1] * x[1]), x[0]/ Math.Sqrt(x[0] * x[0] + x[1] * x[1]),
-                 x[0] / (x[0]*x[0] + x[1] * x[1]), x[1] / Math.Sqrt(x[0] * x[0] + x[1] * x[1]),  x[0]/ (x[0] * x[0] + x[1] * x[1]), x[1]/ Math.Sqrt(x[0] * x[0] + x[1] * x[1]),
+            Func<Vector<double>, Matrix<double>> dPsi = (x) =>
+            {
+                var x1 = x - X_R1.Stack(Exts.Vector(0, 0, 0));
+                var r1r1 = x1[0] * x1[0] + x1[1] * x1[1];
+                var r1 = Math.Sqrt(r1r1);
+                var x2 = x - X_R2.Stack(Exts.Vector(0, 0, 0));
+                var r2r2 = x2[0] * x2[0] + x2[1] * x2[1];
+                var r2 = Math.Sqrt(r2r2);
+                return Matrix<double>.Build.Dense(4, 5, new double[5 * 4] {
+                -x1[1] / r1r1, x1[0] / r1, -x2[1]/ r2r2, x2[0]/ r2,
+                 x1[0] / r1r1, x1[1] / r1,  x2[0]/ r2r2, x2[1]/ r2,
                 0, 0, 0, 0,
                 0, 0, 0, 0,
                 0, 0, 0, 0
             }); // Column-major order
-
+            };
             Func<int, Vector<double>, Matrix<double>, (Vector<double>, Matrix<double>)> Ricatti = (i, x, P) =>
             {
                 Vector<double> xx = x;
@@ -316,63 +328,6 @@ namespace TargetTrackingTest
             #endregion
 
             int N = (int)(T / h_obs);
-
-            //string folder = "d:\\results\\cont\\";
-            //Directory.CreateDirectory(folder);
-            string CMNFFileName = Path.Combine(o.OutputFolder, "cmnf.params");
-            if (!string.IsNullOrWhiteSpace(o.CMNFFileName)) CMNFFileName = o.CMNFFileName;
-            string BCMNFFileName = Path.Combine(o.OutputFolder, "bcmnf.params");
-            if (!string.IsNullOrWhiteSpace(o.BCMNFFileName)) BCMNFFileName = o.BCMNFFileName;
-
-            string UKFFileName = Path.Combine(o.OutputFolder, "ukf.params");
-            if (!string.IsNullOrWhiteSpace(o.UKFFileName)) UKFFileName = o.UKFFileName;
-            string UKFOptStepwiseNMFileName = Path.Combine(o.OutputFolder, "ukfoptstepwiseNM.params");
-            if (!string.IsNullOrWhiteSpace(o.UKFStepwiseNelderMeadFileName)) UKFOptStepwiseNMFileName = o.UKFStepwiseNelderMeadFileName;
-            string UKFOptIntegralNMFileName = Path.Combine(o.OutputFolder, "ukfoptintegralNM.params");
-            if (!string.IsNullOrWhiteSpace(o.UKFIntegralNelderMeadFileName)) UKFOptIntegralNMFileName = o.UKFIntegralNelderMeadFileName;
-            string UKFOptStepwiseRandFileName = Path.Combine(o.OutputFolder, "ukfoptstepwiserand.params");
-            if (!string.IsNullOrWhiteSpace(o.UKFStepwiseRandomShootFileName)) UKFOptStepwiseRandFileName = o.UKFStepwiseRandomShootFileName;
-            string UKFOptIntegralRandFileName = Path.Combine(o.OutputFolder, "ukfoptintegralrand.params");
-            if (!string.IsNullOrWhiteSpace(o.UKFIntegralRandomShootFileName)) UKFOptIntegralRandFileName = o.UKFIntegralRandomShootFileName;
-            List<(FilterType, string)> filters = new List<(FilterType, string)>();
-            if (o.CMNF) filters.Add((FilterType.CMNF, CMNFFileName));
-            if (o.BCMNF) filters.Add((FilterType.BCMNF, BCMNFFileName));
-            if (o.MCMNF) filters.Add((FilterType.BCMNF, string.Empty));
-
-            if (o.UKF) filters.Add((FilterType.UKFNoOptimization, UKFFileName));
-            if (o.UKFStepwiseNelderMead) filters.Add((FilterType.UKFStepwise, UKFOptStepwiseNMFileName));
-            if (o.UKFIntegralNelderMead) filters.Add((FilterType.UKFIntegral, UKFOptIntegralNMFileName));
-            if (o.UKFStepwiseRandomShoot) filters.Add((FilterType.UKFStepwiseRandomShoot, UKFOptStepwiseRandFileName));
-            if (o.UKFIntegralRandomShoot) filters.Add((FilterType.UKFIntegralRandomShoot, UKFOptIntegralRandFileName));
-            if (o.EKF) filters.Add((FilterType.EKF, string.Empty));
-            if (o.Dummy) filters.Add((FilterType.Dummy, string.Empty));
-
-                TestEnvironmentVector testEnv = new TestEnvironmentVector()
-            {
-                TestName = "Target tracking",
-                TestFileName = "TargetTracking",
-                Phi1 = Phi1_discr,
-                Phi2 = Phi2_discr,
-                Psi1 = Psi1_discr,
-                Psi2 = Psi2_discr,
-                dPhi = (i, x) => dPhi(x),
-                dPsi = (i, x) => dPsi(x),
-                Xi = (i, x) => Phi1_discr(i, x) + Phi2_discr(i, x) * mW,
-                //Zeta = (i, x, y, k) => (y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu).Stack(Utils.pol2cart(Exts.Vector(y[0], y[1]))+X_R1).Stack(Utils.pol2cart(Exts.Vector(y[2], y[3]))+X_R2),
-                Zeta = (i, x, y, k) => (y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu),
-                Alpha = (i, x) => Phi1_discr(i, x) + Phi2_discr(i, x) * mW,
-                Gamma = (i, x, y) => (y).Stack(Utils.pol2cart(Exts.Vector(y[0], y[1])) + X_R1).Stack(Utils.pol2cart(Exts.Vector(y[2], y[3])) + X_R2),
-                //Gamma = (i, x, y) => y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu,
-                W = (i) => W(),
-                Nu = (i) => Nu(),
-                DW = dW,
-                DNu = dNu,
-                X0 = () => X0(),
-                X0Hat = mEta,
-                DX0Hat = dEta,
-                Predict = Ricatti,
-                DummyEstimate = DummyEstimate
-            };
 
             Func<DiscreteVectorModel> ModelGenerator = () =>
             {
@@ -407,6 +362,66 @@ namespace TargetTrackingTest
                 return model;
             };
 
+            //string folder = "d:\\results\\cont\\";
+            //Directory.CreateDirectory(folder);
+            string CMNFFileName = Path.Combine(o.OutputFolder, "cmnf.params");
+            if (!string.IsNullOrWhiteSpace(o.CMNFFileName)) CMNFFileName = o.CMNFFileName;
+            string BCMNFFileName = Path.Combine(o.OutputFolder, "bcmnf.params");
+            if (!string.IsNullOrWhiteSpace(o.BCMNFFileName)) BCMNFFileName = o.BCMNFFileName;
+
+            string UKFFileName = Path.Combine(o.OutputFolder, "ukf.params");
+            if (!string.IsNullOrWhiteSpace(o.UKFFileName)) UKFFileName = o.UKFFileName;
+            string UKFOptStepwiseNMFileName = Path.Combine(o.OutputFolder, "ukfoptstepwiseNM.params");
+            if (!string.IsNullOrWhiteSpace(o.UKFStepwiseNelderMeadFileName)) UKFOptStepwiseNMFileName = o.UKFStepwiseNelderMeadFileName;
+            string UKFOptIntegralNMFileName = Path.Combine(o.OutputFolder, "ukfoptintegralNM.params");
+            if (!string.IsNullOrWhiteSpace(o.UKFIntegralNelderMeadFileName)) UKFOptIntegralNMFileName = o.UKFIntegralNelderMeadFileName;
+            string UKFOptStepwiseRandFileName = Path.Combine(o.OutputFolder, "ukfoptstepwiserand.params");
+            if (!string.IsNullOrWhiteSpace(o.UKFStepwiseRandomShootFileName)) UKFOptStepwiseRandFileName = o.UKFStepwiseRandomShootFileName;
+            string UKFOptIntegralRandFileName = Path.Combine(o.OutputFolder, "ukfoptintegralrand.params");
+            if (!string.IsNullOrWhiteSpace(o.UKFIntegralRandomShootFileName)) UKFOptIntegralRandFileName = o.UKFIntegralRandomShootFileName;
+            List<(FilterType, string)> filters = new List<(FilterType, string)>();
+            if (o.CMNF) filters.Add((FilterType.CMNF, CMNFFileName));
+            if (o.BCMNF) filters.Add((FilterType.BCMNF, BCMNFFileName));
+            if (o.MCMNF) filters.Add((FilterType.MCMNF, string.Empty));
+
+            if (o.UKF) filters.Add((FilterType.UKFNoOptimization, UKFFileName));
+            if (o.UKFStepwiseNelderMead) filters.Add((FilterType.UKFStepwise, UKFOptStepwiseNMFileName));
+            if (o.UKFIntegralNelderMead) filters.Add((FilterType.UKFIntegral, UKFOptIntegralNMFileName));
+            if (o.UKFStepwiseRandomShoot) filters.Add((FilterType.UKFStepwiseRandomShoot, UKFOptStepwiseRandFileName));
+            if (o.UKFIntegralRandomShoot) filters.Add((FilterType.UKFIntegralRandomShoot, UKFOptIntegralRandFileName));
+            if (o.EKF) filters.Add((FilterType.EKF, string.Empty));
+            if (o.Dummy) filters.Add((FilterType.Dummy, string.Empty));
+
+            TestEnvironmentVector testEnv = new TestEnvironmentVector()
+            {
+                TestName = "Target tracking",
+                TestFileName = "TargetTracking",
+                Phi1 = Phi1_discr,
+                Phi2 = Phi2_discr,
+                Psi1 = Psi1_discr,
+                Psi2 = Psi2_discr,
+                dPhi = (i, x) => dPhi(x),
+                dPsi = (i, x) => dPsi(x),
+                Xi = (i, x) => Phi1_discr(i, x) + Phi2_discr(i, x) * mW,
+                //Zeta = (i, x, y, k) => (y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu).Stack(Utils.pol2cart(Exts.Vector(y[0], y[1]))+X_R1).Stack(Utils.pol2cart(Exts.Vector(y[2], y[3]))+X_R2),
+                Zeta = (i, x, y, k) => (y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu),
+                Alpha = (i, x) => Phi1_discr(i, x) + Phi2_discr(i, x) * mW,
+                Gamma = (i, x, y) => (y).Stack(Utils.pol2cart(Exts.Vector(y[0], y[1])) + X_R1).Stack(Utils.pol2cart(Exts.Vector(y[2], y[3])) + X_R2),
+                //Gamma = (i, x, y) => y - Psi1_discr(i, x) - Psi2_discr(i, x) * mNu,
+                W = (i) => W(),
+                Nu = (i) => Nu(),
+                DW = dW,
+                DNu = dNu,
+                X0 = () => X0(),
+                X0Hat = mEta,
+                DX0Hat = dEta,
+                Predict = Ricatti,
+                DummyEstimate = DummyEstimate,
+                ModelGenerator = ModelGenerator
+            };
+
+
+
             //bool doCalculateFilter = true; 
             //testEnv.Initialize(N, 100000, 100, folder, filters, doCalculateFilter, !doCalculateFilter, ModelGenerator);
             //testEnv.Sifter = (x) => Math.Sqrt(x[0] * x[0] + x[1] * x[1]) > 500.0;
@@ -440,7 +455,7 @@ namespace TargetTrackingTest
                 testEnv.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
             else
             {
-                testEnv.Initialize(o.T, o.TrainCount, o.MCMNFTrainCount, o.OutputFolder, filters, o.Save, o.Load, ModelGenerator);
+                testEnv.Initialize(o.T, o.TrainCount, o.MCMNFTrainCount, o.OutputFolder, filters, o.Save, o.Load);
                 if (o.Sift) testEnv.Sifter = (x) => Math.Sqrt(x[0] * x[0] + x[1] * x[1]) > o.SiftBound;
                 if (o.Aggregate)
                 {
