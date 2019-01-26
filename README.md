@@ -1,6 +1,10 @@
 # MinimaxResearch
 
-An environment for testing various estimation methods in stichastic dynamic systems.
+An environment for testing various estimation methods in stichastic dynamic systems:
+
+x_{t+1} = Phi_1(x_t) + Phi_2(x_t) W_t, 
+
+y_t = Psi_1(x_t) + Psi_2(x_t) Nu_t
 
 Filters implemented so far:
 
