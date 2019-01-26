@@ -1,6 +1,7 @@
 # MinimaxResearch
 
 An environment for testing various estimation methods in stichastic dynamic systems.
+
 Filters implemented so far:
 
 ## UKFilter
@@ -19,13 +20,16 @@ Conditionally minimax filter from [2].
 ## TestEnvironments
 
 The solution contains a set of predefined test environments, implementing (among others) the following models:
+
 Static models:
 1. cartesian to polar and sphere coordinates transformation;
+
 Discrete dynamic models:
 2. cubic sensor;
 3. logistic regression;
 4. sampled regression;
 5. regression with switching observation;
+
 Continuous dynamic models:
 6. maneuvring target tracking (in separate project TargetTrackingTest)
 
