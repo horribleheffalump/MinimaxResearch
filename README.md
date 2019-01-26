@@ -22,17 +22,24 @@ Conditionally minimax filter from [2].
 The solution contains a set of predefined test environments, implementing (among others) the following models:
 
 Static models:
+
 1. cartesian to polar and sphere coordinates transformation;
 
 Discrete dynamic models:
+
 2. cubic sensor;
+
 3. logistic regression;
+
 4. sampled regression;
+
 5. regression with switching observation;
 
 Continuous dynamic models:
+
 6. maneuvring target tracking (in separate project TargetTrackingTest)
 
+## References
 
 [[1]](http://eu.wiley.com/WileyCDA/WileyTitle/productCd-0471369985.html) Kalman Filtering and Neural Networks, Edited by Simon Haykin, 2001, John Wiley & Sons, Inc.
 
