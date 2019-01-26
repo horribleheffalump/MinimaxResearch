@@ -13,7 +13,8 @@ using UKF;
 using PythonInteract;
 using MathNetExtensions;
 using System.Threading.Tasks;
-using TestEnvironments.Properties;
+//using TestEnvironments.Properties;
+using TestEnvironments.Filters;
 using System.Threading;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization;
@@ -73,7 +74,7 @@ namespace TestEnvironments
         public Func<DiscreteVectorModel> ModelGenerator;
 
         // filters
-        public BasicFilter[] Filters;
+        internal BasicFilter[] Filters;
 
         // criterion to sift out faulty estimates
         public Func<Vector<double>, bool> Sifter;
@@ -334,7 +335,7 @@ namespace TestEnvironments
 
             for (int k = 0; k < models[0].State.Count; k++)
             {
-                string fileName = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeBulk));
+                string fileName = Path.Combine(outputFolder, Properties.Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Properties.Resources.OutputTypeBulk));
                 using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString())))
                 {
                     for (int s = 1; s < T; s++)
@@ -378,13 +379,13 @@ namespace TestEnvironments
             string fileName_obs = "";
             if (n == null)
             {
-                fileName_state = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState));
-                fileName_obs = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs));
+                fileName_state = Path.Combine(outputFolder, Properties.Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Properties.Resources.OutputTypeOneState));
+                fileName_obs = Path.Combine(outputFolder, Properties.Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Properties.Resources.OutputTypeOneObs));
             }
             else
             {
-                fileName_state = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState + "_" + n.ToString()));
-                fileName_obs = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs + "_" + n.ToString()));
+                fileName_state = Path.Combine(outputFolder, Properties.Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Properties.Resources.OutputTypeOneState + "_" + n.ToString()));
+                fileName_obs = Path.Combine(outputFolder, Properties.Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Properties.Resources.OutputTypeOneObs + "_" + n.ToString()));
             }
 
             DiscreteVectorModel modelEst = ModelGenerator();
@@ -431,7 +432,7 @@ namespace TestEnvironments
         public void GenerateBundles(int N, int n, string outputFolder, bool parallel = false, int parallel_degree = 1, bool doSaveBin = true, bool doSaveText = true)
         {
             Console.WriteLine($"GenerateBundles");
-            string fileName = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
+            string fileName = Path.Combine(outputFolder, Properties.Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Properties.Resources.OutputTypeMany));
 
 
             List<ProcessInfo> processInfos = new List<ProcessInfo>();
@@ -459,8 +460,8 @@ namespace TestEnvironments
             }
             else
             {
-                string fileName_state = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState + "_{filter}_{n}"));
-                string fileName_obs = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs + "_{filter}_{n}"));
+                string fileName_state = Path.Combine(outputFolder, Properties.Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Properties.Resources.OutputTypeOneState + "_{filter}_{n}"));
+                string fileName_obs = Path.Combine(outputFolder, Properties.Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Properties.Resources.OutputTypeOneObs + "_{filter}_{n}"));
 
                 if (parallel)
                 {
@@ -495,7 +496,7 @@ namespace TestEnvironments
                 totalProcessInfo.SaveToText(fileName);
             if (doSaveBin)
             {
-                string fileNameBin = Path.Combine(outputFolder, Resources.OutputFileNameBinTemplate.Replace("{name}", TestFileName).Replace("{rnd}", Guid.NewGuid().ToString()));
+                string fileNameBin = Path.Combine(outputFolder, Properties.Resources.OutputFileNameBinTemplate.Replace("{name}", TestFileName).Replace("{rnd}", Guid.NewGuid().ToString()));
                 totalProcessInfo.SaveToFile(fileNameBin);
             }
         }
@@ -702,12 +703,12 @@ namespace TestEnvironments
                 Console.WriteLine(result);
                 if (doSaveText)
                 {
-                    string fileName = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
+                    string fileName = Path.Combine(outputFolder, Properties.Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Properties.Resources.OutputTypeMany));
                     totalProcessInfo.SaveToText(fileName);
                 }
                 if (doSaveBin)
                 {
-                    string fileNameBin = Path.Combine(outputFolder, Resources.OutputFileNameBinTemplate.Replace("{name}", TestFileName).Replace("{rnd}", "total"));
+                    string fileNameBin = Path.Combine(outputFolder, Properties.Resources.OutputFileNameBinTemplate.Replace("{name}", TestFileName).Replace("{rnd}", "total"));
                     totalProcessInfo.SaveToFile(fileNameBin);
                 }
             }

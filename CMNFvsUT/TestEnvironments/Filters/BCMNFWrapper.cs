@@ -12,9 +12,9 @@ using MathNetExtensions;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace TestEnvironments
+namespace TestEnvironments.Filters
 {
-    public class BCMNFWrapper: BasicFilter
+    internal class BCMNFWrapper: BasicFilter
     {
         private BCMNFilter BCMNF;
         public int T;

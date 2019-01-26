@@ -10,9 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 using UKF;
 
-namespace TestEnvironments
+namespace TestEnvironments.Filters
 {
-    public class UKFWrapper : BasicFilter
+    internal class UKFWrapper : BasicFilter
     {
         private UKFilter UKF;
         public int T;

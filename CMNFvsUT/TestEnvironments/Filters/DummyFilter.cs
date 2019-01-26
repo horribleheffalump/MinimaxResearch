@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestEnvironments
+namespace TestEnvironments.Filters
 {
-    public class DummyFilter : BasicFilter
+    internal class DummyFilter : BasicFilter
     {
 
         public string outputFolder;

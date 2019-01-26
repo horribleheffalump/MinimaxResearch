@@ -1,135 +1,8 @@
 # TestEnvironments #
 
-## Type BasicFilter
 
- Basic class for filters' standardization Siutable for filters with recursive structure, where the estimate on the current step depend only on the current observations, estimate on the previous step, and estimated error covariance 
 
 
-
----
-#### Method BasicFilter.Initialize
-
- Abstract method for filter initialization 
-
-
-
----
-#### Method BasicFilter.InitializeAndTrain
-
- Abstract method for filter initialization and parameter calculation 
-
-
-
----
-#### Method BasicFilter.Step(System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double})
-
- Abstract method for estimate calculation 
-
-|Name | Description |
-|-----|------|
-|t: |Current time instant|
-|y: |Current observation vector|
-|xHat: |Estimate on the previous step|
-|kHat: |Error covariance matrix|
-**Returns**: 
-
-
-
----
-#### Method BasicFilter.SaveParamsText
-
- Virtual method to save parameters as text 
-
-
-
----
-#### Method BasicFilter.SaveParams
-
- Virtual method to save filter parameters as binary for future use 
-
-
-
----
-#### Method BasicFilter.LoadParams
-
- Virtual method to load filter parameters 
-
-
-
----
-## Type Properties.Resources
-
- A strongly-typed resource class, for looking up localized strings, etc. 
-
-
-
----
-#### Property Properties.Resources.ResourceManager
-
- Returns the cached ResourceManager instance used by this class. 
-
-
-
----
-#### Property Properties.Resources.Culture
-
- Overrides the current thread's CurrentUICulture property for all resource lookups using this strongly typed resource class. 
-
-
-
----
-#### Property Properties.Resources.LatexPictureTemplte
-
- Looks up a localized string similar to \centerline{\includegraphics[width=0.9\textwidth]{%file%}} \caption{%caption%}. 
-
-
-
----
-#### Property Properties.Resources.OutputFileNameBinTemplate
-
- Looks up a localized string similar to {name}_{rnd}.pinfo. 
-
-
-
----
-#### Property Properties.Resources.OutputFileNameTemplate
-
- Looks up a localized string similar to {name}_{type}_{0}.txt. 
-
-
-
----
-#### Property Properties.Resources.OutputPictureNameTemplate
-
- Looks up a localized string similar to {name}_{script}_{0}.pdf. 
-
-
-
----
-#### Property Properties.Resources.OutputTypeBulk
-
- Looks up a localized string similar to bulk. 
-
-
-
----
-#### Property Properties.Resources.OutputTypeMany
-
- Looks up a localized string similar to average. 
-
-
-
----
-#### Property Properties.Resources.OutputTypeOneObs
-
- Looks up a localized string similar to sample_obs. 
-
-
-
----
-#### Property Properties.Resources.OutputTypeOneState
-
- Looks up a localized string similar to sample. 
 
 
 
@@ -234,3 +107,56 @@
 ---
 
 
+## Type Filters.BasicFilter
+
+ Basic class for filters' standardization Siutable for filters with recursive structure, where the estimate on the current step depend only on the current observations, estimate on the previous step, and estimated error covariance 
+
+
+
+---
+#### Method Filters.BasicFilter.Initialize
+
+ Abstract method for filter initialization 
+
+
+
+---
+#### Method Filters.BasicFilter.InitializeAndTrain
+
+ Abstract method for filter initialization and parameter calculation 
+
+
+
+---
+#### Method Filters.BasicFilter.Step(System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double})
+
+ Abstract method for estimate calculation 
+
+|Name | Description |
+|-----|------|
+|t: |Current time instant|
+|y: |Current observation vector|
+|xHat: |Estimate on the previous step|
+|kHat: |Error covariance matrix|
+**Returns**: Current state estimate
+
+
+
+---
+#### Method Filters.BasicFilter.SaveParamsText
+
+ Virtual method to save parameters as text 
+
+
+
+---
+#### Method Filters.BasicFilter.SaveParams
+
+ Virtual method to save filter parameters as binary for future use 
+
+
+
+---
+#### Method Filters.BasicFilter.LoadParams
+
+ Virtual method to load filter parameters 

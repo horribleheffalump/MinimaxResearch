@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestEnvironments
+namespace TestEnvironments.Filters
 {
     /// <summary>
     /// Basic class for filters' standardization
@@ -14,7 +14,7 @@ namespace TestEnvironments
     /// on the current observations, estimate on the previous step,
     /// and estimated error covariance
     /// </summary>
-    public abstract class BasicFilter
+    internal abstract class BasicFilter
     {
         public string FilterName; 
         public string FileName; // file name to save/load filter parameters
@@ -36,7 +36,7 @@ namespace TestEnvironments
         /// <param name="y">Current observation vector</param>
         /// <param name="xHat">Estimate on the previous step</param>
         /// <param name="kHat">Error covariance matrix</param>
-        /// <returns></returns>
+        /// <returns>Current state estimate</returns>
         public abstract (Vector<double>, Matrix<double>) Step(int t, Vector<double> y, Vector<double> xHat, Matrix<double> kHat);
 
         /// <summary>

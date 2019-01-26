@@ -7,9 +7,9 @@ using CMNF;
 using MathNet.Numerics.LinearAlgebra;
 using NonlinearSystem;
 
-namespace TestEnvironments
+namespace TestEnvironments.Filters
 {
-    public class MCMNFWrapper : BasicFilter
+    internal class MCMNFWrapper : BasicFilter
     {
         private ModifiedCMNFilter MCMNF;
         public int N;

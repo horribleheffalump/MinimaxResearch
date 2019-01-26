@@ -12,9 +12,9 @@ using MathNetExtensions;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace TestEnvironments
+namespace TestEnvironments.Filters
 {
-    public class RCMNFWrapper: BasicFilter
+    internal class RCMNFWrapper: BasicFilter
     {
         private ResamplingCMNFilter RCMNF;
         public int N;

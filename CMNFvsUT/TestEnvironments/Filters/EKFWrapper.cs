@@ -10,9 +10,9 @@ using System.Text;
 using System.Threading.Tasks;
 using EKF;
 
-namespace TestEnvironments
+namespace TestEnvironments.Filters
 {
-    public class EKFWrapper : BasicFilter
+    internal class EKFWrapper : BasicFilter
     {
         private ExtendedKalmanFilter EKF;
         public int T;
