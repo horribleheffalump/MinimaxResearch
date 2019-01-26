@@ -21,7 +21,7 @@ using System.Runtime.Serialization;
 namespace TestEnvironments
 {
     /// <summary>
-    /// Test environment for CMN and UT filters comparison on discrete stochastic dynamic systems
+    /// Test environment for filters comparison on discrete stochastic dynamic systems
     /// </summary>
     public class TestEnvironmentVector
     {
@@ -30,48 +30,52 @@ namespace TestEnvironments
 
         private int T;
 
+        // model 
         public Func<int, Vector<double>, Vector<double>> Phi1;
         public Func<int, Vector<double>, Matrix<double>> Phi2;
         public Func<int, Vector<double>, Vector<double>> Psi1;
         public Func<int, Vector<double>, Matrix<double>> Psi2;
-        public Func<int, Vector<double>, Matrix<double>> dPhi;
-        public Func<int, Vector<double>, Matrix<double>> dPsi;
-
-        //public string[] Phi1_latex;
-        //public string[][] Phi2_latex;
-        //public string[] Psi1_latex;
-        //public string[][] Psi2_latex;
-
-        //public string P_W;
-        //public string P_Nu;
-        //public string P_Eta;
 
 
+        // noise
         public Func<int, Vector<double>> W;
         public Func<int, Vector<double>> Nu;
 
+        // noise characteristics
         public Vector<double> MW;
         public Matrix<double> DW;
         public Vector<double> MNu;
         public Matrix<double> DNu;
+
+        // starting point and its estimate
         public Func<Vector<double>> X0;
         public Vector<double> X0Hat;
         public Matrix<double> DX0Hat;
 
+        // CMNF and MCMNF params
+        public int nMCMNF;
         public Func<int, Vector<double>, Vector<double>> Xi;
         public Func<int, Vector<double>, Vector<double>, Matrix<double>, Vector<double>> Zeta;
 
+        // BCMNF params
         public Func<int, Vector<double>, Vector<double>> Alpha;
         public Func<int, Vector<double>, Vector<double>, Vector<double>> Gamma;
 
+        // EKF params
+        public Func<int, Vector<double>, Matrix<double>> dPhi;
+        public Func<int, Vector<double>, Matrix<double>> dPsi;
         public Func<int, Vector<double>, Matrix<double>, (Vector<double>, Matrix<double>)> Predict;
 
+        // trivial estimate
         public Func<int, Vector<double>, Vector<double>, Matrix<double>, (Vector<double>, Matrix<double>)> DummyEstimate;
 
+        // model generator
         public Func<DiscreteVectorModel> ModelGenerator;
-        //private NumberFormatInfo provider;
 
+        // filters
         public BasicFilter[] Filters;
+
+        // criterion to sift out faulty estimates
         public Func<Vector<double>, bool> Sifter;
 
         private void HandleNulls()
@@ -100,15 +104,15 @@ namespace TestEnvironments
         }
 
         /// <summary>
-        /// Initializes the test environment by calculating the statistics for CMN and UT filters
+        /// Initializes the test environment
         /// </summary>
         /// <param name="t">time interval right margin (number of steps)</param>
-        /// <param name="n">number of trajectories</param>
-        /// <param name="doCalculateUKF"></param>
-        /// <param name="doCalculateUKFStepwise"></param>
-        /// <param name="outputFolder"></param>
-        //public void Initialize(int t, int n, bool doCalculateUKF, bool doCalculateUKFStepwise, bool doOptimizeWithRandomShoot, string outputFolder)
-        public void Initialize(int t, int n, int nMCMNF, string outputFolder, List<(FilterType type, string fileName)> filters, bool save = false, bool load = false)
+        /// <param name="n">test set size for filters parameter calculation</param>
+        /// <param name="workingFolder">working folder to store all the output and to load params from</param>
+        /// <param name="filters">list of filter types </param>
+        /// <param name="save">if true, save the calculated filter params</param>
+        /// <param name="load">if true, load the filter params calculated earlier</param>
+        public void Initialize(int t, int n, string workingFolder, List<(FilterType type, string fileName)> filters, bool save = false, bool load = false)
         {
             Console.WriteLine("Init");
             NumberFormatInfo provider = new NumberFormatInfo();
@@ -231,7 +235,7 @@ namespace TestEnvironments
                         DNu = DNu,
                         Crit = x => x.Trace(),//x[0, 0],
                         DX0Hat = DX0Hat,
-                        outputFolder = outputFolder
+                        outputFolder = workingFolder
                     };
 
                     if (filters[j].type == FilterType.UKFNoOptimization)
@@ -271,7 +275,7 @@ namespace TestEnvironments
                         MNu = MNu,
                         DNu = DNu,
                         Predict = Predict,
-                        outputFolder = outputFolder
+                        outputFolder = workingFolder
                     };
                     Filters[j] = EKF;
                 }
@@ -304,12 +308,12 @@ namespace TestEnvironments
         {
         }
 
-
         /// <summary>
-        /// Generates a bundle of trajectories and saves the state dynamics to files
+        /// Generates a bundle of sample paths and saves the state dynamics to files (one file for each coordinate)
         /// </summary>
         /// <param name="t">time interval right margin (number of steps)</param>
-        /// <param name="n">number of trajectories</param>
+        /// <param name="n">number of sample paths to generate</param>
+        /// <param name="outputFolder">folder to save the results</param>
         public void GenerateBundleSamples(int t, int n, string outputFolder)
         {
             HandleNulls();
@@ -362,19 +366,25 @@ namespace TestEnvironments
 
         }
 
-        public void GenerateOne(string folderName, int? n = null)
+        /// <summary>
+        /// Generates a single sample path (bundle of sample paths, if n>1) and saves the state dynamics 
+        /// and observations to separate files (one file for each coordinate of each sample)
+        /// </summary>
+        /// <param name="outputFolder">folder to save the results</param>
+        /// <param name="n">number of sample paths to generate</param>
+        public void GenerateOne(string outputFolder, int? n = null)
         {
             string fileName_state = "";
             string fileName_obs = "";
             if (n == null)
             {
-                fileName_state = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState));
-                fileName_obs = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs));
+                fileName_state = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState));
+                fileName_obs = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs));
             }
             else
             {
-                fileName_state = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState + "_" + n.ToString()));
-                fileName_obs = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs + "_" + n.ToString()));
+                fileName_state = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState + "_" + n.ToString()));
+                fileName_obs = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs + "_" + n.ToString()));
             }
 
             DiscreteVectorModel modelEst = ModelGenerator();
@@ -406,18 +416,22 @@ namespace TestEnvironments
             trajectoryInfo.SaveToText(fileName_state, fileName_obs);
         }
 
+
         /// <summary>
-        /// Generates N bundles of trajectories, applies the CMN and UK filters. The statistics for estimate errors are calculated by taking average on each bundle, and then on the whole set of bundles. 
-        /// Same as GenerateBundle but for larger numbers of trajectories. 
-        /// </summary> 
+        /// Generates N bundles of sample paths and applies the filters. 
+        /// The statistics for estimate errors is calculated by taking average on each bundle, and then on the whole set of bundles. 
+        /// </summary>
         /// <param name="N">Number of bundles</param>
-        /// <param name="n">Number of trajectories</param>
-        /// <param name="folderName">Output folder name</param>
-        /// <param name="doCalculateUKF">(optional, default = true) if true, UKF and CMNF estimates are calculated, if false - only CMNF </param>
-        public void GenerateBundles(int N, int n, string folderName, bool parallel = false, int parallel_degree = 1, bool doSaveBin = true, bool doSaveText = true)
+        /// <param name="n">Number of samples in each bundle</param>
+        /// <param name="outputFolder">folder to save the results</param>
+        /// <param name="parallel">if true, bundles are calculated in parallel</param>
+        /// <param name="parallel_degree">degree of parallelizm</param>
+        /// <param name="doSaveBin">if true, the results are saved in binary format (allows subsequent aggregation)</param>
+        /// <param name="doSaveText">if true, the results are saved in text format (subsequent aggregation is not possible)</param>
+        public void GenerateBundles(int N, int n, string outputFolder, bool parallel = false, int parallel_degree = 1, bool doSaveBin = true, bool doSaveText = true)
         {
             Console.WriteLine($"GenerateBundles");
-            string fileName = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
+            string fileName = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
 
 
             List<ProcessInfo> processInfos = new List<ProcessInfo>();
@@ -445,8 +459,8 @@ namespace TestEnvironments
             }
             else
             {
-                string fileName_state = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState + "_{filter}_{n}"));
-                string fileName_obs = Path.Combine(folderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs + "_{filter}_{n}"));
+                string fileName_state = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState + "_{filter}_{n}"));
+                string fileName_obs = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs + "_{filter}_{n}"));
 
                 if (parallel)
                 {
@@ -481,67 +495,18 @@ namespace TestEnvironments
                 totalProcessInfo.SaveToText(fileName);
             if (doSaveBin)
             {
-                string fileNameBin = Path.Combine(folderName, Resources.OutputFileNameBinTemplate.Replace("{name}", TestFileName).Replace("{rnd}", Guid.NewGuid().ToString()));
+                string fileNameBin = Path.Combine(outputFolder, Resources.OutputFileNameBinTemplate.Replace("{name}", TestFileName).Replace("{rnd}", Guid.NewGuid().ToString()));
                 totalProcessInfo.SaveToFile(fileNameBin);
             }
         }
-
-
+        
         /// <summary>
-        /// Imports and aggregates the data from prevoiously generated bundles of trajectories.
-        /// The statistics for estimate errors are calculated by taking average the whole set of bundles. 
-        /// </summary> 
-        /// <param name="folderName">Output folder name</param>
-        public void Aggregate(string inputFolderName, string outputFolderName, bool doSaveBin = true, bool doSaveText = true)
-        {
-            Console.WriteLine($"ImportBundles");
-            List<ProcessInfo> pinfos = new List<ProcessInfo>();
-            foreach (var f in Directory.EnumerateFiles(inputFolderName))
-            {
-                string result = $"Importing {f}: ";
-                try
-                {
-                    ProcessInfo p = ProcessInfo.LoadFromFile(f);
-                    pinfos.Add(p);
-                    result += $"succeded, trajectories count: {p.Count};";
-                    foreach (var filter in p.FilterQualityInfos)
-                    {
-                        result += $" {filter.FilterName} ({filter.Count});";
-                    }
-                }
-                catch (Exception e)
-                {
-                    result += $"failed {e.Message}";
-                }
-                Console.WriteLine(result);
-            }
-            if (pinfos.Count > 0)
-            {
-                ProcessInfo totalProcessInfo = new ProcessInfo(pinfos.ToArray());
-                string result = $"Aggregated data. Trajectories count: {totalProcessInfo.Count}";
-                foreach (var filter in totalProcessInfo.FilterQualityInfos)
-                {
-                    result += $" {filter.FilterName} ({filter.Count});";
-                }
-                Console.WriteLine("----------------");
-                Console.WriteLine(result);
-                if (doSaveText)
-                {
-                    string fileName = Path.Combine(outputFolderName, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
-                    totalProcessInfo.SaveToText(fileName);
-                }
-                if (doSaveBin)
-                {
-                    string fileNameBin = Path.Combine(outputFolderName, Resources.OutputFileNameBinTemplate.Replace("{name}", TestFileName).Replace("{rnd}", "total"));
-                    totalProcessInfo.SaveToFile(fileNameBin);
-                }
-            }
-            else
-                Console.WriteLine("No data found");
-        }
-
-
-        private ProcessInfo CalculateBundle(int n, ProcessInfo processInfo)
+        /// Generates a bundle of sample paths, applies the filters and returns estimate errors statistics
+        /// </summary>
+        /// <param name="n">Number of samples in a bundle</param>
+        /// <param name="processInfo">Structure with initial parameters, e.g. filter list</param>
+        /// <returns>Estimate error statistics for generated bundle</returns>
+        public ProcessInfo CalculateBundle(int n, ProcessInfo processInfo)
         {
             DiscreteVectorModel[] modelsEst = new DiscreteVectorModel[n];
             for (int i = 0; i < n; i++)
@@ -590,7 +555,20 @@ namespace TestEnvironments
             return processInfo;
         }
 
-        private ProcessInfo CalculateBundle(int n, ProcessInfo processInfo, Func<Vector<double>, bool> SiftCriterion, string FileNameStateTemplate, string FileNameObsTemplate)
+
+        /// <summary>
+        /// Generates a bundle of sample paths, applies the filters and returns estimate errors statistics.
+        /// All the estimates are tested on each step with sift criterion F(X_t - \hat{X}_t), where X_t - current state, \hat{X}_t - its estimate)
+        /// IF F(\cdot) = true, then the path is not included into the final statistics and is exported as text for future investigation.
+        /// Sifting is extreamly useful for a filter debugging.
+        /// </summary>
+        /// <param name="n">Number of samples in a bundle</param>
+        /// <param name="processInfo">Structure with initial parameters, e.g. filter list</param>
+        /// <param name="SiftCriterion">Criterion to sift out the faulty estimates: bool F(Vector<double> X)</param>
+        /// <param name="FileNameStateTemplate">Filename template to export samples along with their faulty estimates</param>
+        /// <param name="FileNameObsTemplate">Filename template to export observations</param>
+        /// <returns>Estimate error statistics for generated bundle</returns>
+        public ProcessInfo CalculateBundle(int n, ProcessInfo processInfo, Func<Vector<double>, bool> SiftCriterion, string FileNameStateTemplate, string FileNameObsTemplate)
         {
             DiscreteVectorModel[] modelsEst = new DiscreteVectorModel[n];
             SingleTrajectoryInfo[] trajectoryInfo = new SingleTrajectoryInfo[n];
@@ -680,78 +658,142 @@ namespace TestEnvironments
             return processInfo;
         }
 
-        public void ProcessResults(string dataFolder, string scriptsFolder, string outputFolder)
+
+        /// <summary>
+        /// Imports and aggregates data from prevoiously generated bundles of trajectories.
+        /// The statistics for estimate errors is calculated by taking average the whole set. 
+        /// </summary>
+        /// <param name="inputFolder">folder to search files with previously generated statistics subject to aggregation</param>
+        /// <param name="outputFolder">folder to save the results</param>
+        /// <param name="doSaveBin">if true, the results are saved in binary format (allows subsequent aggregation)</param>
+        /// <param name="doSaveText">if true, the results are saved in text format (subsequent aggregation is not possible)</param>
+        public void Aggregate(string inputFolder, string outputFolder, bool doSaveBin = true, bool doSaveText = true)
         {
-            Console.WriteLine("Running scripts");
-
-            string[] scriptNamesOne = new string[] { "process_sample", "estimate_sample" };
-            string[] scriptNamesMany = new string[] { "process_statistics", "estimate_statistics", "estimate_statistics_single" };
-
-            string fileNameOne_state = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState);
-            string fileNameOne_obs = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs);
-            string fileNameMany = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany);
-
-            string scriptOutputFileNameTemplate = Resources.OutputPictureNameTemplate.Replace("{name}", TestFileName);
-
-            foreach (string s in scriptNamesOne)
+            Console.WriteLine($"ImportBundles");
+            List<ProcessInfo> pinfos = new List<ProcessInfo>();
+            foreach (var f in Directory.EnumerateFiles(inputFolder))
             {
-                Console.WriteLine($"Running {s}");
-                RunScript(
-                        Path.Combine(scriptsFolder, s + ".py"),
-                        new string[] {
-                                                Path.Combine(dataFolder, fileNameOne_state),
-                                                Path.Combine(dataFolder, fileNameOne_obs),
-                                                Path.Combine(outputFolder, scriptOutputFileNameTemplate.Replace("{script}", s))
-                                    });
+                string result = $"Importing {f}: ";
+                try
+                {
+                    ProcessInfo p = ProcessInfo.LoadFromFile(f);
+                    pinfos.Add(p);
+                    result += $"succeded, trajectories count: {p.Count};";
+                    foreach (var filter in p.FilterQualityInfos)
+                    {
+                        result += $" {filter.FilterName} ({filter.Count});";
+                    }
+                }
+                catch (Exception e)
+                {
+                    result += $"failed {e.Message}";
+                }
+                Console.WriteLine(result);
             }
-            foreach (string s in scriptNamesMany)
+            if (pinfos.Count > 0)
             {
-                Console.WriteLine($"Running {s}");
-                RunScript(
-                        Path.Combine(scriptsFolder, s + ".py"),
-                        new string[] {
-                                                Path.Combine(dataFolder, fileNameMany),
-                                                Path.Combine(outputFolder, scriptOutputFileNameTemplate.Replace("{script}", s))
-                                    });
+                ProcessInfo totalProcessInfo = new ProcessInfo(pinfos.ToArray());
+                string result = $"Aggregated data. Trajectories count: {totalProcessInfo.Count}";
+                foreach (var filter in totalProcessInfo.FilterQualityInfos)
+                {
+                    result += $" {filter.FilterName} ({filter.Count});";
+                }
+                Console.WriteLine("----------------");
+                Console.WriteLine(result);
+                if (doSaveText)
+                {
+                    string fileName = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
+                    totalProcessInfo.SaveToText(fileName);
+                }
+                if (doSaveBin)
+                {
+                    string fileNameBin = Path.Combine(outputFolder, Resources.OutputFileNameBinTemplate.Replace("{name}", TestFileName).Replace("{rnd}", "total"));
+                    totalProcessInfo.SaveToFile(fileNameBin);
+                }
             }
+            else
+                Console.WriteLine("No data found");
         }
 
         /// <summary>
-        /// Runs a python script to process the calculated test data
+        /// Runs a Python script with single param
         /// </summary>
-        /// <param name="scriptName">Python script file path</param>
-        /// <param name="scriptParamsTemplates">Script parameters templates array ({0} - number of state vector component)</param>
-        public void RunScript(string scriptName, string[] scriptParamsTemplates)
-        {
-            for (int i = 0; i < X0Hat.Count; i++)
-            {
-                Python.RunScript(scriptName, scriptParamsTemplates.Select(s => s.Replace("{0}", i.ToString())).ToArray());
-            }
-            //Python.RunScript(Path.Combine(Settings.Default.ScriptsFolder, "estimate.py"), new string[] { Settings.Default.OutputFolder, "test1_estimateAvg_0.txt", "test1_estimateAvg_0.pdf" });
-            //Python.RunScript(Path.Combine(Settings.Default.ScriptsFolder, "estimate.py"), new string[] { Settings.Default.OutputFolder, "test1_estimateAvg_1.txt", "test1_estimateAvg_1.pdf" });
-
-        }
-
+        /// <param name="scriptName">script file path</param>
+        /// <param name="scriptParam">script parameter as string</param>
         public void RunScript(string scriptName, string scriptParam)
         {
             Python.RunScript(scriptName, new string[] { scriptParam });
         }
 
-        private string ProcessPics(string picFileNameTemplate, string caption)
-        {
-            StringBuilder procPics = new StringBuilder();
-            for (int i = 0; i < X0Hat.Count; i++)
-            {
-                string pic = Resources.LatexPictureTemplte.Replace("%file%", picFileNameTemplate.Replace("{0}", i.ToString()));
-                pic = pic.Replace("%caption%", caption + (X0Hat.Count > 1 ? $" Компонента {i + 1}." : ""));
-                procPics.AppendLine(pic);
-                if (i != X0Hat.Count - 1)
-                    procPics.AppendLine(@"\vspace{2em}");
-            }
 
-            return procPics.ToString();
 
-        }
+        ///// <summary>
+        ///// Runs a Python script to process the calculated test data
+        ///// </summary>
+        ///// <param name="scriptName">script file path</param>
+        ///// <param name="scriptParamsTemplates">script parameters templates array ({0} - number of state vector component)</param>
+        //public void RunScript(string scriptName, string[] scriptParamsTemplates)
+        //{
+        //    for (int i = 0; i < X0Hat.Count; i++)
+        //    {
+        //        Python.RunScript(scriptName, scriptParamsTemplates.Select(s => s.Replace("{0}", i.ToString())).ToArray());
+        //    }
+        //    //Python.RunScript(Path.Combine(Settings.Default.ScriptsFolder, "estimate.py"), new string[] { Settings.Default.OutputFolder, "test1_estimateAvg_0.txt", "test1_estimateAvg_0.pdf" });
+        //    //Python.RunScript(Path.Combine(Settings.Default.ScriptsFolder, "estimate.py"), new string[] { Settings.Default.OutputFolder, "test1_estimateAvg_1.txt", "test1_estimateAvg_1.pdf" });
+
+        //}
+
+        //public void ProcessResults(string dataFolder, string scriptsFolder, string outputFolder)
+        //{
+        //    Console.WriteLine("Running scripts");
+
+        //    string[] scriptNamesOne = new string[] { "process_sample", "estimate_sample" };
+        //    string[] scriptNamesMany = new string[] { "process_statistics", "estimate_statistics", "estimate_statistics_single" };
+
+        //    string fileNameOne_state = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState);
+        //    string fileNameOne_obs = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs);
+        //    string fileNameMany = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany);
+
+        //    string scriptOutputFileNameTemplate = Resources.OutputPictureNameTemplate.Replace("{name}", TestFileName);
+
+        //    foreach (string s in scriptNamesOne)
+        //    {
+        //        Console.WriteLine($"Running {s}");
+        //        RunScript(
+        //                Path.Combine(scriptsFolder, s + ".py"),
+        //                new string[] {
+        //                                        Path.Combine(dataFolder, fileNameOne_state),
+        //                                        Path.Combine(dataFolder, fileNameOne_obs),
+        //                                        Path.Combine(outputFolder, scriptOutputFileNameTemplate.Replace("{script}", s))
+        //                            });
+        //    }
+        //    foreach (string s in scriptNamesMany)
+        //    {
+        //        Console.WriteLine($"Running {s}");
+        //        RunScript(
+        //                Path.Combine(scriptsFolder, s + ".py"),
+        //                new string[] {
+        //                                        Path.Combine(dataFolder, fileNameMany),
+        //                                        Path.Combine(outputFolder, scriptOutputFileNameTemplate.Replace("{script}", s))
+        //                            });
+        //    }
+        //}
+
+        //private string ProcessPics(string picFileNameTemplate, string caption)
+        //{
+        //    StringBuilder procPics = new StringBuilder();
+        //    for (int i = 0; i < X0Hat.Count; i++)
+        //    {
+        //        string pic = Resources.LatexPictureTemplte.Replace("%file%", picFileNameTemplate.Replace("{0}", i.ToString()));
+        //        pic = pic.Replace("%caption%", caption + (X0Hat.Count > 1 ? $" Компонента {i + 1}." : ""));
+        //        procPics.AppendLine(pic);
+        //        if (i != X0Hat.Count - 1)
+        //            procPics.AppendLine(@"\vspace{2em}");
+        //    }
+
+        //    return procPics.ToString();
+
+        //}
 
         //public void GenerateReport(string templateFolderName, string folderName)
         //{
