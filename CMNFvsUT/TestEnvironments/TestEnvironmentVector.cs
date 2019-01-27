@@ -13,7 +13,7 @@ using UKF;
 using PythonInteract;
 using MathNetExtensions;
 using System.Threading.Tasks;
-//using TestEnvironments.Properties;
+using TestEnvironments.Properties;
 using TestEnvironments.Filters;
 using System.Threading;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -335,7 +335,7 @@ namespace TestEnvironments
 
             for (int k = 0; k < models[0].State.Count; k++)
             {
-                string fileName = Path.Combine(outputFolder, Properties.Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Properties.Resources.OutputTypeBulk));
+                string fileName = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeBulk));
                 using (System.IO.StreamWriter outputfile = new System.IO.StreamWriter(fileName.Replace("{0}", k.ToString())))
                 {
                     for (int s = 1; s < T; s++)
@@ -379,13 +379,13 @@ namespace TestEnvironments
             string fileName_obs = "";
             if (n == null)
             {
-                fileName_state = Path.Combine(outputFolder, Properties.Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Properties.Resources.OutputTypeOneState));
-                fileName_obs = Path.Combine(outputFolder, Properties.Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Properties.Resources.OutputTypeOneObs));
+                fileName_state = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState));
+                fileName_obs = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs));
             }
             else
             {
-                fileName_state = Path.Combine(outputFolder, Properties.Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Properties.Resources.OutputTypeOneState + "_" + n.ToString()));
-                fileName_obs = Path.Combine(outputFolder, Properties.Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Properties.Resources.OutputTypeOneObs + "_" + n.ToString()));
+                fileName_state = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState + "_" + n.ToString()));
+                fileName_obs = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs + "_" + n.ToString()));
             }
 
             DiscreteVectorModel modelEst = ModelGenerator();
@@ -432,7 +432,7 @@ namespace TestEnvironments
         public void GenerateBundles(int N, int n, string outputFolder, bool parallel = false, int parallel_degree = 1, bool doSaveBin = true, bool doSaveText = true)
         {
             Console.WriteLine($"GenerateBundles");
-            string fileName = Path.Combine(outputFolder, Properties.Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Properties.Resources.OutputTypeMany));
+            string fileName = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
 
 
             List<ProcessInfo> processInfos = new List<ProcessInfo>();
@@ -460,8 +460,8 @@ namespace TestEnvironments
             }
             else
             {
-                string fileName_state = Path.Combine(outputFolder, Properties.Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Properties.Resources.OutputTypeOneState + "_{filter}_{n}"));
-                string fileName_obs = Path.Combine(outputFolder, Properties.Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Properties.Resources.OutputTypeOneObs + "_{filter}_{n}"));
+                string fileName_state = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState + "_{filter}_{n}"));
+                string fileName_obs = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs + "_{filter}_{n}"));
 
                 if (parallel)
                 {
@@ -496,7 +496,7 @@ namespace TestEnvironments
                 totalProcessInfo.SaveToText(fileName);
             if (doSaveBin)
             {
-                string fileNameBin = Path.Combine(outputFolder, Properties.Resources.OutputFileNameBinTemplate.Replace("{name}", TestFileName).Replace("{rnd}", Guid.NewGuid().ToString()));
+                string fileNameBin = Path.Combine(outputFolder, Resources.OutputFileNameBinTemplate.Replace("{name}", TestFileName).Replace("{rnd}", Guid.NewGuid().ToString()));
                 totalProcessInfo.SaveToFile(fileNameBin);
             }
         }
@@ -703,12 +703,12 @@ namespace TestEnvironments
                 Console.WriteLine(result);
                 if (doSaveText)
                 {
-                    string fileName = Path.Combine(outputFolder, Properties.Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Properties.Resources.OutputTypeMany));
+                    string fileName = Path.Combine(outputFolder, Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany));
                     totalProcessInfo.SaveToText(fileName);
                 }
                 if (doSaveBin)
                 {
-                    string fileNameBin = Path.Combine(outputFolder, Properties.Resources.OutputFileNameBinTemplate.Replace("{name}", TestFileName).Replace("{rnd}", "total"));
+                    string fileNameBin = Path.Combine(outputFolder, Resources.OutputFileNameBinTemplate.Replace("{name}", TestFileName).Replace("{rnd}", "total"));
                     totalProcessInfo.SaveToFile(fileNameBin);
                 }
             }
@@ -728,57 +728,60 @@ namespace TestEnvironments
 
 
 
-        ///// <summary>
-        ///// Runs a Python script to process the calculated test data
-        ///// </summary>
-        ///// <param name="scriptName">script file path</param>
-        ///// <param name="scriptParamsTemplates">script parameters templates array ({0} - number of state vector component)</param>
-        //public void RunScript(string scriptName, string[] scriptParamsTemplates)
-        //{
-        //    for (int i = 0; i < X0Hat.Count; i++)
-        //    {
-        //        Python.RunScript(scriptName, scriptParamsTemplates.Select(s => s.Replace("{0}", i.ToString())).ToArray());
-        //    }
-        //    //Python.RunScript(Path.Combine(Settings.Default.ScriptsFolder, "estimate.py"), new string[] { Settings.Default.OutputFolder, "test1_estimateAvg_0.txt", "test1_estimateAvg_0.pdf" });
-        //    //Python.RunScript(Path.Combine(Settings.Default.ScriptsFolder, "estimate.py"), new string[] { Settings.Default.OutputFolder, "test1_estimateAvg_1.txt", "test1_estimateAvg_1.pdf" });
+        /// <summary>
+        /// Runs a Python script to process the calculated test data
+        /// </summary>
+        /// <param name="scriptName">script file path</param>
+        /// <param name="scriptParamsTemplates">script parameters templates array ({0} - number of state vector component)</param>
+        public void RunScript(string scriptName, string[] scriptParamsTemplates)
+        {
+            for (int i = 0; i < X0Hat.Count; i++)
+            {
+                Python.RunScript(scriptName, scriptParamsTemplates.Select(s => s.Replace("{0}", i.ToString())).ToArray());
+            }
+            //Python.RunScript(Path.Combine(Settings.Default.ScriptsFolder, "estimate.py"), new string[] { Settings.Default.OutputFolder, "test1_estimateAvg_0.txt", "test1_estimateAvg_0.pdf" });
+            //Python.RunScript(Path.Combine(Settings.Default.ScriptsFolder, "estimate.py"), new string[] { Settings.Default.OutputFolder, "test1_estimateAvg_1.txt", "test1_estimateAvg_1.pdf" });
 
-        //}
+        }
 
-        //public void ProcessResults(string dataFolder, string scriptsFolder, string outputFolder)
-        //{
-        //    Console.WriteLine("Running scripts");
+        /// <summary>
+        /// Runs predefined python scripts to process the calculated test data
+        /// </summary>
+        public void ProcessResults(string dataFolder, string scriptsFolder, string outputFolder)
+        {
+            Console.WriteLine("Running scripts");
 
-        //    string[] scriptNamesOne = new string[] { "process_sample", "estimate_sample" };
-        //    string[] scriptNamesMany = new string[] { "process_statistics", "estimate_statistics", "estimate_statistics_single" };
+            string[] scriptNamesOne = new string[] { "process_sample", "estimate_sample" };
+            string[] scriptNamesMany = new string[] { "process_statistics", "estimate_statistics", "estimate_statistics_single" };
 
-        //    string fileNameOne_state = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState);
-        //    string fileNameOne_obs = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs);
-        //    string fileNameMany = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany);
+            string fileNameOne_state = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneState);
+            string fileNameOne_obs = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeOneObs);
+            string fileNameMany = Resources.OutputFileNameTemplate.Replace("{name}", TestFileName).Replace("{type}", Resources.OutputTypeMany);
 
-        //    string scriptOutputFileNameTemplate = Resources.OutputPictureNameTemplate.Replace("{name}", TestFileName);
+            string scriptOutputFileNameTemplate = Resources.OutputPictureNameTemplate.Replace("{name}", TestFileName);
 
-        //    foreach (string s in scriptNamesOne)
-        //    {
-        //        Console.WriteLine($"Running {s}");
-        //        RunScript(
-        //                Path.Combine(scriptsFolder, s + ".py"),
-        //                new string[] {
-        //                                        Path.Combine(dataFolder, fileNameOne_state),
-        //                                        Path.Combine(dataFolder, fileNameOne_obs),
-        //                                        Path.Combine(outputFolder, scriptOutputFileNameTemplate.Replace("{script}", s))
-        //                            });
-        //    }
-        //    foreach (string s in scriptNamesMany)
-        //    {
-        //        Console.WriteLine($"Running {s}");
-        //        RunScript(
-        //                Path.Combine(scriptsFolder, s + ".py"),
-        //                new string[] {
-        //                                        Path.Combine(dataFolder, fileNameMany),
-        //                                        Path.Combine(outputFolder, scriptOutputFileNameTemplate.Replace("{script}", s))
-        //                            });
-        //    }
-        //}
+            foreach (string s in scriptNamesOne)
+            {
+                Console.WriteLine($"Running {s}");
+                RunScript(
+                        Path.Combine(scriptsFolder, s + ".py"),
+                        new string[] {
+                                                Path.Combine(dataFolder, fileNameOne_state),
+                                                Path.Combine(dataFolder, fileNameOne_obs),
+                                                Path.Combine(outputFolder, scriptOutputFileNameTemplate.Replace("{script}", s))
+                                    });
+            }
+            foreach (string s in scriptNamesMany)
+            {
+                Console.WriteLine($"Running {s}");
+                RunScript(
+                        Path.Combine(scriptsFolder, s + ".py"),
+                        new string[] {
+                                                Path.Combine(dataFolder, fileNameMany),
+                                                Path.Combine(outputFolder, scriptOutputFileNameTemplate.Replace("{script}", s))
+                                    });
+            }
+        }
 
         //private string ProcessPics(string picFileNameTemplate, string caption)
         //{

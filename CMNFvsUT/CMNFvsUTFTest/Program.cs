@@ -461,8 +461,11 @@ namespace CMNFvsUTFTest
                     testEnv.Gamma = (t, x, y) => y;
                     filters.Add((FilterType.BCMNF, BCMNFFileName));
                 }
-                if (o.MCMNF) filters.Add((FilterType.MCMNF, string.Empty));
-
+                if (o.MCMNF)
+                {
+                    testEnv.nMCMNF = o.MCMNFTrainCount;
+                    filters.Add((FilterType.MCMNF, string.Empty));
+                }
                 if (o.UKF) filters.Add((FilterType.UKFNoOptimization, UKFFileName));
                 if (o.UKFStepwiseNelderMead) filters.Add((FilterType.UKFStepwise, UKFOptStepwiseNMFileName));
                 if (o.UKFIntegralNelderMead) filters.Add((FilterType.UKFIntegral, UKFOptIntegralNMFileName));
@@ -481,7 +484,7 @@ namespace CMNFvsUTFTest
                     testEnv.GenerateBundleSamples(o.T, o.TrainCount, o.OutputFolder);
                 else
                 {
-                    testEnv.Initialize(o.T, o.TrainCount, o.MCMNFTrainCount, o.OutputFolder, filters, o.Save, o.Load);
+                    testEnv.Initialize(o.T, o.TrainCount, o.OutputFolder, filters, o.Save, o.Load);
 
                     if (o.Aggregate)
                     {
