@@ -10,6 +10,10 @@ using System.Threading.Tasks;
 
 namespace MathNetExtensions
 {
+    /// <summary>
+    /// Random vector with given expextation and covariance matrix generator.
+    /// </summary>
+    /// <typeparam name="T">Continuous distribution</typeparam>
     public class RandomVector<T> where T: IContinuousDistribution, new()
     {
         private T[] distrs;

@@ -7,6 +7,9 @@ using MathNet.Numerics.Random;
 
 namespace MathNetExtensions
 {
+    /// <summary>
+    /// Random variable generator for a finite discrete distribution given by its probability measure
+    /// </summary>
     public static class FiniteDiscreteDistribution
     {
         private static double _tolerance = 1E-6;

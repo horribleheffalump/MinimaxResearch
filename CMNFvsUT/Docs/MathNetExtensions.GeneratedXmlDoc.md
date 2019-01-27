@@ -14,6 +14,13 @@
 
 
 ---
+## Type FiniteDiscreteDistribution
+
+ Random variable generator for a finite discrete distribution given by its probability measure 
+
+
+
+---
 ## Type RandomOptimizer
 
  Random shoot optimizer: inputs of the objective function are randomly sampled and the best sample is chosen as optimal 
@@ -45,6 +52,16 @@ Samples generation and objective function calculation is performed asynchronousl
 |OutputFileName: |Output file name|
 **Returns**: Returns touple (best found objective value, sample with the best found objective value)
 
+
+
+---
+## Type RandomVector`1
+
+ Random vector with given expextation and covariance matrix generator. 
+
+|Name | Description |
+|-----|------|
+|T: |Continuous distribution|
 
 
 ---
