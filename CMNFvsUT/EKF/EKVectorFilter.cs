@@ -10,6 +10,13 @@ using System.Threading.Tasks;
 
 namespace EKF
 {
+    /// <summary>
+    /// <para>Extended Kalman filter for a model x_{t+1} = Phi_1(x_t) + Phi_2(x_t) W_t, y_t = Psi_1(x_t) + Psi_2(x_t) Nu_t, W_t ~ (M_w, R_w), Nu_t ~ (M_nu, R_nu)</para>
+    /// <para>Usage:</para>
+    /// <para>Provide system dynamics and observations functions Phi1, Phi2, Psi1, and Psi2 as well as their derivatives dPhi and dPsi.</para>
+    /// <para>If the derivatives are not provided, the original function is considered linear and its derivative is a constant matrix which is calculated columnwise.</para>
+    /// <para>A particular funcion may be provided for the prediction and its covariance calculation. That is made for the continuous dynamics case, where predicted covariance estimate kTilde is calculated as a solution to the Riccati equation</para>
+    /// </summary>
     public class ExtendedKalmanFilter
     {
         private Func<int, Vector<double>, Vector<double>> Phi1; // Phi1(t, X)
@@ -25,7 +32,7 @@ namespace EKF
         public Vector<double> MNu;
         public Matrix<double> DNu;
 
-        // if a specific funcion is provided we use it for the prediction and its covariance calculation. 
+        // if a particular funcion is provided we use it for the prediction and its covariance calculation. 
         // This is for the continuous dynamics case, where predicted covariance estimate kTilde is calculated as a solution to the Riccati equation
         Func<int, Vector<double>, Matrix<double>, (Vector<double>, Matrix<double>)> Predict = null;
         public ExtendedKalmanFilter(Func<int, Vector<double>, Vector<double>> Phi1,
