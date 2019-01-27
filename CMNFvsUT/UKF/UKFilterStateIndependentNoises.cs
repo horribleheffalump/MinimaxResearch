@@ -12,7 +12,7 @@ using MathNet.Numerics.Optimization;
 namespace UKF
 {
     /// <summary>
-    /// All methods from UKFilter.cs are duplicated for the case whern Phi_2 and Psi_2 are ident
+    /// In UKFilterStateIndependentNoises.cs all methods from UKFilter.cs are duplicated for the case whern Phi_2 and Psi_2 are ident
     /// </summary>
     public partial class UKFilter
     {

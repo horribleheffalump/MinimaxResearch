@@ -10,6 +10,10 @@ using System.Threading.Tasks;
 
 namespace CMNF
 {
+    /// <summary>
+    /// <para>Modified version of Conditionnaly Minimax Nonlinear filter for a model x_{t+1} = Phi_1(x_t) + Phi_2(x_t) W_t, y_t = Psi_1(x_t) + Psi_2(x_t) Nu_t, W_t ~ (M_w, R_w), Nu_t ~ (M_nu, R_nu)</para>
+    /// <para>In contrast with original CMNF does not need initialization. The filter coefficients are calculated online.</para>
+    /// </summary>
     public class ModifiedCMNFilter
     {
         private Func<int, Vector<double>, Vector<double>> Phi1; // Phi1(t, X)

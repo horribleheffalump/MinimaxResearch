@@ -11,6 +11,13 @@ using System.Xml.Schema;
 
 namespace CMNF
 {
+    /// <summary>
+    /// <para>A version of Conditionnaly Minimax Nonlinear filter for a model x_{t+1} = Phi_1(x_t) + Phi_2(x_t) W_t, y_t = Psi_1(x_t) + Psi_2(x_t) Nu_t, W_t ~ (M_w, R_w), Nu_t ~ (M_nu, R_nu)</para>
+    /// <para>Usage:</para>
+    /// <para>initialize with EstimateParameters method, which calculates the filter coefficients using the provided test set.</para>
+    /// <para>After the filter is initialized, it may be used for estimate  step-by-step calculation</para>
+    /// <para>This version takes into account some additional correlations</para>
+    /// </summary>
     public class BCMNFilter
     {
         Func<int, Vector<double>, Vector<double>> Alpha;

@@ -14,6 +14,8 @@ The train and test trajectory bundles may be different. That is, the arrays of d
 
 
 
+ In UKFilterStateIndependentNoises.cs all methods from UKFilter.cs are duplicated for the case whern Phi_2 and Psi_2 are ident 
+
 
 
 ---
