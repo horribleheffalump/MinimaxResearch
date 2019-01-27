@@ -2,13 +2,7 @@
 
 ## Type UKFilter
 
-Unscented Kalman filter for the model x_{t+1} = Phi(x_t) + W_t, y[t] = Psi(x_t) + Nu_t, where
-
-- x_t is unobservable state with disturbances W_t ~ (0, R_w) in dynamics,
-
-- y_t - observations with noise Nu_t ~ (0, R_nu).
-
- and for the model x_{t+1} = Phi_1(x_t) + Phi_2(x_t) W_t, y_t = Psi_1(x_t) + Psi_2(x_t) Nu_t, W_t ~ (M_w, R_w), Nu_t ~ (M_nu, R_nu)
+Unscented Kalman filter for a model x_{t+1} = Phi_1(x_t) + Phi_2(x_t) W_t, y_t = Psi_1(x_t) + Psi_2(x_t) Nu_t, W_t ~ (M_w, R_w), Nu_t ~ (M_nu, R_nu)
 
 Usage:
 
@@ -16,9 +10,7 @@ Usage:
 
 - calculate the estimate step by step with UKFilter.Step
 
-It should be noted, that the train and test trajectory bundles may be different. That is, the arrays of discrete vector models may vary for the step of the unscented transform parameters optimization and the step of unscented transform filter calculation.
-
-TODO: all methods are duplicated. NOT COOL.
+The train and test trajectory bundles may be different. That is, the arrays of discrete vector models may vary for the step of the unscented transform parameters optimization and the step of unscented transform filter calculation.
 
 
 
@@ -36,28 +28,9 @@ TODO: all methods are duplicated. NOT COOL.
 
 
 ---
-#### Method UKFilter.EstimateParameters(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Func{MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double},System.Int32,NonlinearSystem.DiscreteVectorModel[],MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.String)
-
- For the model x_{t+1} = Phi(x_t) + W_t y_t = Psi(x_t) + Nu_t Calls the static unscented transform parameters optimization procedure and saves the result into the utParamsForecast and utParamsCorrection properties. The way how to define the UT params is determined by the optimizationType property. The optimization method is determined by the optimizationMethod property. 
-
-|Name | Description |
-|-----|------|
-|Phi: |State transformation: a nonlinear function which determines the dynamics: x_{t+1} = Phi(x_t) + W_t|
-|Psi: |Observations transformation: a nonlinear function which determines the relation between the state and the observations: y[t] = Psi(x_t) + Nu_t|
-|Rw: |Covariance matrix of the state disturbances|
-|Rnu: |Convariance matrix of the observation noise|
-|Crit: |Criterion: a function which determines the quality of the unscented Kalman filter. Depends on the sample covariance of the estimation error on the last step: val = Crit(Cov(X_T-Xhat_T,X_T-Xhat_T)) |
-|T: |The upper bound of the observation interval|
-|models: |Discrete vector model samples|
-|xhat0: |Initial condition|
-|DX0Hat: |Initial condition covariance|
-|outputFolder: |The results are saved to this folder in file "UT_optimization_{type}.txt"|
-
-
----
 #### Method UKFilter.EstimateParameters(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Func{MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double},System.Int32,NonlinearSystem.DiscreteVectorModel[],MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.String)
 
- For the model x_{t+1} = Phi_1(x_t) + Phi_2(x_t) W_t y_t = Psi_1(x_t) + Psi_2(x_t) Nu_t Calls the static unscented transform parameters optimization procedure and saves the result into the utParamsForecast and utParamsCorrection properties. The way how to define the UT params is determined by the optimizationType property. The optimization method is determined by the optimizationMethod property. 
+ Calls the static unscented transform parameters optimization procedure and saves the result into the utParamsForecast and utParamsCorrection properties. The way how to define the UT params is determined by the optimizationType property. The optimization method is determined by the optimizationMethod property. 
 
 |Name | Description |
 |-----|------|
@@ -80,7 +53,7 @@ TODO: all methods are duplicated. NOT COOL.
 ---
 #### Method UKFilter.EstimateParametersStepwise(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Func{MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double},System.Int32,NonlinearSystem.DiscreteVectorModel[],MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.String)
 
- For the model x_{t+1} = Phi_1(x_t) + Phi_2(x_t) W_t y_t = Psi_1(x_t) + Psi_2(x_t) Nu_t Calls the static unscented transform parameters stepwise optimization procedure and saves the result into the utParamsForecast and utParamsCorrection properties. The way how to define the UT params is determined by the optimizationType property. The optimization method is determined by the optimizationMethod property. 
+ Calls the static unscented transform parameters stepwise optimization procedure and saves the result into the utParamsForecast and utParamsCorrection properties. The way how to define the UT params is determined by the optimizationType property. The optimization method is determined by the optimizationMethod property. 
 
 |Name | Description |
 |-----|------|
@@ -128,30 +101,9 @@ TODO: all methods are duplicated. NOT COOL.
 
 
 ---
-#### Method UKFilter.CalculateSampleCriterion(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Func{MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},System.Int32,NonlinearSystem.DiscreteVectorModel[],MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double})
-
- For the model x_{t+1} = Phi(x_t) + W_t y_t = Psi(x_t) + Nu_t Wrapper for CalculateCriterionValue function. Calculates the criterion value given the provided unscented transform parameters for the forecast and the correction phases. 
-
-|Name | Description |
-|-----|------|
-|Phi: |State transformation: a nonlinear function which determines the dynamics: x_{t+1} = Phi(x_t) + W_t|
-|Psi: |Observations transformation: a nonlinear function which determines the relation between the state and the observations: y[t] = Psi(x_t) + Nu_t|
-|Rw: |Covariance matrix of the state disturbances|
-|Rnu: |Convariance matrix of the observation noise|
-|Crit: |Criterion: a function which determines the quality of the unscented Kalman filter. Depends on the sample covariance of the estimation error on the last step: val = Crit(Cov(X_T-Xhat_T,X_T-Xhat_T)) |
-|P: |Sample vector to be transformed to a couple of the unscented transfrom parameters|
-|T: |The upper bound of the observation interval|
-|models: |Discrete vector model samples|
-|xhat0: |Initial condition|
-|DX0Hat: |Initial condition covariance|
-**Returns**: The criterion value for the unscented transfrom parameters obtained from the sample vactor
-
-
-
----
 #### Method UKFilter.CalculateSampleCriterion(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Func{MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},System.Int32,NonlinearSystem.DiscreteVectorModel[],MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double})
 
- For the model x_{t+1} = Phi_1(x_t) + Phi_2(x_t) W_t y_t = Psi_1(x_t) + Psi_2(x_t) Nu_t Wrapper for CalculateCriterionValue function. Calculates the criterion value given the provided unscented transform parameters for the forecast and the correction phases. 
+ Wrapper for CalculateCriterionValue function. Calculates the criterion value given the provided unscented transform parameters for the forecast and the correction phases. 
 
 |Name | Description |
 |-----|------|
@@ -176,7 +128,7 @@ TODO: all methods are duplicated. NOT COOL.
 ---
 #### Method UKFilter.CalculateSampleStepwiseCriterion(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Func{MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},System.Int32,NonlinearSystem.DiscreteVectorModel[],MathNet.Numerics.LinearAlgebra.Vector{System.Double}[],MathNet.Numerics.LinearAlgebra.Matrix{System.Double}[])
 
- For the model x_{t+1} = Phi_1(x_t) + Phi_2(x_t) W_t y_t = Psi_1(x_t) + Psi_2(x_t) Nu_t Wrapper for CalculateStepwiseCriterionValue function. Calculates the criterion value given the provided unscented transform parameters for the forecast and the correction phases. 
+ Wrapper for CalculateStepwiseCriterionValue function. Calculates the criterion value given the provided unscented transform parameters for the forecast and the correction phases. 
 
 |Name | Description |
 |-----|------|
@@ -199,31 +151,9 @@ TODO: all methods are duplicated. NOT COOL.
 
 
 ---
-#### Method UKFilter.CalculateCriterionValue(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Func{MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double},UKF.UTParams,UKF.UTParams,System.Int32,NonlinearSystem.DiscreteVectorModel[],MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double})
-
- For the model x_{t+1} = Phi(x_t) + W_t y_t = Psi(x_t) + Nu_t Calculates the criterion value for the estimate given the particular unscented transform parameters 
-
-|Name | Description |
-|-----|------|
-|Phi: |State transformation: a nonlinear function which determines the dynamics: x_{t+1} = Phi(x_t) + W_t|
-|Psi: |Observations transformation: a nonlinear function which determines the relation between the state and the observations: y[t] = Psi(x_t) + Nu_t|
-|Rw: |Covariance matrix of the state disturbances|
-|Rnu: |Convariance matrix of the observation noise|
-|Crit: |Criterion: a function which determines the quality of the unscented Kalman filter. Depends on the sample covariance of the estimation error on the last step: val = Crit(Cov(X_T-Xhat_T,X_T-Xhat_T)) |
-|p1: |Unscented transfrom parameters for the forecast phase|
-|p2: |Unscented transfrom parameters for the correction phase|
-|T: |The upper bound of the observation interval|
-|models: |Discrete vector model samples|
-|xhat0: |Initial condition|
-|DX0Hat: |Initial condition covariance|
-**Returns**: The criterion value for the particular unscented transform parameters
-
-
-
----
 #### Method UKFilter.CalculateCriterionValue(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Func{MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double},UKF.UTParams,UKF.UTParams,System.Int32,NonlinearSystem.DiscreteVectorModel[],MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double})
 
- For the model x_{t+1} = Phi_1(x_t) + Phi_2(x_t) W_t y_t = Psi_1(x_t) + Psi_2(x_t) Nu_t Calculates the criterion value for the estimate given the particular unscented transform parameters 
+ Calculates the criterion value for the estimate given the particular unscented transform parameters 
 
 |Name | Description |
 |-----|------|
@@ -249,7 +179,7 @@ TODO: all methods are duplicated. NOT COOL.
 ---
 #### Method UKFilter.CalculateStepwiseCriterionValue(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Func{MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Double},UKF.UTParams,UKF.UTParams,System.Int32,NonlinearSystem.DiscreteVectorModel[],MathNet.Numerics.LinearAlgebra.Vector{System.Double}[],MathNet.Numerics.LinearAlgebra.Matrix{System.Double}[])
 
- For the model x_{t+1} = Phi_1(x_t) + Phi_2(x_t) W_t y_t = Psi_1(x_t) + Psi_2(x_t) Nu_t Calculates the criterion value for the estimate on a particular step given the particular unscented transform parameters 
+ Calculates the criterion value for the estimate on a particular step given the particular unscented transform parameters 
 
 |Name | Description |
 |-----|------|
@@ -273,49 +203,9 @@ TODO: all methods are duplicated. NOT COOL.
 
 
 ---
-#### Method UKFilter.Step(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},UKF.UTParams,UKF.UTParams,System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double})
-
- For the model x_{t+1} = Phi(x_t) + W_t y_t = Psi(x_t) + Nu_t Performs a step of Unscented Kalman Filter given the particular unscented transform parameters for forecast and correction phases. 
-
-|Name | Description |
-|-----|------|
-|Phi: |State transformation: a nonlinear function which determines the dynamics: x_{t+1} = Phi(x_t) + W_t|
-|Psi: |Observations transformation: a nonlinear function which determines the relation between the state and the observations: y_t = Psi(x_t) + Nu_t|
-|Rw: |Covariance matrix of the state disturbances|
-|Rnu: |Convariance matrix of the observation noise|
-|p1: |Unscented transfrom parameters for the forecast phase|
-|p2: |Unscented transfrom parameters for the correction phase|
-|t: |Current step time instant|
-|y: |Observations on the current step|
-|xHat_: |Estimate on the previous step|
-|P_: |Approximated previous step error covariance|
-|xHat: |Returns: current step estimate|
-|P: |Returns: approximated current step error covariance|
-
-
----
-#### Method UKFilter.Step(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double})
-
- For the model x_{t+1} = Phi(x_t) + W_t y_t = Psi(x_t) + Nu_t Performs a step of Unscented Kalman Filter with fixed transformation parameters for forecast and correction phases (utParamsForecast and utParamsCorrection must be initialized) 
-
-|Name | Description |
-|-----|------|
-|Phi: |State transformation: a nonlinear function which determines the dynamics: x_{t+1} = Phi(x_t) + W_t|
-|Psi: |Observations transformation: a nonlinear function which determines the relation between the state and the observations: y[t] = Psi(x_t) + Nu_t|
-|Rw: |Covariance matrix of the state disturbances|
-|Rnu: |Convariance matrix of the observation noise|
-|t: |Current step time instant|
-|y: |Observations on the current step|
-|xHat_: |Estimate on the previous step|
-|P_: |Approximated previous step error covariance|
-|xHat: |Returns: current step estimate|
-|P: |Returns: approximated current step error covariance|
-
-
----
 #### Method UKFilter.Step(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},UKF.UTParams,UKF.UTParams,System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double})
 
- For the model x_{t+1} = Phi_1(x_t) + Phi_2(x_t) W_t y_t = Psi_1(x_t) + Psi_2(x_t) Nu_t Performs a step of Unscented Kalman Filter given the particular unscented transform parameters for forecast and correction phases 
+ Performs a step of Unscented Kalman Filter given the particular unscented transform parameters for forecast and correction phases 
 
 |Name | Description |
 |-----|------|
@@ -340,7 +230,7 @@ TODO: all methods are duplicated. NOT COOL.
 ---
 #### Method UKFilter.Step(System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double}},System.Func{System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double}},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double},System.Int32,MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Vector{System.Double},MathNet.Numerics.LinearAlgebra.Matrix{System.Double})
 
- For the model x_{t+1} = Phi_1(x_t) + Phi_2(x_t) W_t y_t = Psi_1(x_t) + Psi_2(x_t) Nu_t Performs a step of Unscented Kalman Filter with fixed transformation parameters for forecast and correction phases (utParamsForecast and utParamsCorrection must be initialized) 
+ Performs a step of Unscented Kalman Filter with fixed transformation parameters for forecast and correction phases (utParamsForecast and utParamsCorrection must be initialized) 
 
 |Name | Description |
 |-----|------|

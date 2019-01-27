@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="UKFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UKFilterStateIndependentNoises.cs" />
     <Compile Include="UTCommon.cs" />
     <Compile Include="UTStaticEstimate.cs" />
   </ItemGroup>
