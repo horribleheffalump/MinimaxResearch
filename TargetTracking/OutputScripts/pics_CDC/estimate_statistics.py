@@ -17,8 +17,10 @@ colormap = {
     'EKF': 'green', 
     'Dummy' : 'grey'}
 
-folder = "D:/results/test_DX0_2000_0.01/"
-folder_EKF = "D:/results/test_DX0_50_0.01/"
+folder = "D:/Наука/_Статьи/__в работе/2019 - CDC - УМНФ/results_CDC/test_DX0_2000_0.01/"
+folder_EKF = "D:/Наука/_Статьи/__в работе/2019 - CDC - УМНФ/results_CDC/test_DX0_50_0.01/"
+#folder = "D:/results/test_DX0_2000_0.01/"
+#folder_EKF = "D:/results/test_DX0_50_0.01/"
 
 fig = plt.figure(num=None, figsize=(9, 6), dpi=300)
 #plt.subplots_adjust(left=0.05, bottom=0.05, right=0.95, top=0.95, hspace=0.1)
@@ -67,7 +69,7 @@ for i in range (0,5):
     for p in filters:
         if p == "BCMNF":
             ax[i].plot(data['t'][zero:T], np.sqrt(data[p+'_mKHat'][zero:T]), c=colormap[p],  linestyle='-', linewidth=4.0, alpha=0.3, label= 'theory ' + p)
-        ax[i].plot(data['t'][zero:T], np.sqrt(data[p+'_DError'][zero:T]), c=colormap[p],  linestyle='-', linewidth=1.5, label= 's ' + p)
+        ax[i].plot(data['t'][zero:T], np.sqrt(data[p+'_DError'][zero:T] + np.square(data[p+'_mError'][zero:T])), c=colormap[p],  linestyle='-', linewidth=1.5, label= 's ' + p)
         if p != "EKF":
             maxD = max( maxD, np.max(np.sqrt(data[p+'_DError'][zero:T])))
             minM = min( minM, np.min(data[p+'_mError'][zero:T]))
@@ -88,10 +90,10 @@ for p in filters:
     if p == "Dummy": pp = "trivial"
     if p == "BCMNF": pp = "CMNF"
 
-    ax_legend.plot([],[], c=colormap[p],  linestyle=':', linewidth=1.0, label = '$m^i$ ' + pp)
-    ax_legend.plot([],[], c=colormap[p],  linestyle='-', linewidth=1.5, label= '$\sigma^i$ ' + pp)
+    ax_legend.plot([],[], c=colormap[p],  linestyle=':', linewidth=1.0, label = '$m^i$ bias ' + pp)
+    ax_legend.plot([],[], c=colormap[p],  linestyle='-', linewidth=1.5, label= '$\sigma^i$ RMSE ' + pp)
     if p == "BCMNF": 
-        ax_legend.plot([],[], c=colormap[p],  linestyle='-', linewidth=4.0, alpha=0.3, label= '$\sigma^i$ CMNF theory')
+        ax_legend.plot([],[], c=colormap[p],  linestyle='-', linewidth=4.0, alpha=0.3, label= '$\sigma^i$ SD CMNF theory')
 
 ax_legend.set_axis_off()
 ax_legend.legend(loc=9, frameon=False)

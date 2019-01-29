@@ -22,7 +22,8 @@ colormap = {
 if (len(sys.argv)) > 1:
     folder = sys.argv[1]
 else:
-    folder = "D:/results/test_DX0_2000_0.01/"
+    folder = "D:/Наука/_Статьи/__в работе/2019 - CDC - УМНФ/results_CDC/test_DX0_2000_0.01/"
+    #folder = "D:/results/test_DX0_2000_0.01/"
 
 for file in glob.glob(folder + "TargetTracking_sample*_0.txt"):
     if file.find('_obs') < 0 :
@@ -86,7 +87,7 @@ for file in glob.glob(folder + "TargetTracking_sample*_0.txt"):
         sigma=2000/1000
 
         plt.plot([],[], color='blue', alpha = 0.1, linewidth=4.0, label ='Starting area')
-        c = plt.Circle(start, 3*sigma, color='blue', alpha = 0.1)
+        c = plt.Circle(start, np.sqrt(6)*sigma, color='blue', alpha = 0.1)
         ax.add_artist(c)
         ax.axis('equal')
 
