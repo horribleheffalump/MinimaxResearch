@@ -42,6 +42,27 @@
     <Compile Include="arctantests.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="pics_AiT-8pics\multiplypoints.py" />
+    <Compile Include="pics_AiT-8pics\pic01_surface.py" />
+    <Compile Include="pics_AiT-8pics\pic02a_cubicsensor_func.py" />
+    <Compile Include="pics_AiT-8pics\pic02b_cubicsensor_hist.py" />
+    <Compile Include="pics_AiT-8pics\pic03a_cubicsensor_process_sample.py" />
+    <Compile Include="pics_AiT-8pics\pic03b_cubicsensor_estimate_sample.py" />
+    <Compile Include="pics_AiT-8pics\pic03dc_cubicsensor_estimate_statistics.py" />
+    <Compile Include="pics_AiT-8pics\pic04a_invpropgood_process_sample.py" />
+    <Compile Include="pics_AiT-8pics\pic04b_invpropgood_estimate_sample.py" />
+    <Compile Include="pics_AiT-8pics\pic04cd_invpropgood_estimate_statistics.py" />
+    <Compile Include="pics_AiT-8pics\pic05a_invpropbad_process_sample.py" />
+    <Compile Include="pics_AiT-8pics\pic05b_invpropbad_estimate_sample.py" />
+    <Compile Include="pics_AiT-8pics\pic05cd_invpropbad_estimate_statistics.py" />
+    <Compile Include="pics_AiT-8pics\pic06a_logreg_process_sample.py" />
+    <Compile Include="pics_AiT-8pics\pic06b_logreg_estimate_sample.py" />
+    <Compile Include="pics_AiT-8pics\pic06cd_logreg_estimate_statistics.py" />
+    <Compile Include="pics_AiT-8pics\pic07a_switchingobs_process_sample.py" />
+    <Compile Include="pics_AiT-8pics\pic07b_switchingobs_estimate_sample.py" />
+    <Compile Include="pics_AiT-8pics\pic07cd_switchingobs_estimate_statistics.py" />
+    <Compile Include="pics_AiT-8pics\pic08a_sampled_hist_MCMNF.py" />
+    <Compile Include="pics_AiT-8pics\pic08b_sampled_estimate_statistics_MCMNF.py" />
     <Compile Include="pics_AiT\multiplypoints.py" />
     <Compile Include="pics_AiT\pic01_surface.py" />
     <Compile Include="pics_AiT\pic02a_cubicsensor_func.py" />
@@ -94,11 +115,14 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="pics_AiT-8pics\" />
+    <Folder Include="pics_AiT-8pics\__pycache__\" />
     <Folder Include="pics_IEEPR\" />
     <Folder Include="pics_AiT\" />
     <Folder Include="pics_AiT\__pycache__\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="pics_AiT-8pics\__pycache__\multiplypoints.cpython-36.pyc" />
     <Content Include="pics_AiT\__pycache__\multiplypoints.cpython-36.pyc" />
   </ItemGroup>
   <PropertyGroup>
